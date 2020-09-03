@@ -5,3 +5,6 @@ Cards are sorted by their due number, so fields of a card with bigger due number
 a card with lower due number.
 
 ![Menu](https://raw.githubusercontent.com/Ajatt-Tools/mergecards/master/images/menu.webp)
+
+## Installation
+The addon can be installed from [Ankiweb](https://ankiweb.net/shared/info/1425504015).
