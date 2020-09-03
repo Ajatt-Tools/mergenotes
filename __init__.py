@@ -1,9 +1,9 @@
 from aqt import mw
-from aqt.qt import *
 from anki.lang import _
 from aqt import gui_hooks
 from aqt.utils import tooltip
 from aqt.browser import Browser
+
 
 def addSecondToFirst(note1, note2):
     for (name, value) in note2.items():
@@ -16,21 +16,13 @@ def addSecondToFirst(note1, note2):
 
 # Col is a collection of cards, cids are the ids of the cards to merge
 def mergeSelectedCardFields(cids):
-
-    # Point i to the second last element in list
-    i = len(cids) - 2
+    cards = [mw.col.getCard(cid) for cid in cids]
+    cards = sorted(cards, key = lambda card: card.due)
+    notes = [card.note() for card in cards]
 
     # Iterate till 1st element and keep on decrementing i
-    while i >= 0:
-        card1 = mw.col.getCard(cids[i])
-        note1 = card1.note()
-
-        card2 = mw.col.getCard(cids[i + 1])
-        note2 = card2.note()
-
-        addSecondToFirst(note1, note2)
-
-        i -= 1
+    for i in reversed(range(len(cids) - 1)):
+        addSecondToFirst(notes[i], notes[i+1])
 
 
 def onBrowserMergeCards(self):
@@ -55,6 +47,7 @@ def onBrowserSetupMenus(self):
     menu = self.form.menu_Cards
     a = menu.addAction("Merge fields")
     a.triggered.connect(self.onBrowserMergeCards)
+
 
 Browser.onBrowserMergeCards = onBrowserMergeCards
 gui_hooks.browser_menus_did_init.append(onBrowserSetupMenus)
