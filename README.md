@@ -7,4 +7,7 @@ a card with lower due number.
 ![Menu](https://raw.githubusercontent.com/Ajatt-Tools/mergecards/master/images/menu.webp)
 
 ## Installation
-The addon can be installed from [Ankiweb](https://ankiweb.net/shared/info/1425504015).
+The addon can be installed from [Ankiweb](https://ankiweb.net/shared/info/1425504015), or manually:
+```
+git clone 'https://github.com/Ajatt-Tools/mergenotes.git' ~/.local/share/Anki2/addons21/mergenotes
+```
