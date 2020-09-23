@@ -8,7 +8,7 @@ from aqt.browser import Browser
 
 def addSecondToFirst(note1: Note, note2: Note) -> None:
     for (name, value) in note2.items():
-        # don't wast cycles on empty fields
+        # don't waste cycles on empty fields
         if value and name in note1:
             note1[name] += note2[name]
 
