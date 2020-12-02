@@ -13,6 +13,10 @@ def addSecondToFirst(note1: Note, note2: Note) -> None:
         if value and name in note1 and note1[name] != note2[name]:
             note1[name] += note2[name]
 
+    for tag in note2.tags:
+        if not note1.hasTag(tag):
+            note1.addTag(tag)
+
     note1.flush()
 
 
