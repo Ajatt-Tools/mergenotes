@@ -6,6 +6,11 @@ from aqt.utils import tooltip
 from aqt.browser import Browser
 
 
+def getConfig() -> dict:
+    cfg: dict = mw.addonManager.getConfig(__name__)
+    cfg['delete_original_notes']: bool = cfg['delete_original_notes'] if 'delete_original_notes' in cfg else False
+    return cfg
+
 def addSecondToFirst(note1: Note, note2: Note) -> None:
     for (name, value) in note2.items():
         # don't waste cycles on empty fields
@@ -58,8 +63,6 @@ def onBrowserSetupMenus(self) -> None:
     a.triggered.connect(self.onBrowserMergeCards)
 
 
-config = mw.addonManager.getConfig(__name__)
-config['delete_original_notes'] = config['delete_original_notes'] if 'delete_original_notes' in config else False
-
+config = getConfig()
 Browser.onBrowserMergeCards = onBrowserMergeCards
 gui_hooks.browser_menus_did_init.append(onBrowserSetupMenus)
