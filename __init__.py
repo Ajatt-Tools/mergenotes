@@ -30,6 +30,9 @@ def mergeSelectedCardFields(cids: list) -> None:
     for i in reversed(range(len(cids) - 1)):
         addSecondToFirst(notes[i], notes[i + 1])
 
+    if config['delete_original_notes']:
+        mw.col.remNotes(list(set([note.id for note in notes[1:]])))
+
 
 def onBrowserMergeCards(self) -> None:
     cids = self.selectedCards()
@@ -54,6 +57,9 @@ def onBrowserSetupMenus(self) -> None:
     a = menu.addAction("Merge fields")
     a.triggered.connect(self.onBrowserMergeCards)
 
+
+config = mw.addonManager.getConfig(__name__)
+config['delete_original_notes'] = config['delete_original_notes'] if 'delete_original_notes' in config else False
 
 Browser.onBrowserMergeCards = onBrowserMergeCards
 gui_hooks.browser_menus_did_init.append(onBrowserSetupMenus)
