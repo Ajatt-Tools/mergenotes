@@ -1,3 +1,4 @@
 {
-  "delete_original_notes": true
+  "shortcut": "Ctrl+Alt+M",
+  "delete_original_notes": true,
 }

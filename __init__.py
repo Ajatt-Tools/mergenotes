@@ -1,7 +1,7 @@
 from anki.notes import Note
 from aqt import mw
 from anki.lang import _
-from aqt import gui_hooks
+from aqt import gui_hooks, QKeySequence
 from aqt.utils import tooltip
 from aqt.browser import Browser
 
@@ -9,6 +9,7 @@ from aqt.browser import Browser
 def getConfig() -> dict:
     cfg: dict = mw.addonManager.getConfig(__name__)
     cfg['delete_original_notes']: bool = cfg['delete_original_notes'] if 'delete_original_notes' in cfg else False
+    cfg['shortcut']: str = cfg['shortcut'] if 'shortcut' in cfg else "Ctrl+Alt+M"
     return cfg
 
 def addSecondToFirst(note1: Note, note2: Note) -> None:
@@ -60,6 +61,7 @@ def onBrowserMergeCards(self) -> None:
 def onBrowserSetupMenus(self) -> None:
     menu = self.form.menu_Cards
     a = menu.addAction("Merge fields")
+    a.setShortcut(QKeySequence(config['shortcut']))
     a.triggered.connect(self.onBrowserMergeCards)
 
 
