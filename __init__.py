@@ -9,6 +9,7 @@ from aqt.browser import Browser
 def getConfig() -> dict:
     cfg: dict = mw.addonManager.getConfig(__name__)
     cfg['delete_original_notes']: bool = cfg['delete_original_notes'] if 'delete_original_notes' in cfg else False
+    cfg['reverse_order'] = cfg['reverse_order'] if 'reverse_order' in cfg else False
     cfg['field_separator']: str = cfg['field_separator'] if 'field_separator' in cfg else ""
     cfg['shortcut']: str = cfg['shortcut'] if 'shortcut' in cfg else "Ctrl+Alt+M"
     return cfg
@@ -30,7 +31,7 @@ def addSecondToFirst(note1: Note, note2: Note) -> None:
 # Col is a collection of cards, cids are the ids of the cards to merge
 def mergeSelectedCardFields(cids: list) -> None:
     cards = [mw.col.getCard(cid) for cid in cids]
-    cards = sorted(cards, key=lambda card: card.due)
+    cards = sorted(cards, key=lambda card: card.due, reverse=config['reverse_order'])
     notes = [card.note() for card in cards]
 
     # Iterate till 1st element and keep on decrementing i
