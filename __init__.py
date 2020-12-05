@@ -6,6 +6,10 @@ from aqt.utils import tooltip
 from aqt.browser import Browser
 
 
+######################################################################
+# Utils
+######################################################################
+
 def getConfig() -> dict:
     cfg: dict = mw.addonManager.getConfig(__name__)
     cfg['delete_original_notes']: bool = cfg['delete_original_notes'] if 'delete_original_notes' in cfg else False
@@ -65,6 +69,20 @@ def onBrowserSetupMenus(self) -> None:
     a = menu.addAction("Merge fields")
     a.setShortcut(QKeySequence(config['shortcut']))
     a.triggered.connect(self.onBrowserMergeCards)
+
+######################################################################
+# UI Layout
+######################################################################
+
+
+######################################################################
+# Settings window
+######################################################################
+
+
+######################################################################
+# Entry point
+######################################################################
 
 
 config = getConfig()
