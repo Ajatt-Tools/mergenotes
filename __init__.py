@@ -9,6 +9,7 @@ from aqt.browser import Browser
 def getConfig() -> dict:
     cfg: dict = mw.addonManager.getConfig(__name__)
     cfg['delete_original_notes']: bool = cfg['delete_original_notes'] if 'delete_original_notes' in cfg else False
+    cfg['field_separator']: str = cfg['field_separator'] if 'field_separator' in cfg else ""
     cfg['shortcut']: str = cfg['shortcut'] if 'shortcut' in cfg else "Ctrl+Alt+M"
     return cfg
 
@@ -17,7 +18,7 @@ def addSecondToFirst(note1: Note, note2: Note) -> None:
         # don't waste cycles on empty fields
         # don't merge equal fields
         if value and name in note1 and note1[name] != note2[name]:
-            note1[name] += note2[name]
+            note1[name] += config['field_separator'] + note2[name]
 
     for tag in note2.tags:
         if not note1.hasTag(tag):
