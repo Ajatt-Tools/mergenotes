@@ -28,11 +28,11 @@ def mergeTags(note1: Note, note2: Note) -> None:
 
 
 def mergeFields(note1: Note, note2: Note) -> None:
-    for (name, value) in note2.items():
+    for (field_name, field_value) in note2.items():
         # don't waste cycles on empty fields
         # don't merge equal fields
-        if value and name in note1 and note1[name] != note2[name]:
-            note1[name] += config['field_separator'] + note2[name]
+        if field_value and field_name in note1 and note1[field_name] != note2[field_name]:
+            note1[field_name] += config['field_separator'] + note2[field_name]
 
 
 # Adds content of note2 to note1
@@ -48,33 +48,36 @@ def addSecondToFirst(note1: Note, note2: Note) -> None:
 # Col is a collection of cards, cids are the ids of the cards to merge
 def mergeSelectedCardFields(cids: list) -> None:
     cards = [mw.col.getCard(cid) for cid in cids]
-    cards = sorted(cards, key=lambda card: card.due, reverse=config['reverse_order'])
+    # sort cards by their type, then by due number,
+    # so that new cards are always in the beginning of the list,
+    # mimicking the way cards are presented in the Anki Browser
+    cards = sorted(cards, key=lambda card: (card.type, card.due), reverse=config['reverse_order'])
     notes = [card.note() for card in cards]
 
     # Iterate till 1st element and keep on decrementing i
     for i in reversed(range(len(cids) - 1)):
         addSecondToFirst(notes[i], notes[i + 1])
 
-    if config['delete_original_notes']:
-        mw.col.remNotes(list(set([note.id for note in notes[1:]])))
+    if config['delete_original_notes'] is True:
+        mw.col.remNotes([note.id for note in notes][1:])
 
 
-def onBrowserMergeCards(self) -> None:
-    cids = self.selectedCards()
+def onBrowserMergeCards(browser: Browser) -> None:
+    cids = browser.selectedCards()
 
     if len(cids) < 2:
         tooltip("At least two cards must be selected.")
         return
 
-    self.model.beginReset()
-    self.mw.checkpoint(_("Merge fields of selected cards"))
+    browser.model.beginReset()
+    browser.mw.checkpoint(_("Merge fields of selected cards"))
 
     mergeSelectedCardFields(cids)
 
-    self.model.endReset()
-    self.mw.reset()
+    browser.model.endReset()
+    browser.mw.reset()
 
-    tooltip(f"{len(cids)} cards merged.", parent=self)
+    tooltip(f"{len(cids)} cards merged.", parent=browser)
 
 
 def onMergeFieldsSettings() -> None:
