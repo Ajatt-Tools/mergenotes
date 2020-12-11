@@ -137,8 +137,18 @@ class DialogUI(QDialog):
         return hbox
 
     def addToolTips(self):
-        pass  # TODO
-        # .setToolTip()
+        self.fieldSeparatorLineEdit.setToolTip(
+            "This string is inserted between the merged fields.\n"
+            "Empty by default.\n"
+            "Common options would be to change it to a single space: \" \",\n"
+            "or to a linebreak: \"<br>\"."
+        )
+        self.deleteOriginalNotesCheckBox.setToolTip("Delete redundant notes after merging.")
+        self.mergeTagsCheckBox.setToolTip("Merge tags of selected notes in addition to contents of fields.")
+        self.reverseOrderCheckBox.setToolTip(
+            "Sort cards in reverse, so a card with the biggest due number\n"
+            "will receive the content of other selected cards."
+        )
 
 
 ######################################################################
