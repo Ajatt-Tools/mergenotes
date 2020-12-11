@@ -23,6 +23,8 @@ def getConfig() -> dict:
 
 def mergeTags(note1: Note, note2: Note) -> None:
     for tag in note2.tags:
+        if tag == 'leech':
+            continue
         if not note1.hasTag(tag):
             note1.addTag(tag)
 
