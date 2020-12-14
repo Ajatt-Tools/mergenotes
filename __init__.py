@@ -13,11 +13,11 @@ from aqt.browser import Browser
 
 def getConfig() -> dict:
     cfg: dict = mw.addonManager.getConfig(__name__)
-    cfg['delete_original_notes']: bool = cfg['delete_original_notes'] if 'delete_original_notes' in cfg else False
-    cfg['merge_tags']: bool = cfg['merge_tags'] if 'merge_tags' in cfg else True
-    cfg['reverse_order'] = cfg['reverse_order'] if 'reverse_order' in cfg else False
-    cfg['field_separator']: str = cfg['field_separator'] if 'field_separator' in cfg else ""
-    cfg['shortcut']: str = cfg['shortcut'] if 'shortcut' in cfg else "Ctrl+Alt+M"
+    cfg['delete_original_notes']: bool = cfg.get('delete_original_notes', False)
+    cfg['merge_tags']: bool = cfg.get('merge_tags', True)
+    cfg['reverse_order'] = cfg.get('reverse_order', False)
+    cfg['field_separator']: str = cfg.get('field_separator', "")
+    cfg['shortcut']: str = cfg.get('shortcut', "Ctrl+Alt+M")
     return cfg
 
 
