@@ -95,6 +95,7 @@ class DialogUI(QDialog):
     def __init__(self):
         QDialog.__init__(self, parent=mw)
         self.fieldSeparatorLineEdit = QLineEdit()
+        self.orderingComboBox = QComboBox()
         self.deleteOriginalNotesCheckBox = QCheckBox("Delete original notes")
         self.mergeTagsCheckBox = QCheckBox("Merge tags")
         self.reverseOrderCheckBox = QCheckBox("Reverse order")
@@ -110,17 +111,19 @@ class DialogUI(QDialog):
     def setupOuterLayout(self):
         vbox = QVBoxLayout()
         vbox.setSpacing(10)
-        vbox.addLayout(self.createFieldSeparatorInputBox())
+        vbox.addLayout(self.createUpperGroup())
         vbox.addLayout(self.createCheckBoxGroup())
         vbox.addStretch(1)
         vbox.addLayout(self.createBottomGroup())
         return vbox
 
-    def createFieldSeparatorInputBox(self):
-        hbox = QHBoxLayout()
-        hbox.addWidget(QLabel("Field Separator:"))
-        hbox.addWidget(self.fieldSeparatorLineEdit)
-        return hbox
+    def createUpperGroup(self):
+        grid = QGridLayout()
+        grid.addWidget(QLabel("Field Separator:"), 0, 0)
+        grid.addWidget(self.fieldSeparatorLineEdit, 0, 1)
+        grid.addWidget(QLabel("Ordering:"), 1, 0)
+        grid.addWidget(self.orderingComboBox, 1, 1)
+        return grid
 
     def createCheckBoxGroup(self):
         vbox = QVBoxLayout()
