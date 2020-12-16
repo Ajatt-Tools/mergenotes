@@ -181,7 +181,9 @@ class DialogUI(QDialog):
         self.deleteOriginalNotesCheckBox.setToolTip("Delete redundant notes after merging.")
         self.mergeTagsCheckBox.setToolTip("Merge tags of selected notes in addition to contents of fields.")
         self.reverseOrderCheckBox.setToolTip(
-            "Sort cards in reverse, so a card with the biggest due number\n"
+            "Sort cards in reverse.\n"
+            "For Due ordering this would mean\n"
+            "that a card with the biggest due number\n"
             "will receive the content of other selected cards."
         )
 

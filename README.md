@@ -1,3 +1,5 @@
+![Menu](https://user-images.githubusercontent.com/69171671/101429753-99032900-38fb-11eb-8b8d-06720ee7ef9a.png)
+
 # mergenotes
 
 ![GitHub](https://img.shields.io/github/license/Ajatt-Tools/mergenotes)
@@ -6,10 +8,15 @@
 
 Suppose you have a subs2srs deck. Usually many sentences in the deck are split between multiple notes.
 This addon adds a button to the card browser that allows you to merge contents of selected cards.
-Cards are sorted by their due number, so fields of a card with bigger due number will be added to
-a card with lower due number.
 
-![Menu](https://user-images.githubusercontent.com/69171671/101429753-99032900-38fb-11eb-8b8d-06720ee7ef9a.png)
+## Features
+1) Change settings before merging.
+To open quick settings, click **Edit → Merge Fields Settings** in the Anki Browser.
+2) Ability to specify `fields separator`.
+You can decide what string is inserted as a separator between the merged fields.
+3) Merge tags of selected cards.
+4) Delete original notes after merging.
+5) Sort cards by their `Due` number or `Sort Field` before performing a merge.
 
 ## Installation
 
