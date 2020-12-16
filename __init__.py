@@ -1,3 +1,4 @@
+from anki.cards import Card
 from anki.notes import Note
 from aqt import mw
 from anki.lang import _
@@ -11,6 +12,33 @@ from aqt.browser import Browser
 # Utils
 ######################################################################
 
+def dueKey(card: Card) -> tuple:
+    # sort cards by their type, then by due number,
+    # so that new cards are always in the beginning of the list,
+    # mimicking the way cards are presented in the Anki Browser
+    return card.type, card.due
+
+
+def sortFieldKey(card: Card) -> str:
+    note: Note = card.note()
+    return note.values()[note.model()['sortf']]
+
+
+class OrderingChoices:
+    __choices = {
+        "Due": dueKey,
+        "Sort Field": sortFieldKey
+    }
+
+    @classmethod
+    def getKey(cls, key):
+        return cls.__choices.get(key)
+
+    @classmethod
+    def asList(cls):
+        return [*cls.__choices.keys()]
+
+
 def getConfig() -> dict:
     cfg: dict = mw.addonManager.getConfig(__name__)
     cfg['delete_original_notes']: bool = cfg.get('delete_original_notes', False)
@@ -18,6 +46,13 @@ def getConfig() -> dict:
     cfg['reverse_order'] = cfg.get('reverse_order', False)
     cfg['field_separator']: str = cfg.get('field_separator', "")
     cfg['shortcut']: str = cfg.get('shortcut', "Ctrl+Alt+M")
+    cfg['ordering']: str = cfg.get('ordering', "Due")
+
+    possible_keys = OrderingChoices.asList()
+    if not cfg['ordering'] in possible_keys:
+        print('Wrong ordering:', cfg['ordering'])
+        cfg['ordering'] = possible_keys[0]
+
     return cfg
 
 
@@ -50,10 +85,7 @@ def addSecondToFirst(note1: Note, note2: Note) -> None:
 # Col is a collection of cards, cids are the ids of the cards to merge
 def mergeSelectedCardFields(cids: list) -> None:
     cards = [mw.col.getCard(cid) for cid in cids]
-    # sort cards by their type, then by due number,
-    # so that new cards are always in the beginning of the list,
-    # mimicking the way cards are presented in the Anki Browser
-    cards = sorted(cards, key=lambda card: (card.type, card.due), reverse=config['reverse_order'])
+    cards = sorted(cards, key=OrderingChoices.getKey(config['ordering']), reverse=config['reverse_order'])
     notes = [card.note() for card in cards]
 
     # Iterate till 1st element and keep on decrementing i
@@ -161,14 +193,19 @@ class DialogUI(QDialog):
 class MergeFieldsSettingsWindow(DialogUI):
     def __init__(self):
         super().__init__()
+        self.populateOrderingComboBox()
         self.setDefaultValues()
         self.connectUIElements()
+
+    def populateOrderingComboBox(self):
+        self.orderingComboBox.addItems(OrderingChoices.asList())
 
     def setDefaultValues(self):
         self.fieldSeparatorLineEdit.setText(config['field_separator'])
         self.deleteOriginalNotesCheckBox.setChecked(config['delete_original_notes'])
         self.mergeTagsCheckBox.setChecked(config['merge_tags'])
         self.reverseOrderCheckBox.setChecked(config['reverse_order'])
+        self.orderingComboBox.setCurrentText(config['ordering'])
 
     def connectUIElements(self):
         self.okButton.clicked.connect(self.onConfirm)
@@ -179,6 +216,7 @@ class MergeFieldsSettingsWindow(DialogUI):
         config['delete_original_notes']: bool = self.deleteOriginalNotesCheckBox.isChecked()
         config['merge_tags']: bool = self.mergeTagsCheckBox.isChecked()
         config['reverse_order']: bool = self.reverseOrderCheckBox.isChecked()
+        config['ordering']: str = self.orderingComboBox.currentText()
         mw.addonManager.writeConfig(__name__, config)
         self.close()
 

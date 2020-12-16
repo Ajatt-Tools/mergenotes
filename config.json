@@ -1,6 +1,7 @@
 {
   "field_separator": "",
   "shortcut": "Ctrl+Alt+M",
+  "ordering": "Due",
   "delete_original_notes": true,
   "merge_tags": true,
   "reverse_order": false
