@@ -6,8 +6,9 @@
 [![Patreon](https://img.shields.io/badge/support-patreon-orange)](https://www.patreon.com/tatsumoto_ren)
 [![Matrix](https://img.shields.io/badge/Japanese_study_room-join-green.svg)](https://app.element.io/#/room/#djt:g33k.se)
 
-Suppose you have a subs2srs deck. Usually many sentences in the deck are split between multiple notes.
-This addon adds a button to the card browser that allows you to merge contents of selected cards.
+Suppose you have a subs2srs deck.
+Due to the way subs2srs works usually many sentences in the deck are split between multiple notes.
+This addon adds a button to the Anki Browser that allows you to merge contents of selected cards.
 
 ## Features
 1) Change settings before merging.
@@ -16,7 +17,7 @@ To open quick settings, click **Edit → Merge Fields Settings** in the Anki Bro
 You can decide what string is inserted as a separator between the merged fields.
 3) Merge tags of selected cards.
 4) Delete original notes after merging.
-5) Sort cards by their `Due` number or `Sort Field` before performing a merge.
+5) Choose merging order: by `Due` number or `Sort Field`.
 
 ## Installation
 
