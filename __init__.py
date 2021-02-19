@@ -43,7 +43,8 @@ def getConfig() -> dict:
     cfg: dict = mw.addonManager.getConfig(__name__)
     cfg['delete_original_notes']: bool = cfg.get('delete_original_notes', False)
     cfg['merge_tags']: bool = cfg.get('merge_tags', True)
-    cfg['reverse_order'] = cfg.get('reverse_order', False)
+    cfg['only_empty']: bool = cfg.get('only_empty', False)
+    cfg['reverse_order']: bool = cfg.get('reverse_order', False)
     cfg['field_separator']: str = cfg.get('field_separator', "")
     cfg['shortcut']: str = cfg.get('shortcut', "Ctrl+Alt+M")
     cfg['ordering']: str = cfg.get('ordering', "Due")
@@ -67,8 +68,15 @@ def mergeTags(note1: Note, note2: Note) -> None:
 def mergeFields(note1: Note, note2: Note) -> None:
     for (field_name, field_value) in note2.items():
         # don't waste cycles on empty fields
+        # field_name should exist in note1
+        if not (field_value and field_name in note1):
+            continue
+
+        if config['only_empty'] is True and note1[field_name]:
+            continue
+
         # don't merge equal fields
-        if field_value and field_name in note1 and note1[field_name] != note2[field_name]:
+        if note1[field_name] != note2[field_name]:
             note1[field_name] += config['field_separator'] + note2[field_name]
 
 
@@ -131,6 +139,7 @@ class DialogUI(QDialog):
         self.deleteOriginalNotesCheckBox = QCheckBox("Delete original notes")
         self.mergeTagsCheckBox = QCheckBox("Merge tags")
         self.reverseOrderCheckBox = QCheckBox("Reverse order")
+        self.onlyEmptyCheckBox = QCheckBox("Only empty")
         self.okButton = QPushButton("Ok")
         self.cancelButton = QPushButton("Cancel")
         self._setupUI()
@@ -162,6 +171,7 @@ class DialogUI(QDialog):
         vbox.addWidget(self.deleteOriginalNotesCheckBox)
         vbox.addWidget(self.mergeTagsCheckBox)
         vbox.addWidget(self.reverseOrderCheckBox)
+        vbox.addWidget(self.onlyEmptyCheckBox)
         return vbox
 
     def createBottomGroup(self):
@@ -186,6 +196,7 @@ class DialogUI(QDialog):
             "that a card with the biggest due number\n"
             "will receive the content of other selected cards."
         )
+        self.onlyEmptyCheckBox.setToolTip("Merge only empty fields of the target notes, skip other fields.")
 
 
 ######################################################################
@@ -204,10 +215,12 @@ class MergeFieldsSettingsWindow(DialogUI):
 
     def setDefaultValues(self):
         self.fieldSeparatorLineEdit.setText(config['field_separator'])
+        self.orderingComboBox.setCurrentText(config['ordering'])
+
         self.deleteOriginalNotesCheckBox.setChecked(config['delete_original_notes'])
         self.mergeTagsCheckBox.setChecked(config['merge_tags'])
         self.reverseOrderCheckBox.setChecked(config['reverse_order'])
-        self.orderingComboBox.setCurrentText(config['ordering'])
+        self.onlyEmptyCheckBox.setChecked(config['only_empty'])
 
     def connectUIElements(self):
         self.okButton.clicked.connect(self.onConfirm)
@@ -215,10 +228,13 @@ class MergeFieldsSettingsWindow(DialogUI):
 
     def onConfirm(self):
         config['field_separator']: str = self.fieldSeparatorLineEdit.text()
+        config['ordering']: str = self.orderingComboBox.currentText()
+
         config['delete_original_notes']: bool = self.deleteOriginalNotesCheckBox.isChecked()
         config['merge_tags']: bool = self.mergeTagsCheckBox.isChecked()
         config['reverse_order']: bool = self.reverseOrderCheckBox.isChecked()
-        config['ordering']: str = self.orderingComboBox.currentText()
+        config['only_empty']: bool = self.onlyEmptyCheckBox.isChecked()
+
         mw.addonManager.writeConfig(__name__, config)
         self.close()
 

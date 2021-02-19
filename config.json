@@ -4,5 +4,6 @@
   "ordering": "Due",
   "delete_original_notes": true,
   "merge_tags": true,
-  "reverse_order": false
+  "reverse_order": false,
+  "only_empty": false
 }
