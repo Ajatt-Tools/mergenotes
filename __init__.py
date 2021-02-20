@@ -12,34 +12,34 @@ from aqt.browser import Browser
 # Utils
 ######################################################################
 
-def dueKey(card: Card) -> tuple:
+def due_key(card: Card) -> tuple:
     # sort cards by their type, then by due number,
     # so that new cards are always in the beginning of the list,
     # mimicking the way cards are presented in the Anki Browser
     return card.type, card.due
 
 
-def sortFieldKey(card: Card) -> str:
+def sort_field_key(card: Card) -> str:
     note: Note = card.note()
     return note.values()[note.model()['sortf']]
 
 
 class OrderingChoices:
     __choices = {
-        "Due": dueKey,
-        "Sort Field": sortFieldKey
+        "Due": due_key,
+        "Sort Field": sort_field_key
     }
 
     @classmethod
-    def getKey(cls, key):
+    def get_key(cls, key):
         return cls.__choices.get(key)
 
     @classmethod
-    def asList(cls):
+    def as_list(cls):
         return [*cls.__choices.keys()]
 
 
-def getConfig() -> dict:
+def get_config() -> dict:
     cfg: dict = mw.addonManager.getConfig(__name__)
     cfg['delete_original_notes']: bool = cfg.get('delete_original_notes', False)
     cfg['merge_tags']: bool = cfg.get('merge_tags', True)
@@ -49,15 +49,14 @@ def getConfig() -> dict:
     cfg['shortcut']: str = cfg.get('shortcut', "Ctrl+Alt+M")
     cfg['ordering']: str = cfg.get('ordering', "Due")
 
-    possible_keys = OrderingChoices.asList()
-    if not cfg['ordering'] in possible_keys:
+    if not cfg['ordering'] in OrderingChoices.as_list():
         print('Wrong ordering:', cfg['ordering'])
-        cfg['ordering'] = possible_keys[0]
+        cfg['ordering'] = OrderingChoices.get_key("Due")
 
     return cfg
 
 
-def mergeTags(note1: Note, note2: Note) -> None:
+def merge_tags(note1: Note, note2: Note) -> None:
     for tag in note2.tags:
         if tag == 'leech':
             continue
@@ -65,7 +64,7 @@ def mergeTags(note1: Note, note2: Note) -> None:
             note1.addTag(tag)
 
 
-def mergeFields(note1: Note, note2: Note) -> None:
+def merge_fields(note1: Note, note2: Note) -> None:
     for (field_name, field_value) in note2.items():
         # don't waste cycles on empty fields
         # field_name should exist in note1
@@ -81,30 +80,30 @@ def mergeFields(note1: Note, note2: Note) -> None:
 
 
 # Adds content of note2 to note1
-def addSecondToFirst(note1: Note, note2: Note) -> None:
-    mergeFields(note1, note2)
+def append(note1: Note, note2: Note) -> None:
+    merge_fields(note1, note2)
 
     if config['merge_tags'] is True:
-        mergeTags(note1, note2)
+        merge_tags(note1, note2)
 
     note1.flush()
 
 
 # Col is a collection of cards, cids are the ids of the cards to merge
-def mergeSelectedCardFields(cids: list) -> None:
+def merge_cards_fields(cids: list) -> None:
     cards = [mw.col.getCard(cid) for cid in cids]
-    cards = sorted(cards, key=OrderingChoices.getKey(config['ordering']), reverse=config['reverse_order'])
+    cards = sorted(cards, key=OrderingChoices.get_key(config['ordering']), reverse=config['reverse_order'])
     notes = [card.note() for card in cards]
 
     # Iterate till 1st element and keep on decrementing i
     for i in reversed(range(len(cids) - 1)):
-        addSecondToFirst(notes[i], notes[i + 1])
+        append(notes[i], notes[i + 1])
 
     if config['delete_original_notes'] is True:
         mw.col.remNotes([note.id for note in notes][1:])
 
 
-def onBrowserMergeCards(browser: Browser) -> None:
+def on_merge_selected(browser: Browser) -> None:
     cids = browser.selectedCards()
 
     if len(cids) < 2:
@@ -114,7 +113,7 @@ def onBrowserMergeCards(browser: Browser) -> None:
     browser.model.beginReset()
     browser.mw.checkpoint(_("Merge fields of selected cards"))
 
-    mergeSelectedCardFields(cids)
+    merge_cards_fields(cids)
 
     browser.model.endReset()
     browser.mw.reset()
@@ -122,7 +121,7 @@ def onBrowserMergeCards(browser: Browser) -> None:
     tooltip(f"{len(cids)} cards merged.", parent=browser)
 
 
-def onMergeFieldsSettings() -> None:
+def on_open_settings() -> None:
     dialog = MergeFieldsSettingsWindow()
     dialog.exec_()
 
@@ -132,8 +131,8 @@ def onMergeFieldsSettings() -> None:
 ######################################################################
 
 class DialogUI(QDialog):
-    def __init__(self):
-        QDialog.__init__(self, parent=mw)
+    def __init__(self, *args, **kwargs):
+        super(DialogUI, self).__init__(parent=mw, *args, **kwargs)
         self.fieldSeparatorLineEdit = QLineEdit()
         self.orderingComboBox = QComboBox()
         self.deleteOriginalNotesCheckBox = QCheckBox("Delete original notes")
@@ -142,23 +141,23 @@ class DialogUI(QDialog):
         self.onlyEmptyCheckBox = QCheckBox("Only empty")
         self.okButton = QPushButton("Ok")
         self.cancelButton = QPushButton("Cancel")
-        self._setupUI()
+        self._setup_ui()
 
-    def _setupUI(self):
+    def _setup_ui(self):
         self.setWindowTitle('Merge Fields Settings')
-        self.setLayout(self.setupOuterLayout())
-        self.addToolTips()
+        self.setLayout(self.setup_outer_layout())
+        self.add_tooltips()
 
-    def setupOuterLayout(self):
+    def setup_outer_layout(self):
         vbox = QVBoxLayout()
         vbox.setSpacing(10)
-        vbox.addLayout(self.createUpperGroup())
-        vbox.addLayout(self.createCheckBoxGroup())
+        vbox.addLayout(self.create_top_group())
+        vbox.addLayout(self.create_checkbox_group())
         vbox.addStretch(1)
-        vbox.addLayout(self.createBottomGroup())
+        vbox.addLayout(self.create_bottom_group())
         return vbox
 
-    def createUpperGroup(self):
+    def create_top_group(self):
         grid = QGridLayout()
         grid.addWidget(QLabel("Field Separator:"), 0, 0)
         grid.addWidget(self.fieldSeparatorLineEdit, 0, 1)
@@ -166,7 +165,7 @@ class DialogUI(QDialog):
         grid.addWidget(self.orderingComboBox, 1, 1)
         return grid
 
-    def createCheckBoxGroup(self):
+    def create_checkbox_group(self):
         vbox = QVBoxLayout()
         vbox.addWidget(self.deleteOriginalNotesCheckBox)
         vbox.addWidget(self.mergeTagsCheckBox)
@@ -174,14 +173,14 @@ class DialogUI(QDialog):
         vbox.addWidget(self.onlyEmptyCheckBox)
         return vbox
 
-    def createBottomGroup(self):
+    def create_bottom_group(self):
         hbox = QHBoxLayout()
         hbox.addWidget(self.okButton)
         hbox.addWidget(self.cancelButton)
         hbox.addStretch()
         return hbox
 
-    def addToolTips(self):
+    def add_tooltips(self):
         self.fieldSeparatorLineEdit.setToolTip(
             "This string is inserted between the merged fields.\n"
             "Empty by default.\n"
@@ -206,14 +205,14 @@ class DialogUI(QDialog):
 class MergeFieldsSettingsWindow(DialogUI):
     def __init__(self):
         super().__init__()
-        self.populateOrderingComboBox()
-        self.setDefaultValues()
-        self.connectUIElements()
+        self.populate_ordering_combobox()
+        self.load_config_values()
+        self.connect_ui_elements()
 
-    def populateOrderingComboBox(self):
-        self.orderingComboBox.addItems(OrderingChoices.asList())
+    def populate_ordering_combobox(self):
+        self.orderingComboBox.addItems(OrderingChoices.as_list())
 
-    def setDefaultValues(self):
+    def load_config_values(self):
         self.fieldSeparatorLineEdit.setText(config['field_separator'])
         self.orderingComboBox.setCurrentText(config['ordering'])
 
@@ -222,11 +221,11 @@ class MergeFieldsSettingsWindow(DialogUI):
         self.reverseOrderCheckBox.setChecked(config['reverse_order'])
         self.onlyEmptyCheckBox.setChecked(config['only_empty'])
 
-    def connectUIElements(self):
-        self.okButton.clicked.connect(self.onConfirm)
-        self.cancelButton.clicked.connect(self.close)
+    def connect_ui_elements(self):
+        qconnect(self.cancelButton.clicked, self.close)
+        qconnect(self.okButton.clicked, self.on_confirm)
 
-    def onConfirm(self):
+    def on_confirm(self):
         config['field_separator']: str = self.fieldSeparatorLineEdit.text()
         config['ordering']: str = self.orderingComboBox.currentText()
 
@@ -236,7 +235,7 @@ class MergeFieldsSettingsWindow(DialogUI):
         config['only_empty']: bool = self.onlyEmptyCheckBox.isChecked()
 
         mw.addonManager.writeConfig(__name__, config)
-        self.close()
+        self.accept()
 
 
 ######################################################################
@@ -244,25 +243,25 @@ class MergeFieldsSettingsWindow(DialogUI):
 ######################################################################
 
 
-def setupContextMenu(browser: Browser) -> None:
+def setup_context_menu(browser: Browser) -> None:
     menu = browser.form.menu_Cards
     merge_fields_action = menu.addAction("Merge fields")
     merge_fields_action.setShortcut(QKeySequence(config['shortcut']))
-    merge_fields_action.triggered.connect(browser.onBrowserMergeCards)
+    qconnect(merge_fields_action.triggered, browser.onMergeSelected)
 
 
-def setupEditMenu(browser: Browser) -> None:
+def setup_edit_menu(browser: Browser) -> None:
     edit_menu = browser.form.menuEdit
     edit_menu.addSeparator()
     merge_fields_settings_action = edit_menu.addAction('Merge Fields Settings...')
-    merge_fields_settings_action.triggered.connect(onMergeFieldsSettings)
+    qconnect(merge_fields_settings_action.triggered, on_open_settings)
 
 
-def onBrowserSetupMenus(browser: Browser) -> None:
-    setupContextMenu(browser)
-    setupEditMenu(browser)
+def on_browser_setup_menus(browser: Browser) -> None:
+    setup_context_menu(browser)
+    setup_edit_menu(browser)
 
 
-config = getConfig()
-Browser.onBrowserMergeCards = onBrowserMergeCards
-gui_hooks.browser_menus_did_init.append(onBrowserSetupMenus)
+config = get_config()
+Browser.onMergeSelected = on_merge_selected
+gui_hooks.browser_menus_did_init.append(on_browser_setup_menus)
