@@ -195,7 +195,7 @@ class DialogUI(QDialog):
             "that a card with the biggest due number\n"
             "will receive the content of other selected cards."
         )
-        self.onlyEmptyCheckBox.setToolTip("Merge only empty fields of the target notes, skip other fields.")
+        self.onlyEmptyCheckBox.setToolTip("Copy only from non-empty fields to empty fields.")
 
 
 ######################################################################
