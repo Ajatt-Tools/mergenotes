@@ -2,9 +2,10 @@
 
 # mergenotes
 
+[![Rate on AnkiWeb](https://glutanimate.com/logos/ankiweb-rate.svg)](https://ankiweb.net/shared/info/1425504015)
+[![Patreon](https://img.shields.io/badge/patreon-support-orange)](https://www.patreon.com/bePatron?u=43555128)
+[![Matrix](https://img.shields.io/badge/chat-join-green.svg)](https://tatsumoto-ren.github.io/blog/join-our-community.html)
 ![GitHub](https://img.shields.io/github/license/Ajatt-Tools/mergenotes)
-[![Patreon](https://img.shields.io/badge/support-patreon-orange)](https://www.patreon.com/tatsumoto_ren)
-[![Matrix](https://img.shields.io/badge/Japanese_study_room-join-green.svg)](https://app.element.io/#/room/#djt:g33k.se)
 
 Suppose you have a subs2srs deck.
 Due to the way subs2srs works usually many sentences in the deck are split between multiple notes.
@@ -17,7 +18,9 @@ To open quick settings, click **Edit → Merge Fields Settings** in the Anki Bro
 You can decide what string is inserted as a separator between the merged fields.
 3) Merge tags of selected cards.
 4) Delete original notes after merging.
-5) Choose merging order: by `Due` number or `Sort Field`.
+5) Choose direction of the merge: by `Due` number or `Sort Field`.
+6) Merge in reverse order.
+6) Skip non-empty fields to perform a partial merge.
 
 ## Installation
 
