@@ -1,11 +1,13 @@
+from gettext import gettext as _
+from typing import Collection
+
 from anki.cards import Card
 from anki.notes import Note
-from aqt import mw
-from anki.lang import _
 from aqt import gui_hooks
+from aqt import mw
+from aqt.browser import Browser
 from aqt.qt import *
 from aqt.utils import tooltip
-from aqt.browser import Browser
 
 
 ######################################################################
@@ -90,7 +92,7 @@ def append(note1: Note, note2: Note) -> None:
 
 
 # Col is a collection of cards, cids are the ids of the cards to merge
-def merge_cards_fields(cids: list) -> None:
+def merge_cards_fields(cids: Collection) -> None:
     cards = [mw.col.getCard(cid) for cid in cids]
     cards = sorted(cards, key=OrderingChoices.get_key(config['ordering']), reverse=config['reverse_order'])
     notes = [card.note() for card in cards]
@@ -222,7 +224,7 @@ class MergeFieldsSettingsWindow(DialogUI):
         self.onlyEmptyCheckBox.setChecked(config['only_empty'])
 
     def connect_ui_elements(self):
-        qconnect(self.cancelButton.clicked, self.close)
+        qconnect(self.cancelButton.clicked, self.reject)
         qconnect(self.okButton.clicked, self.on_confirm)
 
     def on_confirm(self):
