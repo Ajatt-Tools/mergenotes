@@ -1,13 +1,17 @@
-from gettext import gettext as _
-from typing import Collection
+import typing
 
+from anki import collection
 from anki.cards import Card
+from anki.collection import OpChanges
 from anki.notes import Note
 from aqt import gui_hooks
 from aqt import mw
 from aqt.browser import Browser
+from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import tooltip
+
+ACTION_NAME = "Merge fields of selected cards"
 
 
 ######################################################################
@@ -88,21 +92,31 @@ def append(note1: Note, note2: Note) -> None:
     if config['merge_tags'] is True:
         merge_tags(note1, note2)
 
-    note1.flush()
+    mw.col.update_note(note1)
+
+
+def merge_notes_fields(notes: typing.Sequence[Note]):
+    if len(notes) > 1:
+        # Iterate till 1st element and keep on decrementing i
+        for i in reversed(range(len(notes) - 1)):
+            append(notes[i], notes[i + 1])
+
+        if config['delete_original_notes'] is True:
+            mw.col.remNotes([note.id for note in notes][1:])
 
 
 # Col is a collection of cards, cids are the ids of the cards to merge
-def merge_cards_fields(cids: Collection) -> None:
-    cards = [mw.col.getCard(cid) for cid in cids]
-    cards = sorted(cards, key=OrderingChoices.get_key(config['ordering']), reverse=config['reverse_order'])
-    notes = [card.note() for card in cards]
+def merge_cards_fields(col: collection.Collection, cids: typing.Collection) -> OpChanges:
+    pos = col.add_custom_undo_entry(ACTION_NAME)
 
-    # Iterate till 1st element and keep on decrementing i
-    for i in reversed(range(len(cids) - 1)):
-        append(notes[i], notes[i + 1])
+    sorted_cards = sorted(
+        (mw.col.getCard(cid) for cid in cids),
+        key=OrderingChoices.get_key(config['ordering']),
+        reverse=config['reverse_order']
+    )
+    merge_notes_fields([card.note() for card in sorted_cards])
 
-    if config['delete_original_notes'] is True:
-        mw.col.remNotes([note.id for note in notes][1:])
+    return col.merge_undo_entries(pos)
 
 
 def on_merge_selected(browser: Browser) -> None:
@@ -112,15 +126,11 @@ def on_merge_selected(browser: Browser) -> None:
         tooltip("At least two cards must be selected.")
         return
 
-    browser.model.beginReset()
-    browser.mw.checkpoint(_("Merge fields of selected cards"))
-
-    merge_cards_fields(cids)
-
-    browser.model.endReset()
-    browser.mw.reset()
-
-    tooltip(f"{len(cids)} cards merged.", parent=browser)
+    CollectionOp(
+        browser, lambda col: merge_cards_fields(col, cids)
+    ).success(
+        lambda: tooltip(f"{len(cids)} cards merged.", parent=browser)
+    ).run_in_background()
 
 
 def on_open_settings() -> None:
@@ -265,5 +275,8 @@ def on_browser_setup_menus(browser: Browser) -> None:
 
 
 config = get_config()
-Browser.onMergeSelected = on_merge_selected
-gui_hooks.browser_menus_did_init.append(on_browser_setup_menus)
+
+
+def init():
+    Browser.onMergeSelected = on_merge_selected
+    gui_hooks.browser_menus_did_init.append(on_browser_setup_menus)
