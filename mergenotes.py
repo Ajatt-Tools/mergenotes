@@ -1,9 +1,9 @@
-import typing
+from typing import Collection, Sequence, List
 
 from anki import collection
 from anki.cards import Card
 from anki.collection import OpChanges
-from anki.notes import Note
+from anki.notes import Note, NoteId
 from aqt import gui_hooks
 from aqt import mw
 from aqt.browser import Browser
@@ -66,12 +66,12 @@ def merge_tags(note1: Note, note2: Note) -> None:
     for tag in note2.tags:
         if tag == 'leech':
             continue
-        if not note1.hasTag(tag):
-            note1.addTag(tag)
+        if not note1.has_tag(tag):
+            note1.add_tag(tag)
 
 
 def merge_fields(note1: Note, note2: Note) -> None:
-    for (field_name, field_value) in note2.items():
+    for field_name, field_value in note2.items():
         # don't waste cycles on empty fields
         # field_name should exist in note1
         if not (field_value and field_name in note1):
@@ -81,8 +81,16 @@ def merge_fields(note1: Note, note2: Note) -> None:
             continue
 
         # don't merge equal fields
-        if note1[field_name] != note2[field_name]:
+        if note1[field_name] == note2[field_name]:
+            continue
+
+        note1[field_name] = note1[field_name].strip()
+        note2[field_name] = note2[field_name].strip()
+
+        if note1[field_name]:
             note1[field_name] += config['field_separator'] + note2[field_name]
+        else:
+            note1[field_name] += note2[field_name]
 
 
 # Adds content of note2 to note1
@@ -92,29 +100,31 @@ def append(note1: Note, note2: Note) -> None:
     if config['merge_tags'] is True:
         merge_tags(note1, note2)
 
-    mw.col.update_note(note1)
 
-
-def merge_notes_fields(notes: typing.Sequence[Note]):
+def merge_notes_fields(notes: Sequence[Note], nids_to_remove: List[NoteId]):
     if len(notes) > 1:
         # Iterate till 1st element and keep on decrementing i
         for i in reversed(range(len(notes) - 1)):
             append(notes[i], notes[i + 1])
 
         if config['delete_original_notes'] is True:
-            mw.col.remNotes([note.id for note in notes][1:])
+            nids_to_remove.extend([note.id for note in notes][1:])
 
 
 # Col is a collection of cards, cids are the ids of the cards to merge
-def merge_cards_fields(col: collection.Collection, cids: typing.Collection) -> OpChanges:
+def merge_cards_fields(col: collection.Collection, cids: Collection) -> OpChanges:
     pos = col.add_custom_undo_entry(ACTION_NAME)
+    nids_to_remove = []
 
     sorted_cards = sorted(
         (mw.col.getCard(cid) for cid in cids),
         key=OrderingChoices.get_key(config['ordering']),
         reverse=config['reverse_order']
     )
-    merge_notes_fields([card.note() for card in sorted_cards])
+    notes = [card.note() for card in sorted_cards]
+    merge_notes_fields(notes, nids_to_remove)
+    mw.col.update_notes(notes)
+    mw.col.remove_notes(nids_to_remove)
 
     return col.merge_undo_entries(pos)
 

@@ -26,9 +26,15 @@ def carefully_get_notes(nids: Sequence) -> List[Note]:
 
 def merge_op(col: Collection, dupes: List[Tuple[str, List[NoteId]]]) -> OpChanges:
     pos = col.add_custom_undo_entry(ACTION_NAME)
-    print(pos)
+    nids_to_remove = []
+    notes = []
+
     for dupe_string, dupe_nids in dupes:
-        merge_notes_fields(carefully_get_notes(dupe_nids))
+        notes.extend(chunk := carefully_get_notes(dupe_nids))
+        merge_notes_fields(chunk, nids_to_remove)
+
+    mw.col.update_notes(notes)
+    mw.col.remove_notes(nids_to_remove)
     return col.merge_undo_entries(pos)
 
 
