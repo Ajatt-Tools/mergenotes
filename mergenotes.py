@@ -98,7 +98,7 @@ def on_merge_selected(browser: Browser) -> None:
     CollectionOp(
         browser, lambda col: merge_cards_fields(col, cids)
     ).success(
-        lambda: tooltip(f"{len(cids)} cards merged.", parent=browser)
+        lambda out: tooltip(f"{len(cids)} cards merged.", parent=browser)
     ).run_in_background()
 
 
