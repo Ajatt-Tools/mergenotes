@@ -26,6 +26,8 @@ You can decide what string is inserted as a separator between the merged fields.
 Go to "Browser" > "Notes" > "Find duplicates",
 search duplicates and click "Merge duplicates" after the search has finished.
 
+![screenshot](https://user-images.githubusercontent.com/69171671/136308551-69415b22-bed3-41e6-8bb9-6668ea66907f.png)
+
 ## Installation
 
 The addon can be installed from [Ankiweb](https://ankiweb.net/shared/info/1425504015), or manually:
