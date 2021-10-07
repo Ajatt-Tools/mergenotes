@@ -26,8 +26,6 @@ You can decide what string is inserted as a separator between the merged fields.
 Go to "Browser" > "Notes" > "Find duplicates",
 search duplicates and click "Merge duplicates" after the search has finished.
 
-![screenshot](https://user-images.githubusercontent.com/69171671/136308551-69415b22-bed3-41e6-8bb9-6668ea66907f.png)
-
 ## Installation
 
 The addon can be installed from [Ankiweb](https://ankiweb.net/shared/info/1425504015), or manually:
@@ -45,6 +43,12 @@ Most of the settings can be accessed by opening the Anki Browser
 and selecting "Edit" > "Merge Fields Settings...".
 Before merging duplicates, I recommend enabling the "Delete original notes" option.
 
-## Demo
+## Screenshots
+
+Merge notes
 
 ![screenshot](https://user-images.githubusercontent.com/69171671/101195632-9d0f1c80-3657-11eb-986b-97ffc11a280c.png)
+
+Merge duplicates
+
+![screenshot](https://user-images.githubusercontent.com/69171671/136308551-69415b22-bed3-41e6-8bb9-6668ea66907f.png)
