@@ -36,8 +36,12 @@ git clone 'https://github.com/Ajatt-Tools/mergenotes.git' ~/.local/share/Anki2/a
 ## Configuration
 
 To configure the add-on, open the Anki Add-on Menu
-via `Tools -> Add-ons` and select `mergenotes`.
-Then click the `Config` button on the right-side of the screen.
+via "Tools" > "Add-ons" and select "mergenotes".
+Then click the "Config" button on the right-side of the screen.
+
+Most of the settings can be accessed by opening the Anki Browser
+and selecting "Edit" > "Merge Fields Settings...".
+Before merging duplicates, I recommend enabling the "Delete original notes" option.
 
 ## Demo
 
