@@ -47,7 +47,7 @@ Before merging duplicates, I recommend enabling the "Delete original notes" opti
 
 Merge notes
 
-![screenshot](https://user-images.githubusercontent.com/69171671/101195632-9d0f1c80-3657-11eb-986b-97ffc11a280c.png)
+![screenshot](https://user-images.githubusercontent.com/69171671/136309709-32089f42-4fcc-4214-8e14-525fdaddd9cb.png)
 
 Merge duplicates
 
