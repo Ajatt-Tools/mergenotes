@@ -12,6 +12,7 @@ Due to the way subs2srs works usually many sentences in the deck are split betwe
 This addon adds a button to the Anki Browser that allows you to merge contents of selected cards.
 
 ## Features
+
 1) Change settings before merging.
 To open quick settings, click **Edit → Merge Fields Settings** in the Anki Browser.
 2) Ability to specify `fields separator`.
@@ -20,7 +21,10 @@ You can decide what string is inserted as a separator between the merged fields.
 4) Delete original notes after merging.
 5) Choose direction of the merge: by `Due` number or `Sort Field`.
 6) Merge in reverse order.
-6) Skip non-empty fields to perform a partial merge.
+7) Skip non-empty fields to perform a partial merge.
+8) Merge duplicate notes.
+Go to "Browser" > "Notes" > "Find duplicates",
+search duplicates and click "Merge duplicates" after the search has finished.
 
 ## Installation
 
