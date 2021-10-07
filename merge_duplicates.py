@@ -13,7 +13,7 @@ import anki.errors
 from .config import OrderingChoices, config
 from .mergenotes import merge_notes_fields
 
-ACTION_NAME = "Merge duplicates"
+ACTION_NAME = "Merge Duplicates"
 
 
 def carefully_get_notes(nids: Sequence) -> List[Note]:
