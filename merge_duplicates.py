@@ -9,6 +9,8 @@ from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import tooltip
 import anki.errors
+
+from .config import OrderingChoices, config
 from .mergenotes import merge_notes_fields
 
 ACTION_NAME = "Merge duplicates"
@@ -24,16 +26,20 @@ def carefully_get_notes(nids: Sequence) -> List[Note]:
     return ret
 
 
+def sort_by_note_cards(note: Note):
+    return min(OrderingChoices.get_key(config['ordering'])(card) for card in note.cards())
+
+
 def merge_op(col: Collection, dupes: List[Tuple[str, List[NoteId]]]) -> OpChanges:
     pos = col.add_custom_undo_entry(ACTION_NAME)
-    nids_to_remove = []
-    notes = []
+    nids_to_remove, notes_to_update = [], []
 
     for dupe_string, dupe_nids in dupes:
-        notes.extend(chunk := carefully_get_notes(dupe_nids))
+        notes_to_update.extend(chunk := carefully_get_notes(dupe_nids))
+        chunk.sort(key=sort_by_note_cards, reverse=config['reverse_order'])
         merge_notes_fields(chunk, nids_to_remove)
 
-    mw.col.update_notes(notes)
+    mw.col.update_notes(notes_to_update)
     mw.col.remove_notes(nids_to_remove)
     return col.merge_undo_entries(pos)
 
