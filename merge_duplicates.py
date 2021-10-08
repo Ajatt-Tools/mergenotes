@@ -35,9 +35,10 @@ def merge_op(col: Collection, dupes: List[Tuple[str, List[NoteId]]]) -> OpChange
     nids_to_remove, notes_to_update = [], []
 
     for dupe_string, dupe_nids in dupes:
-        notes_to_update.extend(chunk := carefully_get_notes(dupe_nids))
-        chunk.sort(key=sort_by_note_cards, reverse=config['reverse_order'])
-        merge_notes_fields(chunk, nids_to_remove)
+        if len(chunk := carefully_get_notes(dupe_nids)) > 1:
+            notes_to_update.extend(chunk)
+            chunk.sort(key=sort_by_note_cards, reverse=config['reverse_order'])
+            merge_notes_fields(chunk, nids_to_remove)
 
     mw.col.update_notes(notes_to_update)
     mw.col.remove_notes(nids_to_remove)
