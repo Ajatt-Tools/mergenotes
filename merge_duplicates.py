@@ -11,7 +11,7 @@ from aqt.utils import tooltip
 import anki.errors
 
 from .config import OrderingChoices, config
-from .mergenotes import merge_notes_fields
+from .merge_notes import merge_notes_fields
 
 ACTION_NAME = "Merge Duplicates"
 

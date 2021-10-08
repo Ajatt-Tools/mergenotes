@@ -1,5 +1,5 @@
 from . import merge_duplicates
-from . import mergenotes
+from . import merge_notes
 
-mergenotes.init()
+merge_notes.init()
 merge_duplicates.init()
