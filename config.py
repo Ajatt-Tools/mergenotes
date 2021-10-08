@@ -1,5 +1,4 @@
 from anki.cards import Card
-from anki.notes import Note
 from aqt import mw
 
 
@@ -11,14 +10,13 @@ def due_key(card: Card) -> tuple:
 
 
 def sort_field_key(card: Card) -> str:
-    note: Note = card.note()
-    return note.values()[note.model()['sortf']]
+    return (note := card.note()).values()[note.model()['sortf']]
 
 
 class OrderingChoices:
     __choices = {
         "Due": due_key,
-        "Sort Field": sort_field_key
+        "Sort Field": sort_field_key,
     }
 
     @classmethod
