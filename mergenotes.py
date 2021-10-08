@@ -1,7 +1,6 @@
-from typing import Collection, Sequence, List
+from typing import Sequence, List
 
 from anki import collection
-from anki.cards import CardId
 from anki.collection import OpChanges
 from anki.notes import Note, NoteId
 from aqt import gui_hooks
@@ -72,20 +71,12 @@ def merge_notes_fields(notes: Sequence[Note], nids_to_remove: List[NoteId]):
 
 
 # Col is a collection of cards, cids are the ids of the cards to merge
-def merge_cards_fields(col: collection.Collection, cids: Collection[CardId]) -> OpChanges:
+def merge_cards_fields(col: collection.Collection, notes: Sequence[Note]) -> OpChanges:
     pos = col.add_custom_undo_entry(ACTION_NAME)
     nids_to_remove = []
-
-    sorted_cards = sorted(
-        (mw.col.getCard(cid) for cid in cids),
-        key=OrderingChoices.get_key(config['ordering']),
-        reverse=config['reverse_order']
-    )
-    notes = [card.note() for card in sorted_cards]
     merge_notes_fields(notes, nids_to_remove)
     mw.col.update_notes(notes)
     mw.col.remove_notes(nids_to_remove)
-
     return col.merge_undo_entries(pos)
 
 
@@ -96,11 +87,20 @@ def on_merge_selected(browser: Browser) -> None:
         tooltip("At least two cards must be selected.")
         return
 
-    CollectionOp(
-        browser, lambda col: merge_cards_fields(col, cids)
-    ).success(
-        lambda out: tooltip(f"{len(cids)} cards merged.", parent=browser)
-    ).run_in_background()
+    sorted_cards = sorted(
+        (mw.col.getCard(cid) for cid in cids),
+        key=OrderingChoices.get_key(config['ordering']),
+        reverse=config['reverse_order']
+    )
+
+    if len(notes := list(dict.fromkeys(card.note() for card in sorted_cards))) > 1:
+        CollectionOp(
+            browser, lambda col: merge_cards_fields(col, notes)
+        ).success(
+            lambda out: tooltip(f"{len(notes)} notes merged.", parent=browser)
+        ).run_in_background()
+    else:
+        tooltip("At least two distinct notes must be selected.")
 
 
 def on_open_settings() -> None:
