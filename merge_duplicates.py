@@ -16,7 +16,7 @@ from .mergenotes import merge_notes_fields
 ACTION_NAME = "Merge Duplicates"
 
 
-def carefully_get_notes(nids: Sequence) -> List[Note]:
+def carefully_get_notes(nids: Sequence[NoteId]) -> List[Note]:
     ret = []
     for nid in nids:
         try:

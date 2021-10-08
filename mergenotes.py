@@ -1,6 +1,7 @@
 from typing import Collection, Sequence, List
 
 from anki import collection
+from anki.cards import CardId
 from anki.collection import OpChanges
 from anki.notes import Note, NoteId
 from aqt import gui_hooks
@@ -71,7 +72,7 @@ def merge_notes_fields(notes: Sequence[Note], nids_to_remove: List[NoteId]):
 
 
 # Col is a collection of cards, cids are the ids of the cards to merge
-def merge_cards_fields(col: collection.Collection, cids: Collection) -> OpChanges:
+def merge_cards_fields(col: collection.Collection, cids: Collection[CardId]) -> OpChanges:
     pos = col.add_custom_undo_entry(ACTION_NAME)
     nids_to_remove = []
 
