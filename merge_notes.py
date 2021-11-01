@@ -1,6 +1,7 @@
 from typing import Sequence, List
 
 from anki import collection
+from anki.cards import Card
 from anki.collection import OpChanges
 from anki.notes import Note, NoteId
 from aqt import gui_hooks
@@ -80,6 +81,10 @@ def merge_cards_fields(col: collection.Collection, notes: Sequence[Note]) -> OpC
     return col.merge_undo_entries(pos)
 
 
+def notes_by_cards(cards: Sequence[Card]) -> Sequence[Note]:
+    return list({(note := card.note()).id: note for card in cards}.values())
+
+
 def on_merge_selected(browser: Browser) -> None:
     cids = browser.selectedCards()
 
@@ -93,7 +98,7 @@ def on_merge_selected(browser: Browser) -> None:
         reverse=config['reverse_order']
     )
 
-    if len(notes := list(dict.fromkeys(card.note() for card in sorted_cards))) > 1:
+    if len(notes := notes_by_cards(sorted_cards)) > 1:
         CollectionOp(
             browser, lambda col: merge_cards_fields(col, notes)
         ).success(
