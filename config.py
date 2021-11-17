@@ -45,8 +45,8 @@ def get_config() -> dict:
     return cfg
 
 
-config = get_config()
-
-
 def write_config():
     return mw.addonManager.writeConfig(__name__, config)
+
+
+config = get_config()

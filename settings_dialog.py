@@ -4,6 +4,7 @@ from aqt import mw
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 
+from .ajt_common import tweak_window
 from .config import config, OrderingChoices, write_config
 
 
@@ -27,6 +28,7 @@ class DialogUI(QDialog):
 
     def __init__(self, *args, **kwargs):
         super(DialogUI, self).__init__(parent=mw, *args, **kwargs)
+        self.setMinimumWidth(320)
         self.fieldSeparatorLineEdit = QLineEdit()
         self.orderingComboBox = QComboBox()
         self.checkboxes = dict(self.create_checkboxes())
@@ -92,6 +94,7 @@ class MergeFieldsSettingsWindow(DialogUI):
         self.populate_ordering_combobox()
         self.load_config_values()
         self.connect_ui_elements()
+        tweak_window(self)
         restoreGeom(self, self.name)
 
     def populate_ordering_combobox(self):
