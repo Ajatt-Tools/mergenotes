@@ -31,21 +31,21 @@ def merge_tags(note1: Note, note2: Note) -> None:
             note1.add_tag(tag)
 
 
+def fields_equal(content1: str, content2: str) -> bool:
+    if config['html_agnostic_comparison']:
+        return htmlToTextLine(content1) == htmlToTextLine(content2)
+    else:
+        return content1 == content2
+
+
 def merge_fields(note1: Note, note2: Note) -> None:
-    for field_name, field_value in note2.items():
-        # don't waste cycles on empty fields
-        # field_name should exist in note1
-        if not (field_value and field_name in note1):
-            continue
-
-        if config['only_empty'] is True and note1[field_name]:
-            continue
-
-        # don't merge equal fields
-        if note1[field_name] == note2[field_name]:
-            continue
-
-        if config.get('html_agnostic_comparison') and htmlToTextLine(note1[field_name]) == htmlToTextLine(note2[field_name]):
+    for field_name in note2.keys():
+        if any((
+                not note2[field_name],
+                field_name not in note1,
+                config['only_empty'] is True and note1[field_name],
+                fields_equal(note1[field_name], note2[field_name]),
+        )):
             continue
 
         note1[field_name] = note1[field_name].strip()
