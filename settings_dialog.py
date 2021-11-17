@@ -28,8 +28,7 @@ class DialogUI(QDialog):
         self.fieldSeparatorLineEdit = QLineEdit()
         self.orderingComboBox = QComboBox()
         self.checkboxes = dict(self.create_checkboxes())
-        self.okButton = QPushButton("Ok")
-        self.cancelButton = QPushButton("Cancel")
+        self.bottom_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self._setup_ui()
 
     def _setup_ui(self):
@@ -43,7 +42,7 @@ class DialogUI(QDialog):
         vbox.addLayout(self.create_top_group())
         vbox.addLayout(self.create_checkbox_group())
         vbox.addStretch(1)
-        vbox.addLayout(self.create_bottom_group())
+        vbox.addWidget(self.bottom_box)
         return vbox
 
     def create_top_group(self):
@@ -59,13 +58,6 @@ class DialogUI(QDialog):
         for widget in self.checkboxes.values():
             vbox.addWidget(widget)
         return vbox
-
-    def create_bottom_group(self):
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.okButton)
-        hbox.addWidget(self.cancelButton)
-        hbox.addStretch()
-        return hbox
 
     def add_tooltips(self):
         self.fieldSeparatorLineEdit.setToolTip(
@@ -109,8 +101,8 @@ class MergeFieldsSettingsWindow(DialogUI):
             widget.setChecked(config[key])
 
     def connect_ui_elements(self):
-        qconnect(self.cancelButton.clicked, self.reject)
-        qconnect(self.okButton.clicked, self.on_confirm)
+        qconnect(self.bottom_box.accepted, self.on_confirm)
+        qconnect(self.bottom_box.rejected, self.reject)
 
     def on_confirm(self):
         config['field_separator']: str = self.fieldSeparatorLineEdit.text()
