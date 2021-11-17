@@ -5,5 +5,6 @@
   "delete_original_notes": true,
   "merge_tags": true,
   "reverse_order": false,
-  "only_empty": false
+  "only_empty": false,
+  "html_agnostic_comparison": false
 }

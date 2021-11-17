@@ -4,6 +4,7 @@ from anki import collection
 from anki.cards import Card
 from anki.collection import OpChanges
 from anki.notes import Note, NoteId
+from anki.utils import htmlToTextLine
 from aqt import gui_hooks
 from aqt import mw
 from aqt.browser import Browser
@@ -42,6 +43,9 @@ def merge_fields(note1: Note, note2: Note) -> None:
 
         # don't merge equal fields
         if note1[field_name] == note2[field_name]:
+            continue
+
+        if config.get('html_agnostic_comparison') and htmlToTextLine(note1[field_name]) == htmlToTextLine(note2[field_name]):
             continue
 
         note1[field_name] = note1[field_name].strip()
