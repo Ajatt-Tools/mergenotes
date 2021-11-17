@@ -2,6 +2,7 @@ from typing import Iterable, Tuple
 
 from aqt import mw
 from aqt.qt import *
+from aqt.utils import restoreGeom, saveGeom
 
 from .config import config, OrderingChoices, write_config
 
@@ -11,6 +12,7 @@ from .config import config, OrderingChoices, write_config
 ######################################################################
 
 class DialogUI(QDialog):
+    name = "Merge Fields Settings"
     __checkbox_keys = (
         "delete_original_notes",
         "merge_tags",
@@ -32,7 +34,7 @@ class DialogUI(QDialog):
         self._setup_ui()
 
     def _setup_ui(self):
-        self.setWindowTitle('Merge Fields Settings')
+        self.setWindowTitle(self.name)
         self.setLayout(self.setup_outer_layout())
         self.add_tooltips()
 
@@ -90,6 +92,7 @@ class MergeFieldsSettingsWindow(DialogUI):
         self.populate_ordering_combobox()
         self.load_config_values()
         self.connect_ui_elements()
+        restoreGeom(self, self.name)
 
     def populate_ordering_combobox(self):
         self.orderingComboBox.addItems(OrderingChoices.as_list())
@@ -110,4 +113,5 @@ class MergeFieldsSettingsWindow(DialogUI):
         for key, widget in self.checkboxes.items():
             config[key] = widget.isChecked()
         write_config()
+        saveGeom(self, self.name)
         self.accept()
