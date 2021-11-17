@@ -1,3 +1,5 @@
+from typing import Iterable, Tuple
+
 from aqt import mw
 from aqt.qt import *
 
@@ -9,14 +11,23 @@ from .config import config, OrderingChoices, write_config
 ######################################################################
 
 class DialogUI(QDialog):
+    __checkbox_keys = (
+        "delete_original_notes",
+        "merge_tags",
+        "reverse_order",
+        "only_empty",
+        "html_agnostic_comparison",
+    )
+
+    def create_checkboxes(self) -> Iterable[Tuple[str, QCheckBox]]:
+        for key in self.__checkbox_keys:
+            yield key, QCheckBox(key.replace('_', ' ').capitalize())
+
     def __init__(self, *args, **kwargs):
         super(DialogUI, self).__init__(parent=mw, *args, **kwargs)
         self.fieldSeparatorLineEdit = QLineEdit()
         self.orderingComboBox = QComboBox()
-        self.deleteOriginalNotesCheckBox = QCheckBox("Delete original notes")
-        self.mergeTagsCheckBox = QCheckBox("Merge tags")
-        self.reverseOrderCheckBox = QCheckBox("Reverse order")
-        self.onlyEmptyCheckBox = QCheckBox("Only empty")
+        self.checkboxes = dict(self.create_checkboxes())
         self.okButton = QPushButton("Ok")
         self.cancelButton = QPushButton("Cancel")
         self._setup_ui()
@@ -45,10 +56,8 @@ class DialogUI(QDialog):
 
     def create_checkbox_group(self):
         vbox = QVBoxLayout()
-        vbox.addWidget(self.deleteOriginalNotesCheckBox)
-        vbox.addWidget(self.mergeTagsCheckBox)
-        vbox.addWidget(self.reverseOrderCheckBox)
-        vbox.addWidget(self.onlyEmptyCheckBox)
+        for widget in self.checkboxes.values():
+            vbox.addWidget(widget)
         return vbox
 
     def create_bottom_group(self):
@@ -65,15 +74,18 @@ class DialogUI(QDialog):
             "Common options would be to change it to a single space: \" \",\n"
             "or to a linebreak: \"<br>\"."
         )
-        self.deleteOriginalNotesCheckBox.setToolTip("Delete redundant notes after merging.")
-        self.mergeTagsCheckBox.setToolTip("Merge tags of selected notes in addition to contents of fields.")
-        self.reverseOrderCheckBox.setToolTip(
+        self.checkboxes['delete_original_notes'].setToolTip("Delete redundant notes after merging.")
+        self.checkboxes['merge_tags'].setToolTip("Merge tags of selected notes in addition to contents of fields.")
+        self.checkboxes['reverse_order'].setToolTip(
             "Sort cards in reverse.\n"
             "For Due ordering this would mean\n"
             "that a card with the biggest due number\n"
             "will receive the content of other selected cards."
         )
-        self.onlyEmptyCheckBox.setToolTip("Copy only from non-empty fields to empty fields.")
+        self.checkboxes['only_empty'].setToolTip("Copy only from non-empty fields to empty fields.")
+        self.checkboxes['html_agnostic_comparison'].setToolTip(
+            "Strip HTML tags from a pair of fields before performing a comparison."
+        )
 
 
 ######################################################################
@@ -93,11 +105,8 @@ class MergeFieldsSettingsWindow(DialogUI):
     def load_config_values(self):
         self.fieldSeparatorLineEdit.setText(config['field_separator'])
         self.orderingComboBox.setCurrentText(config['ordering'])
-
-        self.deleteOriginalNotesCheckBox.setChecked(config['delete_original_notes'])
-        self.mergeTagsCheckBox.setChecked(config['merge_tags'])
-        self.reverseOrderCheckBox.setChecked(config['reverse_order'])
-        self.onlyEmptyCheckBox.setChecked(config['only_empty'])
+        for key, widget in self.checkboxes.items():
+            widget.setChecked(config[key])
 
     def connect_ui_elements(self):
         qconnect(self.cancelButton.clicked, self.reject)
@@ -106,11 +115,7 @@ class MergeFieldsSettingsWindow(DialogUI):
     def on_confirm(self):
         config['field_separator']: str = self.fieldSeparatorLineEdit.text()
         config['ordering']: str = self.orderingComboBox.currentText()
-
-        config['delete_original_notes']: bool = self.deleteOriginalNotesCheckBox.isChecked()
-        config['merge_tags']: bool = self.mergeTagsCheckBox.isChecked()
-        config['reverse_order']: bool = self.reverseOrderCheckBox.isChecked()
-        config['only_empty']: bool = self.onlyEmptyCheckBox.isChecked()
-
+        for key, widget in self.checkboxes.items():
+            config[key] = widget.isChecked()
         write_config()
         self.accept()
