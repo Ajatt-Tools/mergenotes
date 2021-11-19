@@ -132,7 +132,7 @@ def setup_context_menu(browser: Browser) -> None:
 
 def setup_edit_menu(browser: Browser) -> None:
     edit_menu = browser.form.menuEdit
-    merge_fields_settings_action = edit_menu.addAction('Merge Fields Settings...')
+    merge_fields_settings_action = edit_menu.addAction(f"{MergeFieldsSettingsWindow.name}...")
     qconnect(merge_fields_settings_action.triggered, on_open_settings)
 
 

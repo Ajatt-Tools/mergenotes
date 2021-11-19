@@ -13,7 +13,7 @@ from .config import config, OrderingChoices, write_config
 ######################################################################
 
 class DialogUI(QDialog):
-    name = "Merge Fields Settings"
+    name = "Merge Fields Options"
     __checkbox_keys = (
         "delete_original_notes",
         "merge_tags",
@@ -40,7 +40,7 @@ class DialogUI(QDialog):
         self.setLayout(self.setup_outer_layout())
         self.add_tooltips()
 
-    def setup_outer_layout(self):
+    def setup_outer_layout(self) -> QLayout:
         vbox = QVBoxLayout()
         vbox.setSpacing(10)
         vbox.addLayout(self.create_top_group())
