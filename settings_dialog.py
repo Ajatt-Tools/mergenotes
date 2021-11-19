@@ -80,7 +80,8 @@ class DialogUI(QDialog):
         )
         self.checkboxes['only_empty'].setToolTip("Copy only from non-empty fields to empty fields.")
         self.checkboxes['html_agnostic_comparison'].setToolTip(
-            "Strip HTML tags from a pair of fields before performing a comparison."
+            "Strip HTML tags from a pair of fields before performing a comparison.\n"
+            "Treat two fields equal if their text content matches, disregard HTML tags."
         )
 
 
