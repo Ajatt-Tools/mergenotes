@@ -1,10 +1,10 @@
+import re
 from typing import Sequence, List
 
 from anki import collection
 from anki.cards import Card
 from anki.collection import OpChanges
 from anki.notes import Note, NoteId
-from anki.utils import htmlToTextLine
 from aqt import gui_hooks
 from aqt import mw
 from aqt.browser import Browser
@@ -32,9 +32,16 @@ def merge_tags(note1: Note, note2: Note) -> None:
             note1.add_tag(tag)
 
 
+def strip_html(s: str) -> str:
+    s = re.sub(r"<img[^<>]+src=[\"']?([^\"'<>]+)[\"']?[^<>]*>", r"\g<1>", s, flags=re.IGNORECASE)
+    s = re.sub(r"<[^<>]+>", "", s, flags=re.MULTILINE)
+    s = s.strip()
+    return s
+
+
 def fields_equal(content1: str, content2: str) -> bool:
     if config['html_agnostic_comparison']:
-        return htmlToTextLine(content1) == htmlToTextLine(content2)
+        return strip_html(content1) == strip_html(content2)
     else:
         return content1 == content2
 
