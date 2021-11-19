@@ -49,13 +49,11 @@ class DialogUI(QDialog):
         vbox.addWidget(self.bottom_box)
         return vbox
 
-    def create_top_group(self):
-        grid = QGridLayout()
-        grid.addWidget(QLabel("Field Separator:"), 0, 0)
-        grid.addWidget(self.fieldSeparatorLineEdit, 0, 1)
-        grid.addWidget(QLabel("Ordering:"), 1, 0)
-        grid.addWidget(self.orderingComboBox, 1, 1)
-        return grid
+    def create_top_group(self) -> QLayout:
+        layout = QFormLayout()
+        layout.addRow("Field Separator:", self.fieldSeparatorLineEdit)
+        layout.addRow("Ordering:", self.orderingComboBox)
+        return layout
 
     def create_checkbox_group(self):
         vbox = QVBoxLayout()
