@@ -50,21 +50,21 @@ def fields_equal(content1: str, content2: str) -> bool:
 
 def merge_fields(note1: Note, note2: Note) -> None:
     for field_name in note2.keys():
-        if any((
-                not note2[field_name],
-                field_name not in note1,
-                config['only_empty'] is True and note1[field_name],
-                fields_equal(note1[field_name], note2[field_name]),
-        )):
-            continue
+        can_merge = (
+                note2[field_name]
+                and field_name in note1
+                and not (config['only_empty'] is True and note1[field_name])
+                and not fields_equal(note1[field_name], note2[field_name])
+        )
 
-        note1[field_name] = note1[field_name].strip()
-        note2[field_name] = note2[field_name].strip()
+        if can_merge:
+            note1[field_name] = note1[field_name].strip()
+            note2[field_name] = note2[field_name].strip()
 
-        if note1[field_name]:
-            note1[field_name] += config['field_separator'] + note2[field_name]
-        else:
-            note1[field_name] += note2[field_name]
+            if note1[field_name]:
+                note1[field_name] += config['field_separator'] + note2[field_name]
+            else:
+                note1[field_name] += note2[field_name]
 
 
 # Adds content of note2 to note1
