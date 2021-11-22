@@ -13,9 +13,7 @@ from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import tooltip
 
-from .ajt_common import menu_root_entry
 from .config import config, OrderingChoices
-from .settings_dialog import MergeFieldsSettingsWindow
 
 ACTION_NAME = "Merge fields of selected cards"
 
@@ -122,11 +120,6 @@ def on_merge_selected(browser: Browser) -> None:
         tooltip("At least two distinct notes must be selected.")
 
 
-def on_open_settings() -> None:
-    dialog = MergeFieldsSettingsWindow()
-    dialog.exec_()
-
-
 ######################################################################
 # Entry point
 ######################################################################
@@ -139,25 +132,6 @@ def setup_context_menu(browser: Browser) -> None:
     qconnect(merge_fields_action.triggered, browser.onMergeSelected)
 
 
-def setup_edit_menu(browser: Browser) -> None:
-    edit_menu = browser.form.menuEdit
-    merge_fields_settings_action = edit_menu.addAction(f"{MergeFieldsSettingsWindow.name}...")
-    qconnect(merge_fields_settings_action.triggered, on_open_settings)
-
-
-def on_browser_setup_menus(browser: Browser) -> None:
-    setup_context_menu(browser)
-    setup_edit_menu(browser)
-
-
-def setup_mainwindow_menu():
-    root_menu = menu_root_entry()
-    action = QAction(f"{MergeFieldsSettingsWindow.name}...", root_menu)
-    action.triggered.connect(on_open_settings)
-    root_menu.addAction(action)
-
-
 def init():
     Browser.onMergeSelected = on_merge_selected
-    gui_hooks.browser_menus_did_init.append(on_browser_setup_menus)
-    setup_mainwindow_menu()
+    gui_hooks.browser_menus_did_init.append(setup_context_menu)

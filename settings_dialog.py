@@ -1,6 +1,7 @@
 from typing import Iterable, Tuple
 
-from aqt import mw
+from aqt import mw, gui_hooks
+from aqt.browser import Browser
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 
@@ -117,3 +118,33 @@ class MergeFieldsSettingsWindow(DialogUI):
         write_config()
         saveGeom(self, self.name)
         self.accept()
+
+
+######################################################################
+# Entry point
+######################################################################
+
+
+def on_open_settings() -> None:
+    dialog = MergeFieldsSettingsWindow()
+    dialog.exec_()
+
+
+def setup_mainwindow_menu():
+    from .ajt_common import menu_root_entry
+
+    root_menu = menu_root_entry()
+    action = QAction(f"{MergeFieldsSettingsWindow.name}...", root_menu)
+    action.triggered.connect(on_open_settings)
+    root_menu.addAction(action)
+
+
+def setup_edit_menu(browser: Browser) -> None:
+    edit_menu = browser.form.menuEdit
+    merge_fields_settings_action = edit_menu.addAction(f"{MergeFieldsSettingsWindow.name}...")
+    qconnect(merge_fields_settings_action.triggered, on_open_settings)
+
+
+def init():
+    gui_hooks.browser_menus_did_init.append(setup_edit_menu)
+    setup_mainwindow_menu()
