@@ -1,6 +1,7 @@
 from typing import List, Tuple, Sequence
 
-from anki.collection import Collection, OpChanges
+import anki.errors
+from anki.collection import OpChanges
 from anki.hooks import wrap
 from anki.notes import NoteId, Note
 from aqt import mw
@@ -8,12 +9,9 @@ from aqt.browser.find_duplicates import FindDuplicatesDialog
 from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import tooltip
-import anki.errors
 
 from .config import OrderingChoices, config
-from .merge_notes import merge_notes_fields
-
-ACTION_NAME = "Merge Duplicates"
+from .merge_notes import MergeNotes
 
 
 def carefully_get_notes(nids: Sequence[NoteId]) -> List[Note]:
@@ -30,25 +28,26 @@ def sort_by_note_cards(note: Note):
     return min(OrderingChoices.get_key(config['ordering'])(card) for card in note.cards())
 
 
-def merge_op(col: Collection, dupes: List[Tuple[str, List[NoteId]]]) -> OpChanges:
-    pos = col.add_custom_undo_entry(ACTION_NAME)
-    nids_to_remove, notes_to_update = [], []
+class MergeDupes(MergeNotes):
+    action_name = "Merge Duplicates"
 
-    for dupe_string, dupe_nids in dupes:
-        if len(chunk := carefully_get_notes(dupe_nids)) > 1:
-            notes_to_update.extend(chunk)
-            chunk.sort(key=sort_by_note_cards, reverse=config['reverse_order'])
-            merge_notes_fields(chunk, nids_to_remove)
+    def op(self, dupes: List[Tuple[str, List[NoteId]]]) -> OpChanges:
+        pos = self.col.add_custom_undo_entry(self.action_name)
 
-    mw.col.update_notes(notes_to_update)
-    mw.col.remove_notes(nids_to_remove)
-    return col.merge_undo_entries(pos)
+        for dupe_string, dupe_nids in dupes:
+            if len(chunk := carefully_get_notes(dupe_nids)) > 1:
+                chunk.sort(key=sort_by_note_cards, reverse=config['reverse_order'])
+                self._merge_chunk(chunk)
+
+        mw.col.update_notes(self.notes_to_update)
+        mw.col.remove_notes(self.nids_to_remove)
+        return self.col.merge_undo_entries(pos)
 
 
 def merge_dupes(parent: QWidget, dupes: List[Tuple[str, List[NoteId]]]) -> None:
     if len(dupes) > 0:
         CollectionOp(
-            parent, lambda col: merge_op(col, dupes)
+            parent, lambda col: MergeDupes(col).op(dupes)
         ).success(
             lambda out: tooltip(f"Merged {len(dupes)} groups of notes.")
         ).run_in_background()
@@ -60,7 +59,7 @@ def append_merge_duplicates_button(self: FindDuplicatesDialog, dupes: List[Tuple
     self._dupes = dupes
     if not getattr(self, '_merge_dupes_button', None):
         self._merge_dupes_button = b = self.form.buttonBox.addButton(
-            ACTION_NAME, QDialogButtonBox.ActionRole
+            MergeDupes.action_name, QDialogButtonBox.ActionRole
         )
         qconnect(b.clicked, lambda: merge_dupes(parent=self, dupes=self._dupes))
 
