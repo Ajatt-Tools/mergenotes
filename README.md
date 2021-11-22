@@ -11,6 +11,9 @@ Suppose you have a subs2srs deck.
 Due to the way subs2srs works usually many sentences in the deck are split between multiple notes.
 This addon adds a button to the Anki Browser that allows you to merge contents of selected cards.
 
+I recommend converting all notes to one `note type` before merging them.
+The add-on will ignore the fields that are present in one note but are not present in the other.
+
 ## Features
 
 1) Change settings before merging.
