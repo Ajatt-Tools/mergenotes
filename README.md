@@ -43,6 +43,10 @@ Most of the settings can be accessed by opening the Anki Browser
 and selecting "Edit" > "Merge Fields Settings...".
 Before merging duplicates, I recommend enabling the "Delete original notes" option.
 
+Field separator is the string inserted between the merged fields.
+It is empty by default, but you can change it to a space, comma or any HTML tag like `<br>`.
+You can also use escaped characters like "\n" or "\t" to insert a linebreak or tab.
+
 ## Screenshots
 
 Merge notes

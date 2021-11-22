@@ -46,6 +46,10 @@ def fields_equal(content1: str, content2: str) -> bool:
         return content1 == content2
 
 
+def interpret_special_chars(s: str) -> str:
+    return s.replace(r'\n', '\n').replace(r'\t', '\t').replace(r'\r', '\r')
+
+
 def merge_fields(note1: Note, note2: Note) -> None:
     for field_name in note2.keys():
         can_merge = (
@@ -60,7 +64,7 @@ def merge_fields(note1: Note, note2: Note) -> None:
             note2[field_name] = note2[field_name].strip()
 
             if note1[field_name]:
-                note1[field_name] += config['field_separator'] + note2[field_name]
+                note1[field_name] += interpret_special_chars(config['field_separator']) + note2[field_name]
             else:
                 note1[field_name] += note2[field_name]
 

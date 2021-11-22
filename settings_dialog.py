@@ -67,7 +67,8 @@ class DialogUI(QDialog):
             "This string is inserted between the merged fields.\n"
             "Empty by default.\n"
             "Common options would be to change it to a single space: \" \",\n"
-            "or to a linebreak: \"<br>\"."
+            "or to a linebreak: \"<br>\".\n"
+            r'You can use escaped characters like "\n" or "\t" to insert a linebreak or tab.'
         )
         self.checkboxes['delete_original_notes'].setToolTip("Delete redundant notes after merging.")
         self.checkboxes['merge_tags'].setToolTip("Merge tags of selected notes in addition to contents of fields.")
