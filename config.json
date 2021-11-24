@@ -3,6 +3,7 @@
   "shortcut": "Ctrl+Alt+M",
   "dup_note_shortcut": "Ctrl+Alt+D",
   "ordering": "Due",
+  "show_duplicate_notes_button": true,
   "delete_original_notes": true,
   "merge_tags": true,
   "reverse_order": false,

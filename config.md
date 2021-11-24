@@ -13,3 +13,5 @@ Currently there are two options: `Due` and `Sort Field`.
 * `reverse_order` - Sort cards in reverse.
 For `Due` ordering this would mean that a card with the biggest due number
 will receive the content of other selected cards.
+* `show_duplicate_notes_button` - Add a duplicate button to the browser context menu.
+* `dup_note_shortcut` - A key combination for the "duplicate notes" action.
