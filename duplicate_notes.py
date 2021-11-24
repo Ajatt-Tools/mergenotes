@@ -1,6 +1,8 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from gettext import ngettext
+
 from anki.collection import Collection
 from anki.notes import Note
 from aqt import gui_hooks
@@ -12,9 +14,11 @@ from aqt.utils import tooltip
 
 from .config import config
 
+LIMIT = 30
+
 
 def duplicate_notes_op(col: Collection, notes):
-    pos = col.add_custom_undo_entry(f"Duplicate {len(notes)} notes" if len(notes) > 1 else "Duplicate note")
+    pos = col.add_custom_undo_entry(ngettext("Duplicate %d notes", "Duplicate note", len(notes)) % len(notes))
 
     for ref_note in notes:
         new_note = Note(col, ref_note.note_type())
@@ -29,11 +33,17 @@ def duplicate_notes_op(col: Collection, notes):
 def duplicate_notes(browser: Browser):
     notes = [mw.col.get_note(note_id) for note_id in browser.selected_notes()]
 
-    CollectionOp(
-        browser, lambda col: duplicate_notes_op(col, notes)
-    ).success(
-        lambda out: tooltip(f"{len(notes)} notes duplicated." if len(notes) > 1 else "Note duplicated.", parent=browser)
-    ).run_in_background()
+    if 1 <= len(notes) <= LIMIT:
+        CollectionOp(
+            browser, lambda col: duplicate_notes_op(col, notes)
+        ).success(
+            lambda out: tooltip(
+                ngettext("%d notes duplicated.", "Note duplicated.", len(notes)) % len(notes),
+                parent=browser
+            )
+        ).run_in_background()
+    else:
+        tooltip(f"Please select at most {LIMIT} notes.")
 
 
 def setup_context_menu(browser: Browser) -> None:
