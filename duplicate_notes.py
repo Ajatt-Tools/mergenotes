@@ -18,7 +18,7 @@ LIMIT = 30
 
 
 def duplicate_notes_op(col: Collection, notes):
-    pos = col.add_custom_undo_entry(ngettext("Duplicate %d notes", "Duplicate note", len(notes)) % len(notes))
+    pos = col.add_custom_undo_entry(ngettext("Duplicate %d note", "Duplicate %d notes", len(notes)) % len(notes))
 
     for ref_note in notes:
         new_note = Note(col, ref_note.note_type())
@@ -38,7 +38,7 @@ def duplicate_notes(browser: Browser):
             browser, lambda col: duplicate_notes_op(col, notes)
         ).success(
             lambda out: tooltip(
-                ngettext("%d notes duplicated.", "Note duplicated.", len(notes)) % len(notes),
+                ngettext("%d note duplicated.", "%d notes duplicated.", len(notes)) % len(notes),
                 parent=browser
             )
         ).run_in_background()
