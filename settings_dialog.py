@@ -10,6 +10,7 @@ from aqt.utils import restoreGeom, saveGeom
 
 from .ajt_common import tweak_window
 from .config import config, OrderingChoices, write_config
+from .grab_key import ShortCutGrabButton
 
 
 ######################################################################
@@ -32,9 +33,10 @@ class DialogUI(QDialog):
 
     def __init__(self, *args, **kwargs):
         super(DialogUI, self).__init__(parent=mw, *args, **kwargs)
-        self.setMinimumWidth(320)
+        self.setMinimumWidth(400)
         self.fieldSeparatorLineEdit = QLineEdit()
         self.orderingComboBox = QComboBox()
+        self.merge_shortcut_edit = ShortCutGrabButton(config.get('merge_notes_shortcut'))
         self.checkboxes = dict(self.create_checkboxes())
         self.bottom_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self._setup_ui()
@@ -57,6 +59,7 @@ class DialogUI(QDialog):
         layout = QFormLayout()
         layout.addRow("Field Separator:", self.fieldSeparatorLineEdit)
         layout.addRow("Ordering:", self.orderingComboBox)
+        layout.addRow("Merge shortcut:", self.merge_shortcut_edit)
         return layout
 
     def create_checkbox_group(self):
@@ -117,6 +120,7 @@ class MergeFieldsSettingsWindow(DialogUI):
     def on_confirm(self):
         config['field_separator']: str = self.fieldSeparatorLineEdit.text()
         config['ordering']: str = self.orderingComboBox.currentText()
+        config['merge_notes_shortcut']: str = self.merge_shortcut_edit.value()
         for key, widget in self.checkboxes.items():
             config[key] = widget.isChecked()
         write_config()
