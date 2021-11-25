@@ -1,7 +1,7 @@
 {
   "field_separator": "",
-  "shortcut": "Ctrl+Alt+M",
-  "dup_note_shortcut": "Ctrl+Alt+D",
+  "merge_notes_shortcut": "Ctrl+Alt+M",
+  "duplicate_notes_shortcut": "Ctrl+Alt+D",
   "ordering": "Due",
   "show_duplicate_notes_button": true,
   "delete_original_notes": true,

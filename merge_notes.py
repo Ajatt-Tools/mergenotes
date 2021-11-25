@@ -147,7 +147,7 @@ def on_merge_selected(browser: Browser) -> None:
 def setup_context_menu(browser: Browser) -> None:
     menu = browser.form.menu_Cards
     merge_fields_action = menu.addAction("Merge fields")
-    merge_fields_action.setShortcut(QKeySequence(config['shortcut']))
+    merge_fields_action.setShortcut(QKeySequence(config['merge_notes_shortcut']))
     qconnect(merge_fields_action.triggered, lambda: on_merge_selected(browser))
 
 

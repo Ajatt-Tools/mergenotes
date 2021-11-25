@@ -51,7 +51,7 @@ def get_config() -> dict:
     cfg['only_empty']: bool = cfg.get('only_empty', False)
     cfg['reverse_order']: bool = cfg.get('reverse_order', False)
     cfg['field_separator']: str = cfg.get('field_separator', "")
-    cfg['shortcut']: str = cfg.get('shortcut', "Ctrl+Alt+M")
+    cfg['merge_notes_shortcut']: str = cfg.get('merge_notes_shortcut', "Ctrl+Alt+M")
     cfg['ordering']: str = cfg.get('ordering', "Due")
 
     if not cfg['ordering'] in OrderingChoices.as_list():
