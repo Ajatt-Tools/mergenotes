@@ -10,5 +10,5 @@
   "only_empty": false,
   "html_agnostic_comparison": false,
   "strip_punctuation_before_comparison": true,
-  "punctuation_characters": " .,。、「」"
+  "punctuation_characters": " .,。、「」[]+"
 }
