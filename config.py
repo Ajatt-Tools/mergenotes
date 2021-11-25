@@ -1,6 +1,9 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import sys
+from typing import Tuple
+
 from anki.cards import Card
 from aqt import mw
 
@@ -12,8 +15,13 @@ def due_key(card: Card) -> tuple:
     return card.type, card.due
 
 
-def sort_field_key(card: Card) -> str:
-    return (note := card.note()).values()[note.model()['sortf']]
+def sort_field_key(card: Card) -> Tuple[int, str]:
+    # Try to imitate sorting Anki does.
+    sort_field = (note := card.note()).values()[note.model()['sortf']]
+    try:
+        return int(sort_field), sort_field
+    except ValueError:
+        return sys.maxsize, sort_field
 
 
 class OrderingChoices:
