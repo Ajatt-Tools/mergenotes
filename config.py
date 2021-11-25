@@ -15,9 +15,13 @@ def due_key(card: Card) -> tuple:
     return card.type, card.due
 
 
-def sort_field_key(card: Card) -> Tuple[int, str]:
+def sort_field_key(card: Card) -> str:
+    return (note := card.note()).values()[note.model()['sortf']]
+
+
+def sort_field_numeric_key(card: Card) -> Tuple[int, str]:
     # Try to imitate sorting Anki does.
-    sort_field = (note := card.note()).values()[note.model()['sortf']]
+    sort_field = sort_field_key(card)
     try:
         return int(sort_field), sort_field
     except ValueError:
@@ -28,6 +32,7 @@ class OrderingChoices:
     __choices = {
         "Due": due_key,
         "Sort Field": sort_field_key,
+        "Sort Field (numeric)": sort_field_numeric_key,
     }
 
     @classmethod
