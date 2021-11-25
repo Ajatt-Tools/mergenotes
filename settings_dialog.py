@@ -23,8 +23,14 @@ class DialogUI(QDialog):
         "delete_original_notes",
         "merge_tags",
         "reverse_order",
-        "only_empty",
         "html_agnostic_comparison",
+        "strip_punctuation_before_comparison",
+        "show_duplicate_notes_button",
+        "only_empty",
+    )
+    __shortcut_keys = (
+        "merge_notes_shortcut",
+        "duplicate_notes_shortcut",
     )
 
     def create_checkboxes(self) -> Iterable[Tuple[str, QCheckBox]]:
@@ -34,9 +40,10 @@ class DialogUI(QDialog):
     def __init__(self, *args, **kwargs):
         super(DialogUI, self).__init__(parent=mw, *args, **kwargs)
         self.setMinimumWidth(400)
-        self.fieldSeparatorLineEdit = QLineEdit()
-        self.orderingComboBox = QComboBox()
-        self.merge_shortcut_edit = ShortCutGrabButton(config.get('merge_notes_shortcut'))
+        self.field_separator_edit = QLineEdit()
+        self.punctuation_edit = QLineEdit()
+        self.ordering_combo_box = QComboBox()
+        self.shortcut_edits = {key: ShortCutGrabButton(config.get(key)) for key in self.__shortcut_keys}
         self.checkboxes = dict(self.create_checkboxes())
         self.bottom_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self._setup_ui()
@@ -57,9 +64,11 @@ class DialogUI(QDialog):
 
     def create_top_group(self) -> QLayout:
         layout = QFormLayout()
-        layout.addRow("Field Separator:", self.fieldSeparatorLineEdit)
-        layout.addRow("Ordering:", self.orderingComboBox)
-        layout.addRow("Merge shortcut:", self.merge_shortcut_edit)
+        layout.addRow("Field Separator:", self.field_separator_edit)
+        layout.addRow("Punctuation characters:", self.punctuation_edit)
+        layout.addRow("Ordering:", self.ordering_combo_box)
+        layout.addRow("Merge shortcut:", self.shortcut_edits['merge_notes_shortcut'])
+        layout.addRow("Duplicate shortcut:", self.shortcut_edits['duplicate_notes_shortcut'])
         return layout
 
     def create_checkbox_group(self):
@@ -69,11 +78,10 @@ class DialogUI(QDialog):
         return vbox
 
     def add_tooltips(self):
-        self.fieldSeparatorLineEdit.setToolTip(
+        self.field_separator_edit.setToolTip(
             "This string is inserted between the merged fields.\n"
             "Empty by default.\n"
-            "Common options would be to change it to a single space: \" \",\n"
-            "or to a linebreak: \"<br>\".\n"
+            "Common options would be to change it to a single space: \" \", or to a linebreak: \"<br>\".\n"
             r'You can use escaped characters like "\n" or "\t" to insert a linebreak or tab.'
         )
         self.checkboxes['delete_original_notes'].setToolTip("Delete redundant notes after merging.")
@@ -88,6 +96,9 @@ class DialogUI(QDialog):
         self.checkboxes['html_agnostic_comparison'].setToolTip(
             "Strip HTML tags from a pair of fields before performing a comparison.\n"
             "Treat two fields equal if their text content matches, disregard HTML tags."
+        )
+        self.checkboxes['strip_punctuation_before_comparison'].setToolTip(
+            'Remove characters specified in "Punctuation characters" before comparing two fields.'
         )
 
 
@@ -105,11 +116,12 @@ class MergeFieldsSettingsWindow(DialogUI):
         restoreGeom(self, self.name)
 
     def populate_ordering_combobox(self):
-        self.orderingComboBox.addItems(OrderingChoices.as_list())
+        self.ordering_combo_box.addItems(OrderingChoices.as_list())
 
     def load_config_values(self):
-        self.fieldSeparatorLineEdit.setText(config['field_separator'])
-        self.orderingComboBox.setCurrentText(config['ordering'])
+        self.field_separator_edit.setText(config['field_separator'])
+        self.punctuation_edit.setText(config['punctuation_characters'])
+        self.ordering_combo_box.setCurrentText(config['ordering'])
         for key, widget in self.checkboxes.items():
             widget.setChecked(config[key])
 
@@ -118,9 +130,11 @@ class MergeFieldsSettingsWindow(DialogUI):
         qconnect(self.bottom_box.rejected, self.reject)
 
     def on_confirm(self):
-        config['field_separator']: str = self.fieldSeparatorLineEdit.text()
-        config['ordering']: str = self.orderingComboBox.currentText()
-        config['merge_notes_shortcut']: str = self.merge_shortcut_edit.value()
+        config['field_separator'] = self.field_separator_edit.text()
+        config['punctuation_characters'] = self.punctuation_edit.text()
+        config['ordering'] = self.ordering_combo_box.currentText()
+        for key, widget in self.shortcut_edits.items():
+            config[key] = widget.value()
         for key, widget in self.checkboxes.items():
             config[key] = widget.isChecked()
         write_config()

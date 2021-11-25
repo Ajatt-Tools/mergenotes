@@ -51,7 +51,8 @@ def setup_context_menu(browser: Browser) -> None:
     if config['show_duplicate_notes_button']:
         menu = browser.form.menu_Cards
         action = menu.addAction("Duplicate notes")
-        action.setShortcut(QKeySequence(config['duplicate_notes_shortcut']))
+        if shortcut := config['duplicate_notes_shortcut']:
+            action.setShortcut(QKeySequence(shortcut))
         qconnect(action.triggered, lambda: duplicate_notes(browser))
 
 

@@ -16,4 +16,4 @@ will receive the content of other selected cards.
 * `show_duplicate_notes_button` - Add a duplicate button to the browser context menu.
 * `duplicate_notes_shortcut` - A key combination for the "duplicate notes" action.
 * `strip_punctuation_before_comparison` - Remove punctuation characters before comparing two fields.
-* `punctuation_regexp` - Regex pattern containing characters that need to be excluded from comparison.
+* `punctuation_characters` - Regex pattern containing characters that need to be excluded from comparison.

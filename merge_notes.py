@@ -33,7 +33,10 @@ def strip_html(s: str) -> str:
 
 
 def strip_punctuation(s: str) -> str:
-    return re.sub(config['punctuation_regexp'], '', s, flags=re.MULTILINE)
+    for char in set(config['punctuation_characters']):
+        if char in s:
+            s = s.replace(char, '')
+    return s
 
 
 def fields_equal(content1: str, content2: str) -> bool:
@@ -147,7 +150,8 @@ def on_merge_selected(browser: Browser) -> None:
 def setup_context_menu(browser: Browser) -> None:
     menu = browser.form.menu_Cards
     merge_fields_action = menu.addAction("Merge fields")
-    merge_fields_action.setShortcut(QKeySequence(config['merge_notes_shortcut']))
+    if shortcut := config['merge_notes_shortcut']:
+        merge_fields_action.setShortcut(QKeySequence(shortcut))
     qconnect(merge_fields_action.triggered, lambda: on_merge_selected(browser))
 
 
