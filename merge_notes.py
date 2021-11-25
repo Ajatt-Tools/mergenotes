@@ -32,7 +32,15 @@ def strip_html(s: str) -> str:
     return s
 
 
+def strip_punctuation(s: str) -> str:
+    return re.sub(config['punctuation_regexp'], '', s, flags=re.MULTILINE)
+
+
 def fields_equal(content1: str, content2: str) -> bool:
+    if config['strip_punctuation_before_comparison']:
+        content1 = strip_punctuation(content1)
+        content2 = strip_punctuation(content2)
+
     if config['html_agnostic_comparison']:
         return strip_html(content1) == strip_html(content2)
     else:
