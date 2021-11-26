@@ -8,35 +8,38 @@ from aqt.qt import *
 
 class KeyPressDialog(QDialog):
     MOD_MASK = Qt.CTRL | Qt.ALT | Qt.SHIFT | Qt.META
+    value_accepted = pyqtSignal(str)
 
-    def __init__(self, parent: QWidget = None, *args, **kwargs):
+    def __init__(self, parent: QWidget = None, initial_value: str = None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self._shortcut = None
+        self._shortcut = initial_value
         self.setMinimumSize(380, 64)
         self.setWindowTitle("Grab key combination")
-        self.label = QLabel(
+        self.setLayout(self._make_layout())
+
+    @staticmethod
+    def _make_layout() -> QLayout:
+        label = QLabel(
             "Please press the key combination you would like to assign.\n"
             "Supported modifiers: CTRL, ALT, SHIFT or META.\n"
             "Press ESC to delete the shortcut."
         )
-        self.setLayout(self._make_layout())
-
-    def _make_layout(self) -> QLayout:
+        label.setAlignment(Qt.AlignCenter)
         layout = QVBoxLayout()
-        layout.addWidget(self.label)
-        self.label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(label)
         return layout
 
-    def value(self) -> Optional[str]:
-        return self._shortcut
+    def _accept_value(self, value: Optional[str]) -> None:
+        self._shortcut = value
+        self.value_accepted.emit(value)  # type: ignore
+        self.accept()
 
-    def keyPressEvent(self, event) -> None:
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         # https://stackoverflow.com/questions/35033116
         key, modifiers = int(event.key()), int(event.modifiers())
 
         if key == Qt.Key_Escape:
-            self._shortcut = None
-            self.accept()
+            self._accept_value(None)
         elif (
                 modifiers
                 and modifiers & self.MOD_MASK == modifiers
@@ -46,8 +49,10 @@ class KeyPressDialog(QDialog):
                 and key != Qt.Key_Control
                 and key != Qt.Key_Meta
         ):
-            self._shortcut = QKeySequence(modifiers + key).toString()
-            self.accept()
+            self._accept_value(QKeySequence(modifiers + key).toString())
+
+    def value(self) -> Optional[str]:
+        return self._shortcut
 
 
 class ShortCutGrabButton(QPushButton):
@@ -55,16 +60,12 @@ class ShortCutGrabButton(QPushButton):
 
     def __init__(self, initial_value: str = None):
         super().__init__(initial_value or self._placeholder)
-        self._value = initial_value
-        self.clicked.connect(self._on_change_shortcut)
+        self._dialog = KeyPressDialog(self, initial_value)
+        qconnect(self.clicked, self._dialog.exec)
+        qconnect(self._dialog.value_accepted, lambda value: self.setText(value or self._placeholder))
 
     def value(self) -> str:
-        return self._value or ''
-
-    def _on_change_shortcut(self):
-        if (d := KeyPressDialog(self)).exec():
-            self._value = d.value()
-            self.setText(self._value or self._placeholder)
+        return self._dialog.value() or ""
 
 
 def detect_keypress():
