@@ -1,5 +1,5 @@
 {
-  "field_separator": "",
+  "field_separator": "<br>",
   "merge_notes_shortcut": "Ctrl+Alt+M",
   "duplicate_notes_shortcut": "Ctrl+Alt+D",
   "ordering": "Due",
