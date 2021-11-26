@@ -38,7 +38,7 @@ class DialogUI(QDialog):
             yield key, QCheckBox(key.replace('_', ' ').capitalize())
 
     def __init__(self, *args, **kwargs):
-        super(DialogUI, self).__init__(parent=mw, *args, **kwargs)
+        super().__init__(parent=mw, *args, **kwargs)
         self.setMinimumWidth(400)
         self.field_separator_edit = QLineEdit()
         self.punctuation_edit = QLineEdit()
@@ -83,6 +83,10 @@ class DialogUI(QDialog):
             "Empty by default.\n"
             "Common options would be to change it to a single space: \" \", or to a linebreak: \"<br>\".\n"
             r'You can use escaped characters like "\n" or "\t" to insert a linebreak or tab.'
+        )
+        self.punctuation_edit.setToolTip(
+            "When comparing two fields, disregard the characters specified here.\n"
+            "This makes it possible for two nearly equal fields to be successfully de-duplicated."
         )
         self.checkboxes['delete_original_notes'].setToolTip("Delete redundant notes after merging.")
         self.checkboxes['merge_tags'].setToolTip("Merge tags of selected notes in addition to contents of fields.")
