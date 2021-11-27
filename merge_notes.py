@@ -40,14 +40,15 @@ def strip_punctuation(s: str) -> str:
 
 
 def fields_equal(content1: str, content2: str) -> bool:
+    if config['html_agnostic_comparison']:
+        content1 = strip_html(content1)
+        content2 = strip_html(content2)
+
     if config['strip_punctuation_before_comparison']:
         content1 = strip_punctuation(content1)
         content2 = strip_punctuation(content2)
 
-    if config['html_agnostic_comparison']:
-        return strip_html(content1) == strip_html(content2)
-    else:
-        return content1 == content2
+    return content1 == content2
 
 
 def interpret_special_chars(s: str) -> str:
