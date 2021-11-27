@@ -16,13 +16,15 @@ The add-on will ignore the fields that are present in one note but are not prese
 
 ## Features
 
+0) **Merge** or **duplicate** selected notes.
 1) Change settings before merging.
-To open quick settings, click **Edit → Merge Fields Settings** in the Anki Browser.
-2) Ability to specify `fields separator`.
+To open quick settings, click "Edit" > "Merge Fields Settings" in the Anki Browser.
+2) Ability to specify a field separator.
 You can decide what string is inserted as a separator between the merged fields.
 3) Merge tags of selected cards.
 4) Delete original notes after merging.
-5) Choose direction of the merge: by `Due` number or `Sort Field`.
+5) Choose direction of the merge: by `Due` number, by `Sort Field` or by `Sort Field (numeric)`.
+The latter checks if there's a number in the field and sorts by the number first.
 6) Merge in reverse order.
 7) Skip non-empty fields to perform a partial merge.
 8) Merge duplicate notes.
