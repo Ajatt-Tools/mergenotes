@@ -1,14 +1,13 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import re
 from typing import Sequence, List, Iterator, Any, Tuple
 
 from anki import collection
 from anki.cards import Card
 from anki.collection import OpChanges
 from anki.notes import Note, NoteId
-from anki.utils import entsToTxt
+from anki.utils import stripHTMLMedia
 from aqt import gui_hooks
 from aqt import mw
 from aqt.browser import Browser
@@ -25,11 +24,7 @@ from .config import config, OrderingChoices
 
 
 def strip_html(s: str) -> str:
-    s = re.sub(r"<img[^<>]+src=[\"']?([^\"'<>]+)[\"']?[^<>]*>", r"\g<1>", s, flags=re.IGNORECASE)
-    s = re.sub(r"<[^<>]+>", "", s, flags=re.MULTILINE)
-    s = entsToTxt(s)
-    s = s.strip()
-    return s
+    return stripHTMLMedia(s).strip()
 
 
 def strip_punctuation(s: str) -> str:
