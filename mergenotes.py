@@ -95,10 +95,16 @@ def append(note1: Note, note2: Note) -> None:
 def merge_cards_fields(cids: Collection) -> None:
     cards = [mw.col.getCard(cid) for cid in cids]
     cards = sorted(cards, key=OrderingChoices.get_key(config['ordering']), reverse=config['reverse_order'])
-    notes = [card.note() for card in cards]
+    
+    # Include notes only once
+    notes = []
+    for card in cards:
+        note = card.note()
+        if note.id not in [n.id for n in notes]:
+            notes.append(note)
 
     # Iterate till 1st element and keep on decrementing i
-    for i in reversed(range(len(cids) - 1)):
+    for i in reversed(range(len(notes) - 1)):
         append(notes[i], notes[i + 1])
 
     if config['delete_original_notes'] is True:
