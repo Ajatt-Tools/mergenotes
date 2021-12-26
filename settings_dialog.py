@@ -8,9 +8,8 @@ from aqt.browser import Browser
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 
-from .ajt_common import tweak_window
+from .ajt_common import tweak_window, ShortCutGrabButton
 from .config import config, OrderingChoices, write_config
-from .grab_key import ShortCutGrabButton
 
 
 ######################################################################
