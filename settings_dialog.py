@@ -96,6 +96,9 @@ class DialogUI(QDialog):
         self.checkboxes['strip_punctuation_before_comparison'].setToolTip(
             'Remove characters specified in "Punctuation characters" before comparing two fields.'
         )
+        self.checkboxes['avoid_content_loss'].setToolTip(
+            'Reorder notes so that note types with more common fields come last.'
+        )
 
 
 ######################################################################

@@ -82,6 +82,12 @@ def pairs(lst: Sequence[Any]) -> Iterator[Tuple[Any, Any]]:
         yield lst[i], lst[i + 1]
 
 
+def reorder_by_common_fields(notes: Sequence[Note]) -> List[Note]:
+    import itertools
+    all_fields = set(itertools.chain(*(note.keys() for note in notes)))
+    return sorted(notes, key=lambda note: sum(int(field_name in all_fields) for field_name in note.keys()))
+
+
 class MergeNotes:
     action_name = "Merge fields of selected cards"
 
@@ -99,6 +105,8 @@ class MergeNotes:
         return self.col.merge_undo_entries(pos)
 
     def _merge_chunk(self, notes: Sequence[Note]):
+        if config['avoid_content_loss']:
+            notes = reorder_by_common_fields(notes)
         for add_from, add_to in pairs(notes):
             merge_fields(add_to, add_from, self.separator)
             if config['merge_tags'] is True:

@@ -10,5 +10,6 @@
   "only_empty": false,
   "html_agnostic_comparison": false,
   "strip_punctuation_before_comparison": true,
+  "avoid_content_loss": true,
   "punctuation_characters": " .,。、「」[]+"
 }

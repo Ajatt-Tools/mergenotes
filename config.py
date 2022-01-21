@@ -15,10 +15,6 @@ def due_key(card: Card) -> Tuple:
     return card.type, card.due
 
 
-def fields_then_due_key(card: Card) -> Tuple:
-    return len(card.note().fields), *due_key(card)
-
-
 def sort_field_key(card: Card) -> str:
     return (note := card.note()).values()[note.model()['sortf']]
 
@@ -35,7 +31,6 @@ def sort_field_numeric_key(card: Card) -> Tuple[int, str]:
 class OrderingChoices:
     __choices = {
         "Due": due_key,
-        "Number of fields, then Due": fields_then_due_key,
         "Sort Field": sort_field_key,
         "Sort Field (numeric)": sort_field_numeric_key,
     }
