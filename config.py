@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sys
-from typing import Tuple
+from typing import Tuple, Iterable
 
 from anki.cards import Card
 from aqt import mw
@@ -68,6 +68,12 @@ def get_config() -> dict:
 
 def write_config():
     return mw.addonManager.writeConfig(__name__, config)
+
+
+def fetch_config_toggleables() -> Iterable[str]:
+    for key, value in config.items():
+        if type(value) == bool:
+            yield key
 
 
 config = get_config()

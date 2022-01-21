@@ -9,24 +9,17 @@ from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 
 from .ajt_common import tweak_window, ShortCutGrabButton
-from .config import config, OrderingChoices, write_config
+from .config import config, OrderingChoices, write_config, fetch_config_toggleables
 
 
 ######################################################################
 # UI Layout
 ######################################################################
 
+
 class DialogUI(QDialog):
     name = "Merge Fields Options"
-    __checkbox_keys = (
-        "delete_original_notes",
-        "merge_tags",
-        "reverse_order",
-        "html_agnostic_comparison",
-        "strip_punctuation_before_comparison",
-        "show_duplicate_notes_button",
-        "only_empty",
-    )
+    __checkbox_keys = tuple(fetch_config_toggleables())
     __shortcut_keys = (
         "merge_notes_shortcut",
         "duplicate_notes_shortcut",
