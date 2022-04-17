@@ -33,6 +33,7 @@ class OrderingChoices:
         "Due": due_key,
         "Sort Field": sort_field_key,
         "Sort Field (numeric)": sort_field_numeric_key,
+        "Interval length": lambda card: card.ivl,
     }
 
     @classmethod
