@@ -23,10 +23,11 @@ def duplicate_notes_op(col: Collection, notes: Sequence[Note]) -> OpChanges:
 
     for ref_note in notes:
         new_note = Note(col, ref_note.note_type())
+        first_card = ref_note.cards()[0]
         for key in ref_note.keys():
             new_note[key] = ref_note[key]
         new_note.tags = [tag for tag in ref_note.tags if tag != 'leech' and tag != 'marked']
-        col.add_note(new_note, deck_id=ref_note.cards()[0].did)
+        col.add_note(new_note, deck_id=(first_card.odid or first_card.did))
 
     return col.merge_undo_entries(pos)
 
