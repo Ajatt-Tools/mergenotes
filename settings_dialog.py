@@ -148,7 +148,7 @@ class MergeFieldsSettingsWindow(DialogUI):
 
 def on_open_settings() -> None:
     dialog = MergeFieldsSettingsWindow()
-    dialog.exec_()
+    dialog.exec()
 
 
 def setup_mainwindow_menu():
@@ -156,7 +156,7 @@ def setup_mainwindow_menu():
 
     root_menu = menu_root_entry()
     action = QAction(f"{MergeFieldsSettingsWindow.name}...", root_menu)
-    action.triggered.connect(on_open_settings)
+    qconnect(action.triggered, on_open_settings)
     root_menu.addAction(action)
 
 
