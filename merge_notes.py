@@ -107,9 +107,15 @@ def pairs(lst: Sequence[Any]) -> Iterator[tuple[Any, Any]]:
         yield lst[i], lst[i + 1]
 
 
-def reorder_by_common_fields(notes: Sequence[Note]) -> list[Note]:
+def fields_in_notes(notes: Sequence[Note]):
+    """Returns a set that contains all field names present in notes."""
     import itertools
-    all_fields = set(itertools.chain(*(note.keys() for note in notes)))
+
+    return set(itertools.chain(*(note.keys() for note in notes)))
+
+
+def reorder_by_common_fields(notes: Sequence[Note]) -> list[Note]:
+    all_fields = fields_in_notes(notes)
     return sorted(notes, key=lambda note: sum(int(field_name in all_fields) for field_name in note.keys()))
 
 
@@ -131,6 +137,8 @@ class MergeNotes:
 
     def _merge_chunk(self, notes: Sequence[Note]):
         if config['avoid_content_loss']:
+            # notes are already sorted,
+            # but additional sorting is required to avoid content loss if possible.
             notes = reorder_by_common_fields(notes)
         for add_from, add_to in pairs(notes):
             merge_fields(add_to, add_from, self.separator)
