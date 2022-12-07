@@ -2,13 +2,13 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sys
-from typing import Tuple, Iterable
+from typing import Iterable
 
 from anki.cards import Card
 from aqt import mw
 
 
-def due_key(card: Card) -> Tuple:
+def due_key(card: Card) -> tuple:
     # sort cards by their type, then by due number,
     # so that new cards are always in the beginning of the list,
     # mimicking the way cards are presented in the Anki Browser
@@ -19,7 +19,7 @@ def sort_field_key(card: Card) -> str:
     return (note := card.note()).values()[note.model()['sortf']]
 
 
-def sort_field_numeric_key(card: Card) -> Tuple[int, str]:
+def sort_field_numeric_key(card: Card) -> tuple[int, str]:
     # Try to imitate sorting Anki does.
     sort_field = sort_field_key(card)
     try:

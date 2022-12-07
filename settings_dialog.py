@@ -1,7 +1,7 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Iterable, Tuple
+from typing import Iterable
 
 from aqt import mw, gui_hooks
 from aqt.browser import Browser
@@ -25,7 +25,7 @@ class DialogUI(QDialog):
         "duplicate_notes_shortcut",
     )
 
-    def create_checkboxes(self) -> Iterable[Tuple[str, QCheckBox]]:
+    def create_checkboxes(self) -> Iterable[tuple[str, QCheckBox]]:
         for key in self.__checkbox_keys:
             yield key, QCheckBox(key.replace('_', ' ').capitalize())
 

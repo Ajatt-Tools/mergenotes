@@ -1,7 +1,7 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import List, Tuple, Sequence
+from typing import Sequence
 
 import anki.errors
 from anki.collection import OpChanges
@@ -17,7 +17,7 @@ from .config import OrderingChoices, config
 from .merge_notes import MergeNotes
 
 
-def carefully_get_notes(nids: Sequence[NoteId]) -> List[Note]:
+def carefully_get_notes(nids: Sequence[NoteId]) -> list[Note]:
     ret = []
     for nid in nids:
         try:
@@ -34,7 +34,7 @@ def sort_by_note_cards(note: Note):
 class MergeDupes(MergeNotes):
     action_name = "Merge Duplicates"
 
-    def op(self, dupes: List[Tuple[str, List[NoteId]]]) -> OpChanges:
+    def op(self, dupes: list[tuple[str, list[NoteId]]]) -> OpChanges:
         pos = self.col.add_custom_undo_entry(self.action_name)
 
         for dupe_string, dupe_nids in dupes:
@@ -47,7 +47,7 @@ class MergeDupes(MergeNotes):
         return self.col.merge_undo_entries(pos)
 
 
-def merge_dupes(parent: QWidget, dupes: List[Tuple[str, List[NoteId]]]) -> None:
+def merge_dupes(parent: QWidget, dupes: list[tuple[str, list[NoteId]]]) -> None:
     if len(dupes) > 0:
         CollectionOp(
             parent, lambda col: MergeDupes(col).op(dupes)
@@ -58,7 +58,7 @@ def merge_dupes(parent: QWidget, dupes: List[Tuple[str, List[NoteId]]]) -> None:
         tooltip("Nothing to do.")
 
 
-def append_merge_duplicates_button(self: FindDuplicatesDialog, dupes: List[Tuple[str, List[NoteId]]]):
+def append_merge_duplicates_button(self: FindDuplicatesDialog, dupes: list[tuple[str, list[NoteId]]]):
     self._dupes = dupes
     if not getattr(self, '_merge_dupes_button', None):
         self._merge_dupes_button = b = self.form.buttonBox.addButton(

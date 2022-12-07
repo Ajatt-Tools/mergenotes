@@ -1,7 +1,7 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Sequence, List, Iterator, Any, Tuple
+from typing import Sequence, Iterator, Any
 
 from anki import collection
 from anki.cards import Card
@@ -102,12 +102,12 @@ def merge_tags(add_to: Note, add_from: Note) -> None:
             add_to.add_tag(tag)
 
 
-def pairs(lst: Sequence[Any]) -> Iterator[Tuple[Any, Any]]:
+def pairs(lst: Sequence[Any]) -> Iterator[tuple[Any, Any]]:
     for i in range(len(lst) - 1):
         yield lst[i], lst[i + 1]
 
 
-def reorder_by_common_fields(notes: Sequence[Note]) -> List[Note]:
+def reorder_by_common_fields(notes: Sequence[Note]) -> list[Note]:
     import itertools
     all_fields = set(itertools.chain(*(note.keys() for note in notes)))
     return sorted(notes, key=lambda note: sum(int(field_name in all_fields) for field_name in note.keys()))
@@ -118,8 +118,8 @@ class MergeNotes:
 
     def __init__(self, col: collection.Collection):
         self.col = col
-        self.notes_to_update: List[Note] = []
-        self.nids_to_remove: List[NoteId] = []
+        self.notes_to_update: list[Note] = []
+        self.nids_to_remove: list[NoteId] = []
         self.separator = interpret_special_chars(config['field_separator'])
 
     def op(self, notes: Sequence[Note]) -> OpChanges:
@@ -144,7 +144,7 @@ class MergeNotes:
             self.notes_to_update.extend(notes)
 
 
-def notes_by_cards(cards: Sequence[Card]) -> List[Note]:
+def notes_by_cards(cards: Sequence[Card]) -> list[Note]:
     return list({(note := card.note()).id: note for card in cards}.values())
 
 
