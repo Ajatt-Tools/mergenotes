@@ -34,6 +34,27 @@ def strip_punctuation(s: str) -> str:
     return s
 
 
+EQUAL_DIGITS = {
+    '１': '1',
+    '２': '2',
+    '３': '3',
+    '４': '4',
+    '５': '5',
+    '６': '6',
+    '７': '7',
+    '８': '8',
+    '９': '9',
+    '０': '0',
+}
+
+
+def normalize_digits(s: str):
+    for n1, n2 in EQUAL_DIGITS.items():
+        if n1 in s:
+            s = s.replace(n1, n2)
+    return s
+
+
 def fields_equal(content1: str, content2: str) -> bool:
     if config['html_agnostic_comparison']:
         content1 = strip_html(content1)
@@ -42,6 +63,10 @@ def fields_equal(content1: str, content2: str) -> bool:
     if config['strip_punctuation_before_comparison']:
         content1 = strip_punctuation(content1)
         content2 = strip_punctuation(content2)
+
+    if config['normalize_digits']:
+        content1 = normalize_digits(content1)
+        content2 = normalize_digits(content2)
 
     return content1 == content2
 
