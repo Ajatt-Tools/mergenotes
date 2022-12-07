@@ -99,6 +99,9 @@ class DialogUI(QDialog):
         self.checkboxes['avoid_content_loss'].setToolTip(
             'Reorder notes so that note types with more common fields come last.'
         )
+        self.checkboxes['normalize_digits'].setToolTip(
+            'Treat normal and full-width digit characters as equal.'
+        )
 
 
 ######################################################################
