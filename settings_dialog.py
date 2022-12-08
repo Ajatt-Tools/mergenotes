@@ -17,6 +17,19 @@ from .config import config, OrderingChoices, write_config, fetch_config_toggleab
 ######################################################################
 
 
+class MonoSpaceLineEdit(QLineEdit):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        font = self.font()
+        font.setFamilies((
+            "Noto Mono", "Noto Sans Mono", "DejaVu Sans Mono", "Droid Sans Mono",
+            "Liberation Mono", "Courier New", "Courier", "Lucida", "Monaco", "Monospace",
+        ))
+        font.setPixelSize(14)
+        self.setMinimumHeight(32)
+        self.setFont(font)
+
+
 class DialogUI(QDialog):
     name = "Merge Fields Options"
     __checkbox_keys = tuple(fetch_config_toggleables())
@@ -32,8 +45,8 @@ class DialogUI(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(parent=mw, *args, **kwargs)
         self.setMinimumWidth(400)
-        self.field_separator_edit = QLineEdit()
-        self.punctuation_edit = QLineEdit()
+        self.field_separator_edit = MonoSpaceLineEdit()
+        self.punctuation_edit = MonoSpaceLineEdit()
         self.ordering_combo_box = QComboBox()
         self.shortcut_edits = {key: ShortCutGrabButton(config.get(key)) for key in self.__shortcut_keys}
         self.checkboxes = dict(self.create_checkboxes())
