@@ -124,6 +124,10 @@ class DialogUI(QDialog):
 # Settings window
 ######################################################################
 
+def uniq_char_str(text: str) -> str:
+    return ''.join(set(text))
+
+
 class MergeFieldsSettingsWindow(DialogUI):
     def __init__(self):
         super().__init__()
@@ -138,7 +142,7 @@ class MergeFieldsSettingsWindow(DialogUI):
 
     def load_config_values(self):
         self.field_separator_edit.setText(config['field_separator'])
-        self.punctuation_edit.setText(config['punctuation_characters'])
+        self.punctuation_edit.setText(uniq_char_str(config['punctuation_characters']))
         self.ordering_combo_box.setCurrentText(config['ordering'])
         for key, widget in self.checkboxes.items():
             widget.setChecked(config[key])
@@ -149,7 +153,7 @@ class MergeFieldsSettingsWindow(DialogUI):
 
     def on_confirm(self):
         config['field_separator'] = self.field_separator_edit.text()
-        config['punctuation_characters'] = self.punctuation_edit.text()
+        config['punctuation_characters'] = uniq_char_str(self.punctuation_edit.text())
         config['ordering'] = self.ordering_combo_box.currentText()
         for key, widget in self.shortcut_edits.items():
             config[key] = widget.value()
