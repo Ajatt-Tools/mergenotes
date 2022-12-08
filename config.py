@@ -34,6 +34,7 @@ class OrderingChoices:
         "Sort Field": sort_field_key,
         "Sort Field (numeric)": sort_field_numeric_key,
         "Interval length": lambda card: card.ivl,
+        "Card ID": lambda card: card.id,
     }
 
     @classmethod
