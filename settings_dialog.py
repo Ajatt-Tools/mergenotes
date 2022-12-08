@@ -18,6 +18,9 @@ from .config import config, OrderingChoices, write_config, fetch_config_toggleab
 
 
 class MonoSpaceLineEdit(QLineEdit):
+    font_size = 14
+    min_height = 32
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         font = self.font()
@@ -25,8 +28,8 @@ class MonoSpaceLineEdit(QLineEdit):
             "Noto Mono", "Noto Sans Mono", "DejaVu Sans Mono", "Droid Sans Mono",
             "Liberation Mono", "Courier New", "Courier", "Lucida", "Monaco", "Monospace",
         ))
-        font.setPixelSize(14)
-        self.setMinimumHeight(32)
+        font.setPixelSize(self.font_size)
+        self.setMinimumHeight(self.min_height)
         self.setFont(font)
 
 
