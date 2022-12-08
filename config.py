@@ -57,8 +57,8 @@ def get_config() -> dict:
     cfg['ordering']: str = cfg.get('ordering', "Due")
 
     if not cfg['ordering'] in OrderingChoices.as_list():
-        print('Wrong ordering:', cfg['ordering'])
-        cfg['ordering'] = OrderingChoices.get_key("Due")
+        print(f"Wrong ordering: {cfg['ordering']}")
+        cfg['ordering'] = OrderingChoices.as_list()[0]
 
     return cfg
 
