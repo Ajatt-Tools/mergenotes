@@ -159,10 +159,10 @@ class MergeFieldsSettingsWindow(DialogUI):
             widget.setChecked(config[key])
 
     def connect_ui_elements(self):
-        qconnect(self.bottom_box.accepted, self.on_confirm)
+        qconnect(self.bottom_box.accepted, self.accept)
         qconnect(self.bottom_box.rejected, self.reject)
 
-    def on_confirm(self):
+    def accept(self):
         config['field_separator'] = self.field_separator_edit.text()
         config['punctuation_characters'] = uniq_char_str(self.punctuation_edit.text())
         config['ordering'] = self.ordering_combo_box.currentText()
@@ -171,8 +171,11 @@ class MergeFieldsSettingsWindow(DialogUI):
         for key, widget in self.checkboxes.items():
             config[key] = widget.isChecked()
         write_config()
+        return super().accept()
+
+    def done(self, *args, **kwargs) -> None:
         saveGeom(self, self.name)
-        self.accept()
+        return super().done(*args, **kwargs)
 
 
 ######################################################################
