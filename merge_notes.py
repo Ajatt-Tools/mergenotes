@@ -63,7 +63,7 @@ def cfg_strip(s: str) -> str:
         s = strip_punctuation(s)
     if config['normalize_digits']:
         s = normalize_digits(s)
-    return s
+    return s.strip()
 
 
 def interpret_special_chars(s: str) -> str:

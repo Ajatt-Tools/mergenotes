@@ -3,14 +3,15 @@
   "merge_notes_shortcut": "Ctrl+Alt+M",
   "duplicate_notes_shortcut": "Ctrl+Alt+D",
   "ordering": "Due",
+  "punctuation_characters": "｝］Ⓨ\\0「［～〖】〇゜〿？《×♩◦〡・[〗゠ゞ〄〹〲※〱〣＊、　.〸｠〚〢｟￥〧~+〜〔♬仝…〷〘〼〕〦〞'〾〟u ◎〽3〯〨\"〶ヾ♫♪]〺〛』〙〥！〻〠〵‥。〉〈〃（〒ヽ【Ⓧ）〴Ⓛ!〓’﹆」〭｛『﹅•〝〳〬＝》,〮〫?",
+  "html_agnostic_comparison": true,
+  "normalize_digits": true,
+  "strip_punctuation_before_comparison": true,
+  "apply_when_searching_duplicates": true,
   "show_duplicate_notes_button": true,
   "delete_original_notes": true,
   "merge_tags": true,
-  "reverse_order": false,
-  "only_empty": false,
-  "html_agnostic_comparison": false,
-  "strip_punctuation_before_comparison": true,
   "avoid_content_loss": true,
-  "normalize_digits": true,
-  "punctuation_characters": "｝］Ⓨ\\0「［～〖】〇゜〿？《×♩◦〡・[〗゠ゞ〄〹〲※〱〣＊、　.〸｠〚〢｟￥〧~+〜〔♬仝…〷〘〼〕〦〞'〾〟u ◎〽3〯〨\"〶ヾ♫♪]〺〛』〙〥！〻〠〵‥。〉〈〃（〒ヽ【Ⓧ）〴Ⓛ!〓’﹆」〭｛『﹅•〝〳〬＝》,〮〫?"
+  "reverse_order": false,
+  "only_empty": false
 }
