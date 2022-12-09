@@ -1,7 +1,7 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Sequence
+from typing import Sequence, Optional
 
 import anki.errors
 from anki.collection import OpChanges
@@ -17,11 +17,17 @@ from .config import OrderingChoices, config
 from .merge_notes import MergeNotes
 
 
-def carefully_get_notes(nids: Sequence[NoteId]) -> list[Note]:
+def carefully_get_notes(nids: Sequence[NoteId], has_field: Optional[str] = None) -> list[Note]:
+    """
+    Returns notes constructed from nids. Skip nonexistent notes.
+    If "has_field" is not None, return notes that contain this field.
+    """
     ret = []
     for nid in nids:
         try:
-            ret.append(mw.col.getNote(nid))
+            note: Note = mw.col.get_note(nid)
+            if not has_field or has_field in note.keys():
+                ret.append(note)
         except anki.errors.NotFoundError:
             pass
     return ret
