@@ -55,20 +55,15 @@ def normalize_digits(s: str):
     return s
 
 
-def fields_equal(content1: str, content2: str) -> bool:
+def cfg_strip(s: str) -> str:
+    """Removes/replaces various characters defined by the user. Called before string comparison."""
     if config['html_agnostic_comparison']:
-        content1 = strip_html(content1)
-        content2 = strip_html(content2)
-
+        s = strip_html(s)
     if config['strip_punctuation_before_comparison']:
-        content1 = strip_punctuation(content1)
-        content2 = strip_punctuation(content2)
-
+        s = strip_punctuation(s)
     if config['normalize_digits']:
-        content1 = normalize_digits(content1)
-        content2 = normalize_digits(content2)
-
-    return content1 == content2
+        s = normalize_digits(s)
+    return s
 
 
 def interpret_special_chars(s: str) -> str:
@@ -78,10 +73,10 @@ def interpret_special_chars(s: str) -> str:
 def merge_fields(add_to: Note, add_from: Note, separator: str) -> None:
     for field_name in add_from.keys():
         can_merge = (
-                add_from[field_name]
+                add_from[field_name].strip()
                 and field_name in add_to
                 and not (config['only_empty'] is True and add_to[field_name])
-                and not fields_equal(add_to[field_name], add_from[field_name])
+                and cfg_strip(add_to[field_name]) != cfg_strip(add_from[field_name])
         )
 
         if can_merge:
