@@ -33,7 +33,7 @@ class MonoSpaceLineEdit(QLineEdit):
         self.setFont(font)
 
 
-def widgets_to_grid(widgets: Iterable[QWidget], columns: int = 2) -> Iterable[QWidget, int, int]:
+def widgets_to_grid(widgets: Iterable[QWidget], columns: int = 2) -> Iterable[tuple[QWidget, int, int]]:
     row = col = 1
     for widget in widgets:
         yield widget, row, col
