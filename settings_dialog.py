@@ -33,6 +33,17 @@ class MonoSpaceLineEdit(QLineEdit):
         self.setFont(font)
 
 
+def widgets_to_grid(widgets: Iterable[QWidget], columns: int = 2) -> Iterable[QWidget, int, int]:
+    row = col = 1
+    for widget in widgets:
+        yield widget, row, col
+        if col < columns:
+            col += 1
+        else:
+            row += 1
+            col = 1
+
+
 class DialogUI(QDialog):
     name = "Merge Fields Options"
     __checkbox_keys = tuple(fetch_config_toggleables())
@@ -79,10 +90,10 @@ class DialogUI(QDialog):
         layout.addRow("Duplicate shortcut:", self.shortcut_edits['duplicate_notes_shortcut'])
         return layout
 
-    def create_checkbox_group(self):
-        vbox = QVBoxLayout()
-        for widget in self.checkboxes.values():
-            vbox.addWidget(widget)
+    def create_checkbox_group(self) -> QLayout:
+        vbox = QGridLayout()
+        for widget, row, col, in widgets_to_grid(self.checkboxes.values()):
+            vbox.addWidget(widget, row, col)
         return vbox
 
     def add_tooltips(self):
