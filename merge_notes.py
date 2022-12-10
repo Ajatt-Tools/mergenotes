@@ -1,7 +1,8 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Sequence, Iterator, Any
+import itertools
+from typing import Sequence, Iterator, Any, Iterable
 
 from anki import collection
 from anki.cards import Card
@@ -102,15 +103,14 @@ def pairs(lst: Sequence[Any]) -> Iterator[tuple[Any, Any]]:
         yield lst[i], lst[i + 1]
 
 
-def fields_in_notes(notes: Sequence[Note]):
-    """Returns a set that contains all field names present in notes."""
-    import itertools
+def fields_in_notes(notes: Sequence[Note]) -> Iterable[str]:
+    """Iterates over all field names present in notes."""
+    return itertools.chain(*(note.keys() for note in notes))
 
-    return set(itertools.chain(*(note.keys() for note in notes)))
 
 
 def reorder_by_common_fields(notes: Sequence[Note]) -> list[Note]:
-    all_fields = fields_in_notes(notes)
+    all_fields = set(fields_in_notes(notes))
     return sorted(notes, key=lambda note: sum(int(field_name in all_fields) for field_name in note.keys()))
 
 
