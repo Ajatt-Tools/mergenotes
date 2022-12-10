@@ -1,6 +1,6 @@
 ![Menu](https://user-images.githubusercontent.com/69171671/101429753-99032900-38fb-11eb-8b8d-06720ee7ef9a.png)
 
-# mergenotes
+# Merge Notes
 
 [![Rate on AnkiWeb](https://glutanimate.com/logos/ankiweb-rate.svg)](https://ankiweb.net/shared/info/1425504015)
 [![Patreon](https://img.shields.io/badge/patreon-support-orange)](https://www.patreon.com/bePatron?u=43555128)
@@ -16,20 +16,20 @@ The add-on will ignore the fields that are present in one note but are not prese
 
 ## Features
 
-0) **Merge** or **duplicate** selected notes.
-1) Change settings before merging.
-To open quick settings, click "Edit" > "Merge Fields Settings" in the Anki Browser.
-2) Ability to specify a field separator.
-You can decide what string is inserted as a separator between the merged fields.
-3) Merge tags of selected cards.
-4) Delete original notes after merging.
-5) Choose direction of the merge: by `Due` number, by `Sort Field` or by `Sort Field (numeric)`.
-The latter checks if there's a number in the field and sorts by the number first.
-6) Merge in reverse order.
-7) Skip non-empty fields to perform a partial merge.
-8) Merge duplicate notes.
-Go to "Browser" > "Notes" > "Find duplicates",
-search duplicates and click "Merge duplicates" after the search has finished.
+1) **Merge** or **duplicate** selected notes.
+2) Change settings before merging.
+   To open quick settings, click "Edit" > "Merge Fields Settings" in the Anki Browser.
+3) Ability to specify a field separator.
+   You can decide what string is inserted as a separator between the merged fields.
+4) Merge tags of selected cards.
+5) Delete original notes after merging.
+6) Choose direction of the merge: by `Due` number, by `Sort Field` or by `Sort Field (numeric)`.
+   The latter checks if there's a number in the field and sorts by the number first.
+7) Merge in reverse order.
+8) Skip non-empty fields to perform a partial merge.
+9) Merge duplicate notes.
+   Go to "Browser" > "Notes" > "Find duplicates",
+   search duplicates and click "Merge duplicates" after the search has finished.
 
 ## Installation
 
