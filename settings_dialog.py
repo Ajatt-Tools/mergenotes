@@ -124,7 +124,9 @@ class DialogUI(QDialog):
             "Remove characters specified in \"Punctuation characters\" before comparing two fields."
         )
         self.checkboxes['avoid_content_loss'].setToolTip(
-            "Reorder notes so that note types with more common fields come last."
+            "Reorder notes so that notes with more common fields come last.\n"
+            "Still, it is possible to lose content unless two notes have identical fields\n"
+            "or belong to the same Note Type."
         )
         self.checkboxes['normalize_digits'].setToolTip(
             "Treat normal and full-width digit characters as equal."
@@ -134,6 +136,9 @@ class DialogUI(QDialog):
             "strip html tags, strip punctuation, and normalize digits\n"
             "before comparing fields.\n"
             "This should yield more results."
+        )
+        self.checkboxes['show_duplicate_notes_button'].setToolTip(
+            "Add \"Duplicate notes\" button to context menu of the Anki Browser."
         )
 
 
