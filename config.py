@@ -48,13 +48,6 @@ class OrderingChoices:
 
 def get_config() -> dict:
     cfg: dict = mw.addonManager.getConfig(__name__)
-    cfg['delete_original_notes']: bool = cfg.get('delete_original_notes', False)
-    cfg['merge_tags']: bool = cfg.get('merge_tags', True)
-    cfg['only_empty']: bool = cfg.get('only_empty', False)
-    cfg['reverse_order']: bool = cfg.get('reverse_order', False)
-    cfg['field_separator']: str = cfg.get('field_separator', "")
-    cfg['merge_notes_shortcut']: str = cfg.get('merge_notes_shortcut', "Ctrl+Alt+M")
-    cfg['ordering']: str = cfg.get('ordering', "Due")
 
     if not cfg['ordering'] in OrderingChoices.as_list():
         print(f"Wrong ordering: {cfg['ordering']}")
