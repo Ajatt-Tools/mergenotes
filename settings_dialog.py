@@ -121,13 +121,19 @@ class DialogUI(QDialog):
             "Treat two fields equal if their text content matches, disregard HTML tags."
         )
         self.checkboxes['strip_punctuation_before_comparison'].setToolTip(
-            'Remove characters specified in "Punctuation characters" before comparing two fields.'
+            "Remove characters specified in \"Punctuation characters\" before comparing two fields."
         )
         self.checkboxes['avoid_content_loss'].setToolTip(
-            'Reorder notes so that note types with more common fields come last.'
+            "Reorder notes so that note types with more common fields come last."
         )
         self.checkboxes['normalize_digits'].setToolTip(
-            'Treat normal and full-width digit characters as equal.'
+            "Treat normal and full-width digit characters as equal."
+        )
+        self.checkboxes['apply_when_searching_duplicates'].setToolTip(
+            "When using the \"Find Duplicates\" Anki feature,\n"
+            "strip html tags, strip punctuation, and normalize digits\n"
+            "before comparing fields.\n"
+            "This should yield more results."
         )
 
 
