@@ -43,7 +43,7 @@ class MergeDupes(MergeNotes):
     def op(self, dupes: list[tuple[str, list[NoteId]]]) -> OpChanges:
         pos = self.col.add_custom_undo_entry(self.action_name)
 
-        for dupe_string, dupe_nids in dupes:
+        for _, dupe_nids in dupes:
             if len(chunk := carefully_get_notes(dupe_nids)) > 1:
                 chunk.sort(key=sort_by_note_cards, reverse=config['reverse_order'])
                 self._merge_chunk(chunk)

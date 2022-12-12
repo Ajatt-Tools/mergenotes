@@ -46,14 +46,14 @@ def widgets_to_grid(widgets: Iterable[QWidget], columns: int = 2) -> Iterable[tu
 
 class DialogUI(QDialog):
     name = "Merge Fields Options"
-    __checkbox_keys = tuple(fetch_config_toggleables())
-    __shortcut_keys = (
+    _checkbox_keys = tuple(fetch_config_toggleables())
+    _shortcut_keys = (
         "merge_notes_shortcut",
         "duplicate_notes_shortcut",
     )
 
     def create_checkboxes(self) -> Iterable[tuple[str, QCheckBox]]:
-        for key in self.__checkbox_keys:
+        for key in self._checkbox_keys:
             yield key, QCheckBox(key.replace('_', ' ').capitalize())
 
     def __init__(self, *args, **kwargs):
@@ -62,7 +62,7 @@ class DialogUI(QDialog):
         self.field_separator_edit = MonoSpaceLineEdit()
         self.punctuation_edit = MonoSpaceLineEdit()
         self.ordering_combo_box = QComboBox()
-        self.shortcut_edits = {key: ShortCutGrabButton(config.get(key)) for key in self.__shortcut_keys}
+        self.shortcut_edits = {key: ShortCutGrabButton(config.get(key)) for key in self._shortcut_keys}
         self.checkboxes = dict(self.create_checkboxes())
         self.bottom_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self._setup_ui()
