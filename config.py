@@ -56,14 +56,51 @@ def get_config() -> dict:
     return cfg
 
 
-def write_config():
-    return mw.addonManager.writeConfig(__name__, config)
+def get_default_config():
+    manager = mw.addonManager
+    addon = manager.addonFromModule(__name__)
+    return manager.addonConfigDefaults(addon)
 
 
-def fetch_config_toggleables() -> Iterable[str]:
-    for key, value in config.items():
-        if type(value) == bool:
-            yield key
+class Config:
+    _config = get_config()
+    _default_config = get_default_config()
+
+    def __init__(self, default: bool = False):
+        if default:
+            self._config = self._default_config
+
+    def __getitem__(self, item):
+        if item in self._default_config.keys():
+            return self._config[item]
+        else:
+            raise RuntimeError("Invalid config key.")
+
+    def __setitem__(self, key, value):
+        if key in self._default_config.keys():
+            self._config[key] = value
+        else:
+            raise RuntimeError("Invalid config key.")
+
+    @classmethod
+    def bool_keys(cls) -> Iterable[str]:
+        for key, value in cls._default_config.items():
+            if type(value) == bool:
+                yield key
+
+    @property
+    def is_default(self) -> bool:
+        return self._config is self._default_config
+
+    @classmethod
+    def default(cls):
+        return cls(default=True)
+
+    def write(self):
+        if not self.is_default:
+            return mw.addonManager.writeConfig(__name__, self._config)
+        else:
+            raise RuntimeError("Cannot write default config.")
 
 
-config = get_config()
+config = Config()
