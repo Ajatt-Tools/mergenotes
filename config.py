@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sys
-from typing import Iterable
+from typing import Iterable, Callable, Any
 
 from anki.cards import Card
 from aqt import mw
@@ -29,7 +29,7 @@ def sort_field_numeric_key(card: Card) -> tuple[int, str]:
 
 
 class OrderingChoices:
-    __choices = {
+    _choices = {
         "Due": due_key,
         "Sort Field": sort_field_key,
         "Sort Field (numeric)": sort_field_numeric_key,
@@ -37,21 +37,20 @@ class OrderingChoices:
         "Card ID": lambda card: card.id,
     }
 
-    @classmethod
-    def get_key(cls, key):
-        return cls.__choices.get(key)
+    def __getitem__(self, key) -> Callable[[Card], Any]:
+        return self._choices[key]
 
     @classmethod
-    def as_list(cls):
-        return [*cls.__choices.keys()]
+    def names(cls):
+        return cls._choices.keys()
 
 
 def get_config() -> dict:
     cfg: dict = mw.addonManager.getConfig(__name__)
 
-    if not cfg['ordering'] in OrderingChoices.as_list():
+    if not cfg['ordering'] in OrderingChoices.names():
         print(f"Wrong ordering: {cfg['ordering']}")
-        cfg['ordering'] = OrderingChoices.as_list()[0]
+        cfg['ordering'] = next(iter(OrderingChoices.names()))
 
     return cfg
 
@@ -65,6 +64,7 @@ def get_default_config():
 class Config:
     _config = get_config()
     _default_config = get_default_config()
+    _ordering_choices = OrderingChoices()
 
     def __init__(self, default: bool = False):
         if default:
@@ -81,6 +81,10 @@ class Config:
             self._config[key] = value
         else:
             raise RuntimeError("Invalid config key.")
+
+    @property
+    def ord_key(self):
+        return self._ordering_choices[self['ordering']]
 
     @classmethod
     def bool_keys(cls) -> Iterable[str]:

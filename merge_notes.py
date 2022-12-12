@@ -150,7 +150,7 @@ def on_merge_selected(browser: Browser) -> None:
 
     sorted_cards = sorted(
         (mw.col.getCard(cid) for cid in cids),
-        key=OrderingChoices.get_key(config['ordering']),
+        key=config.ord_key,
         reverse=config['reverse_order']
     )
 

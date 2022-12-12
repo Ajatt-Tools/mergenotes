@@ -198,7 +198,7 @@ class MergeFieldsSettingsWindow(DialogUI):
         restoreGeom(self, self.name)
 
     def populate_ordering_combobox(self):
-        self._ordering_combo_box.addItems(OrderingChoices.as_list())
+        self._ordering_combo_box.addItems(OrderingChoices.names())
 
     def load_config_values(self, cfg: Config):
         self._field_separator_edit.setText(cfg['field_separator'])

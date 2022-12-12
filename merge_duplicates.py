@@ -13,7 +13,7 @@ from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import tooltip
 
-from .config import OrderingChoices, config
+from .config import config
 from .merge_notes import MergeNotes
 
 
@@ -34,7 +34,7 @@ def carefully_get_notes(nids: Sequence[NoteId], has_field: Optional[str] = None)
 
 
 def sort_by_note_cards(note: Note):
-    return min(OrderingChoices.get_key(config['ordering'])(card) for card in note.cards())
+    return min(config.ord_key(card) for card in note.cards())
 
 
 class MergeDupes(MergeNotes):
