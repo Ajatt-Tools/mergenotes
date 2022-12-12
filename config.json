@@ -7,6 +7,7 @@
   "ignore_html_tags": true,
   "ignore_punctuation": true,
   "full-width_as_half-width": true,
+  "ignore_furigana": false,
   "apply_when_searching_duplicates": true,
   "show_duplicate_notes_button": true,
   "delete_original_notes": true,

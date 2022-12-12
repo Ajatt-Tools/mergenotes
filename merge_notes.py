@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import itertools
+import re
 import unicodedata
 from typing import Sequence, Iterator, Any, Iterable
 
@@ -40,10 +41,16 @@ def full_width_to_half_width(s: str) -> str:
     return unicodedata.normalize("NFKC", s)
 
 
+def remove_furigana(s: str):
+    return re.sub(r'\s*(\S+)\[[^\[\]]+]', r'\g<1>', s)
+
+
 def cfg_strip(s: str) -> str:
     """Removes/replaces various characters defined by the user. Called before string comparison."""
     if config['ignore_html_tags']:
         s = strip_html(s)
+    if config['ignore_furigana']:
+        s = remove_furigana(s)
     if config['ignore_punctuation']:
         s = strip_punctuation(s)
     if config['full-width_as_half-width']:

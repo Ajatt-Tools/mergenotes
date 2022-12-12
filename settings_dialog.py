@@ -66,6 +66,7 @@ class DialogUI(QDialog):
         "ignore_punctuation",
         "full-width_as_half-width",
         "apply_when_searching_duplicates",
+        "ignore_furigana",
     )
 
     def __init__(self, *args, **kwargs):
@@ -172,6 +173,10 @@ class DialogUI(QDialog):
         )
         self._checkboxes['show_duplicate_notes_button'].setToolTip(
             "Add \"Duplicate notes\" button to context menu of the Anki Browser."
+        )
+        self._checkboxes['ignore_furigana'].setToolTip(
+            "Don't take furigana into account when comparing fields.\n"
+            "Note that you may lose furigana when merging notes this way."
         )
 
 
