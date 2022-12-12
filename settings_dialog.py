@@ -1,6 +1,7 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import functools
 from typing import Iterable
 
 from aqt import mw, gui_hooks
@@ -8,8 +9,9 @@ from aqt.browser import Browser
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 
-from .ajt_common import tweak_window, ShortCutGrabButton
-from .config import config, OrderingChoices, write_config, fetch_config_toggleables
+from .ajt_common.about_menu import menu_root_entry, tweak_window
+from .ajt_common.grab_key import ShortCutGrabButton
+from .config import OrderingChoices, Config, config
 
 
 ######################################################################
@@ -44,9 +46,17 @@ def widgets_to_grid(widgets: Iterable[QWidget], columns: int = 2) -> Iterable[tu
             col = 1
 
 
+def as_label(config_key: str) -> str:
+    return config_key.replace('_', ' ').capitalize()
+
+
+def create_checkboxes() -> Iterable[tuple[str, QCheckBox]]:
+    for key in config.bool_keys():
+        yield key, QCheckBox(as_label(key))
+
+
 class DialogUI(QDialog):
     name = "Merge Fields Options"
-    _checkbox_keys = tuple(fetch_config_toggleables())
     _shortcut_keys = (
         "merge_notes_shortcut",
         "duplicate_notes_shortcut",
@@ -58,19 +68,16 @@ class DialogUI(QDialog):
         "apply_when_searching_duplicates",
     )
 
-    def create_checkboxes(self) -> Iterable[tuple[str, QCheckBox]]:
-        for key in self._checkbox_keys:
-            yield key, QCheckBox(key.replace('_', ' ').capitalize())
-
     def __init__(self, *args, **kwargs):
         super().__init__(parent=mw, *args, **kwargs)
         self.setMinimumWidth(400)
-        self.field_separator_edit = MonoSpaceLineEdit()
-        self.punctuation_edit = MonoSpaceLineEdit()
-        self.ordering_combo_box = QComboBox()
-        self.shortcut_edits = {key: ShortCutGrabButton(config.get(key)) for key in self._shortcut_keys}
-        self.checkboxes = dict(self.create_checkboxes())
-        self.bottom_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self._field_separator_edit = MonoSpaceLineEdit()
+        self._punctuation_edit = MonoSpaceLineEdit()
+        self._ordering_combo_box = QComboBox()
+        self._shortcut_edits = {key: ShortCutGrabButton() for key in self._shortcut_keys}
+        self._checkboxes = dict(create_checkboxes())
+        self._bottom_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        self._reset_button = self._bottom_box.addButton("Restore defaults", QDialogButtonBox.ButtonRole.ResetRole)
         self._setup_ui()
 
     def _setup_ui(self):
@@ -85,16 +92,16 @@ class DialogUI(QDialog):
         vbox.addWidget(self.create_comparison_group())
         vbox.addWidget(self.create_behavior_group())
         vbox.addStretch(1)
-        vbox.addWidget(self.bottom_box)
+        vbox.addWidget(self._bottom_box)
         return vbox
 
     def create_top_group(self) -> QLayout:
         layout = QFormLayout()
-        layout.addRow("Field Separator:", self.field_separator_edit)
-        layout.addRow("Punctuation characters:", self.punctuation_edit)
-        layout.addRow("Ordering:", self.ordering_combo_box)
-        layout.addRow("Merge shortcut:", self.shortcut_edits['merge_notes_shortcut'])
-        layout.addRow("Duplicate shortcut:", self.shortcut_edits['duplicate_notes_shortcut'])
+        layout.addRow("Field Separator:", self._field_separator_edit)
+        layout.addRow("Punctuation characters:", self._punctuation_edit)
+        layout.addRow("Ordering:", self._ordering_combo_box)
+        layout.addRow("Merge shortcut:", self._shortcut_edits['merge_notes_shortcut'])
+        layout.addRow("Duplicate shortcut:", self._shortcut_edits['duplicate_notes_shortcut'])
         return layout
 
     def create_comparison_group(self) -> QGroupBox:
@@ -102,8 +109,8 @@ class DialogUI(QDialog):
         group.setCheckable(False)
         group.setLayout(grid := QGridLayout())
         for widget, row, col, in widgets_to_grid(
-                self.checkboxes[k]
-                for k in (self.checkboxes.keys() & self._comparison_keys)
+                self._checkboxes[k]
+                for k in (self._checkboxes.keys() & self._comparison_keys)
         ):
             grid.addWidget(widget, row, col)
         return group
@@ -113,57 +120,57 @@ class DialogUI(QDialog):
         group.setCheckable(False)
         group.setLayout(grid := QGridLayout())
         for widget, row, col, in widgets_to_grid(
-                self.checkboxes[k]
-                for k in (self.checkboxes.keys() - self._comparison_keys)
+                self._checkboxes[k]
+                for k in (self._checkboxes.keys() - self._comparison_keys)
         ):
             grid.addWidget(widget, row, col)
         return group
 
     def add_tooltips(self):
-        self.field_separator_edit.setToolTip(
+        self._field_separator_edit.setToolTip(
             "This string is inserted between the merged fields.\n"
             "Empty by default.\n"
             "Common options would be to change it to a single space: \" \", or to a linebreak: \"<br>\".\n"
             r'You can use escaped characters like "\n" or "\t" to insert a linebreak or tab.'
         )
-        self.punctuation_edit.setToolTip(
+        self._punctuation_edit.setToolTip(
             "When comparing two fields, disregard the characters specified here.\n"
             "This makes it possible for two nearly equal fields to be successfully de-duplicated."
         )
-        self.checkboxes['delete_original_notes'].setToolTip("Delete redundant notes after merging.")
-        self.checkboxes['merge_tags'].setToolTip("Merge tags of selected notes in addition to contents of fields.")
-        self.checkboxes['reverse_order'].setToolTip(
+        self._checkboxes['delete_original_notes'].setToolTip("Delete redundant notes after merging.")
+        self._checkboxes['merge_tags'].setToolTip("Merge tags of selected notes in addition to contents of fields.")
+        self._checkboxes['reverse_order'].setToolTip(
             "Sort cards in reverse.\n"
             "For Due ordering this would mean\n"
-            "that a card with the biggest due number\n"
+            "that a card with the smallest due number\n"
             "will receive the content of other selected cards."
         )
-        self.checkboxes['skip_if_not_empty'].setToolTip(
+        self._checkboxes['skip_if_not_empty'].setToolTip(
             "Copy only from non-empty fields to empty fields.\n"
             "If a field is already filled, no new text will be added to it."
         )
-        self.checkboxes['ignore_html_tags'].setToolTip(
+        self._checkboxes['ignore_html_tags'].setToolTip(
             "Strip HTML tags from a pair of fields before performing a comparison.\n"
             "Treat two fields equal if their text content matches, disregard HTML tags."
         )
-        self.checkboxes['ignore_punctuation'].setToolTip(
+        self._checkboxes['ignore_punctuation'].setToolTip(
             "Remove characters specified in \"Punctuation characters\" before comparing two fields."
         )
-        self.checkboxes['avoid_content_loss'].setToolTip(
+        self._checkboxes['avoid_content_loss'].setToolTip(
             "Reorder notes so that notes with more common fields come last.\n"
             "Still, it is possible to lose content unless two notes have identical fields\n"
             "or belong to the same Note Type."
         )
-        self.checkboxes['full-width_as_half-width'].setToolTip(
+        self._checkboxes['full-width_as_half-width'].setToolTip(
             "Treat normal and full-width characters as equal."
         )
-        self.checkboxes['apply_when_searching_duplicates'].setToolTip(
+        self._checkboxes['apply_when_searching_duplicates'].setToolTip(
             "When using the \"Find Duplicates\" Anki feature,\n"
             "strip html tags, strip punctuation, and normalize digits before comparing fields,\n"
             "if each option is enabled respectfully."
             "This should yield more results."
         )
-        self.checkboxes['show_duplicate_notes_button'].setToolTip(
+        self._checkboxes['show_duplicate_notes_button'].setToolTip(
             "Add \"Duplicate notes\" button to context menu of the Anki Browser."
         )
 
@@ -180,34 +187,37 @@ class MergeFieldsSettingsWindow(DialogUI):
     def __init__(self):
         super().__init__()
         self.populate_ordering_combobox()
-        self.load_config_values()
+        self.load_config_values(config)
         self.connect_ui_elements()
         tweak_window(self)
         restoreGeom(self, self.name)
 
     def populate_ordering_combobox(self):
-        self.ordering_combo_box.addItems(OrderingChoices.as_list())
+        self._ordering_combo_box.addItems(OrderingChoices.as_list())
 
-    def load_config_values(self):
-        self.field_separator_edit.setText(config['field_separator'])
-        self.punctuation_edit.setText(uniq_char_str(config['punctuation_characters']))
-        self.ordering_combo_box.setCurrentText(config['ordering'])
-        for key, widget in self.checkboxes.items():
-            widget.setChecked(config[key])
+    def load_config_values(self, cfg: Config):
+        self._field_separator_edit.setText(cfg['field_separator'])
+        self._punctuation_edit.setText(uniq_char_str(cfg['punctuation_characters']))
+        self._ordering_combo_box.setCurrentText(cfg['ordering'])
+        for key, widget in self._shortcut_edits.items():
+            widget.setValue(cfg[key])
+        for key, widget in self._checkboxes.items():
+            widget.setChecked(cfg[key])
 
     def connect_ui_elements(self):
-        qconnect(self.bottom_box.accepted, self.accept)
-        qconnect(self.bottom_box.rejected, self.reject)
+        qconnect(self._bottom_box.accepted, self.accept)
+        qconnect(self._bottom_box.rejected, self.reject)
+        qconnect(self._reset_button.clicked, functools.partial(self.load_config_values, config.default()))
 
     def accept(self):
-        config['field_separator'] = self.field_separator_edit.text()
-        config['punctuation_characters'] = uniq_char_str(self.punctuation_edit.text())
-        config['ordering'] = self.ordering_combo_box.currentText()
-        for key, widget in self.shortcut_edits.items():
+        config['field_separator'] = self._field_separator_edit.text()
+        config['punctuation_characters'] = uniq_char_str(self._punctuation_edit.text())
+        config['ordering'] = self._ordering_combo_box.currentText()
+        for key, widget in self._shortcut_edits.items():
             config[key] = widget.value()
-        for key, widget in self.checkboxes.items():
+        for key, widget in self._checkboxes.items():
             config[key] = widget.isChecked()
-        write_config()
+        config.write()
         return super().accept()
 
     def done(self, *args, **kwargs) -> None:
@@ -226,8 +236,6 @@ def on_open_settings() -> None:
 
 
 def setup_mainwindow_menu():
-    from .ajt_common import menu_root_entry
-
     root_menu = menu_root_entry()
     action = QAction(f"{MergeFieldsSettingsWindow.name}...", root_menu)
     qconnect(action.triggered, on_open_settings)
