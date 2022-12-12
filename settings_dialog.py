@@ -51,6 +51,12 @@ class DialogUI(QDialog):
         "merge_notes_shortcut",
         "duplicate_notes_shortcut",
     )
+    _comparison_keys = (
+        "ignore_html_tags",
+        "ignore_punctuation",
+        "full-width_as_half-width",
+        "apply_when_searching_duplicates",
+    )
 
     def create_checkboxes(self) -> Iterable[tuple[str, QCheckBox]]:
         for key in self._checkbox_keys:
@@ -76,7 +82,8 @@ class DialogUI(QDialog):
         vbox = QVBoxLayout()
         vbox.setSpacing(10)
         vbox.addLayout(self.create_top_group())
-        vbox.addLayout(self.create_checkbox_group())
+        vbox.addWidget(self.create_comparison_group())
+        vbox.addWidget(self.create_behavior_group())
         vbox.addStretch(1)
         vbox.addWidget(self.bottom_box)
         return vbox
@@ -90,11 +97,27 @@ class DialogUI(QDialog):
         layout.addRow("Duplicate shortcut:", self.shortcut_edits['duplicate_notes_shortcut'])
         return layout
 
-    def create_checkbox_group(self) -> QLayout:
-        vbox = QGridLayout()
-        for widget, row, col, in widgets_to_grid(self.checkboxes.values()):
-            vbox.addWidget(widget, row, col)
-        return vbox
+    def create_comparison_group(self) -> QGroupBox:
+        group = QGroupBox("Field comparison")
+        group.setCheckable(False)
+        group.setLayout(grid := QGridLayout())
+        for widget, row, col, in widgets_to_grid(
+                self.checkboxes[k]
+                for k in (self.checkboxes.keys() & self._comparison_keys)
+        ):
+            grid.addWidget(widget, row, col)
+        return group
+
+    def create_behavior_group(self) -> QGroupBox:
+        group = QGroupBox("Behavior")
+        group.setCheckable(False)
+        group.setLayout(grid := QGridLayout())
+        for widget, row, col, in widgets_to_grid(
+                self.checkboxes[k]
+                for k in (self.checkboxes.keys() - self._comparison_keys)
+        ):
+            grid.addWidget(widget, row, col)
+        return group
 
     def add_tooltips(self):
         self.field_separator_edit.setToolTip(
@@ -115,15 +138,15 @@ class DialogUI(QDialog):
             "that a card with the biggest due number\n"
             "will receive the content of other selected cards."
         )
-        self.checkboxes['only_empty'].setToolTip(
+        self.checkboxes['skip_if_not_empty'].setToolTip(
             "Copy only from non-empty fields to empty fields.\n"
             "If a field is already filled, no new text will be added to it."
         )
-        self.checkboxes['html_agnostic_comparison'].setToolTip(
+        self.checkboxes['ignore_html_tags'].setToolTip(
             "Strip HTML tags from a pair of fields before performing a comparison.\n"
             "Treat two fields equal if their text content matches, disregard HTML tags."
         )
-        self.checkboxes['strip_punctuation_before_comparison'].setToolTip(
+        self.checkboxes['ignore_punctuation'].setToolTip(
             "Remove characters specified in \"Punctuation characters\" before comparing two fields."
         )
         self.checkboxes['avoid_content_loss'].setToolTip(
@@ -131,8 +154,8 @@ class DialogUI(QDialog):
             "Still, it is possible to lose content unless two notes have identical fields\n"
             "or belong to the same Note Type."
         )
-        self.checkboxes['normalize_digits'].setToolTip(
-            "Treat normal and full-width digit characters as equal."
+        self.checkboxes['full-width_as_half-width'].setToolTip(
+            "Treat normal and full-width characters as equal."
         )
         self.checkboxes['apply_when_searching_duplicates'].setToolTip(
             "When using the \"Find Duplicates\" Anki feature,\n"

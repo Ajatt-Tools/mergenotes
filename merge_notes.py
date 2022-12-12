@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import itertools
+import unicodedata
 from typing import Sequence, Iterator, Any, Iterable
 
 from anki import collection
@@ -35,35 +36,18 @@ def strip_punctuation(s: str) -> str:
     return s
 
 
-EQUAL_DIGITS = {
-    '１': '1',
-    '２': '2',
-    '３': '3',
-    '４': '4',
-    '５': '5',
-    '６': '6',
-    '７': '7',
-    '８': '8',
-    '９': '9',
-    '０': '0',
-}
-
-
-def normalize_digits(s: str):
-    for n1, n2 in EQUAL_DIGITS.items():
-        if n1 in s:
-            s = s.replace(n1, n2)
-    return s
+def full_width_to_half_width(s: str) -> str:
+    return unicodedata.normalize("NFKC", s)
 
 
 def cfg_strip(s: str) -> str:
     """Removes/replaces various characters defined by the user. Called before string comparison."""
-    if config['html_agnostic_comparison']:
+    if config['ignore_html_tags']:
         s = strip_html(s)
-    if config['strip_punctuation_before_comparison']:
+    if config['ignore_punctuation']:
         s = strip_punctuation(s)
-    if config['normalize_digits']:
-        s = normalize_digits(s)
+    if config['full-width_as_half-width']:
+        s = full_width_to_half_width(s)
     return s.strip()
 
 
@@ -91,7 +75,7 @@ def merge_notes(recipient: Note, from_notes: Sequence[Note], separator: str):
     if config['merge_tags'] is True:
         merge_tags(recipient, from_notes)
     for field_name in recipient.keys():
-        if recipient[field_name].strip() and config['only_empty'] is True:
+        if recipient[field_name].strip() and config['skip_if_not_empty'] is True:
             continue
         recipient[field_name] = separator.join(
             {
