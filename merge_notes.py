@@ -71,42 +71,40 @@ def interpret_special_chars(s: str) -> str:
     return s.replace(r'\n', '\n').replace(r'\t', '\t').replace(r'\r', '\r')
 
 
-def merge_fields(add_to: Note, add_from: Note, separator: str) -> None:
-    for field_name in add_from.keys():
-        can_merge = (
-                add_from[field_name].strip()
-                and field_name in add_to
-                and not (config['only_empty'] is True and add_to[field_name])
-                and cfg_strip(add_to[field_name]) != cfg_strip(add_from[field_name])
-        )
-
-        if can_merge:
-            add_to[field_name] = add_to[field_name].strip()
-            add_from[field_name] = add_from[field_name].strip()
-
-            if add_to[field_name]:
-                add_to[field_name] += separator + add_from[field_name]
-            else:
-                add_to[field_name] += add_from[field_name]
-
-
-def merge_tags(add_to: Note, add_from: Note) -> None:
-    for tag in add_from.tags:
-        if tag == 'leech':
-            continue
-        if not add_to.has_tag(tag):
-            add_to.add_tag(tag)
-
-
-def pairs(lst: Sequence[Any]) -> Iterator[tuple[Any, Any]]:
-    for i in range(len(lst) - 1):
-        yield lst[i], lst[i + 1]
+def tags_in_notes(notes: Sequence[Note]) -> Iterable[str]:
+    """Iterates over all tags present in notes."""
+    return itertools.chain(*(note.tags for note in notes))
 
 
 def fields_in_notes(notes: Sequence[Note]) -> Iterable[str]:
     """Iterates over all field names present in notes."""
     return itertools.chain(*(note.keys() for note in notes))
 
+
+def merge_tags(recipient: Note, from_notes: Sequence[Note]) -> None:
+    for tag in tags_in_notes(from_notes):
+        if not (recipient.has_tag(tag) or tag == 'leech'):
+            recipient.add_tag(tag)
+
+
+def merge_notes(recipient: Note, from_notes: Sequence[Note], separator: str):
+    if config['merge_tags'] is True:
+        merge_tags(recipient, from_notes)
+    for field_name in recipient.keys():
+        if recipient[field_name].strip() and config['only_empty'] is True:
+            continue
+        recipient[field_name] = separator.join(
+            {
+                cfg_strip(note[field_name]): note[field_name]
+                for note in from_notes
+                if field_name in note and note[field_name].strip()
+            }.values()
+        )
+
+
+def pairs(lst: Sequence[Any]) -> Iterator[tuple[Any, Any]]:
+    for i in range(len(lst) - 1):
+        yield lst[i], lst[i + 1]
 
 
 def reorder_by_common_fields(notes: Sequence[Note]) -> list[Note]:
@@ -135,15 +133,16 @@ class MergeNotes:
             # notes are already sorted,
             # but additional sorting is required to avoid content loss if possible.
             notes = reorder_by_common_fields(notes)
-        for add_from, add_to in pairs(notes):
-            merge_fields(add_to, add_from, self.separator)
-            if config['merge_tags'] is True:
-                merge_tags(add_to, add_from)
 
         if config['delete_original_notes'] is True:
+            # If the user wants to delete original notes, simply dump all content into the last note.
+            merge_notes(notes[-1], notes, self.separator)
             self.nids_to_remove.extend([note.id for note in notes][0:-1])
             self.notes_to_update.append(notes[-1])
         else:
+            # If not, merge in pairs so that each note receives content of previous notes.
+            for add_from, add_to in pairs(notes):
+                merge_notes(add_to, (add_from, add_to,), self.separator)
             self.notes_to_update.extend(notes)
 
 
