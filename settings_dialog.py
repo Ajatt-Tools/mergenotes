@@ -115,7 +115,10 @@ class DialogUI(QDialog):
             "that a card with the biggest due number\n"
             "will receive the content of other selected cards."
         )
-        self.checkboxes['only_empty'].setToolTip("Copy only from non-empty fields to empty fields.")
+        self.checkboxes['only_empty'].setToolTip(
+            "Copy only from non-empty fields to empty fields.\n"
+            "If a field is already filled, no new text will be added to it."
+        )
         self.checkboxes['html_agnostic_comparison'].setToolTip(
             "Strip HTML tags from a pair of fields before performing a comparison.\n"
             "Treat two fields equal if their text content matches, disregard HTML tags."
@@ -133,8 +136,8 @@ class DialogUI(QDialog):
         )
         self.checkboxes['apply_when_searching_duplicates'].setToolTip(
             "When using the \"Find Duplicates\" Anki feature,\n"
-            "strip html tags, strip punctuation, and normalize digits\n"
-            "before comparing fields.\n"
+            "strip html tags, strip punctuation, and normalize digits before comparing fields,\n"
+            "if each option is enabled respectfully."
             "This should yield more results."
         )
         self.checkboxes['show_duplicate_notes_button'].setToolTip(
