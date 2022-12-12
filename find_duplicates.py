@@ -25,15 +25,14 @@ def notes_from_search(self: Collection, field_name: str, search: str) -> Iterabl
 
 def deep_search_duplicates(self: Collection, field_name: str, search: str) -> list[tuple[str, list]]:
     vals = {}
-    notes = notes_from_search(self, field_name, search)
-    for note in notes:
+    for note in notes_from_search(self, field_name, search):
         if val := cfg_strip(note[field_name]):
             vals.setdefault(val, []).append(note.id)
     return [(dupe_str, dupe_list) for dupe_str, dupe_list in vals.items() if len(dupe_list) >= 2]
 
 
 def find_duplicates(self: Collection, field_name: str, search: str, _old: Callable) -> list[tuple[str, list]]:
-    if config.get('apply_when_searching_duplicates'):
+    if config['apply_when_searching_duplicates']:
         return deep_search_duplicates(self, field_name, search)
     else:
         return _old(self, field_name, search)
@@ -42,7 +41,7 @@ def find_duplicates(self: Collection, field_name: str, search: str, _old: Callab
 def append_apply_checkbox(self: FindDuplicatesDialog, _browser: Browser, _mw: aqt.AnkiQt):
     # row, column, rowSpan, columnSpan
     self.form.verticalLayout.addWidget(c := QCheckBox("Search with Merge Notes"))
-    c.setChecked(bool(config.get('apply_when_searching_duplicates')))
+    c.setChecked(config['apply_when_searching_duplicates'])
 
     def on_state_changed(checked: int):
         # Ref: https://doc.qt.io/qt-6/qt.html#CheckState-enum

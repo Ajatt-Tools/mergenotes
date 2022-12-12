@@ -23,7 +23,7 @@ def carefully_get_notes(nids: Sequence[NoteId], has_field: Optional[str] = None)
     If "has_field" is not None, return notes that contain this field.
     """
     ret = []
-    for nid in nids:
+    for nid in set(nids):
         try:
             note: Note = mw.col.get_note(nid)
             if not has_field or has_field in note.keys():

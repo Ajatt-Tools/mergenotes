@@ -9,11 +9,10 @@
 Empty by default. Common options would be to change it to a single space: `" "`,
 or to a linebreak: `"<br>"`.
 * `ordering` - The way cards are sorted before merging.
-Currently there are two options: `Due` and `Sort Field`.
 * `reverse_order` - Sort cards in reverse.
 For `Due` ordering this would mean that a card with the biggest due number
 will receive the content of other selected cards.
 * `show_duplicate_notes_button` - Add a duplicate button to the browser context menu.
 * `duplicate_notes_shortcut` - A key combination for the "duplicate notes" action.
 * `ignore_punctuation` - Remove punctuation characters before comparing two fields.
-* `punctuation_characters` - Regex pattern containing characters that need to be excluded from comparison.
+* `punctuation_characters` - Characters that need to be excluded from comparison.
