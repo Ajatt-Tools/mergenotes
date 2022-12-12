@@ -41,7 +41,7 @@ def find_duplicates(self: Collection, field_name: str, search: str, _old: Callab
 
 def append_apply_checkbox(self: FindDuplicatesDialog, _browser: Browser, _mw: aqt.AnkiQt):
     # row, column, rowSpan, columnSpan
-    self.form.gridLayout.addWidget(c := QCheckBox("Use Merge Notes search algorithm"), 3, 1, 1, 2)
+    self.form.verticalLayout.addWidget(c := QCheckBox("Search with Merge Notes"))
     c.setChecked(bool(config.get('apply_when_searching_duplicates')))
 
     def on_state_changed(checked: int):
