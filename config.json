@@ -2,6 +2,7 @@
   "field_separator": "<br>",
   "punctuation_characters": "〞『#【,:［♬+〘﹅◎♩～'〮・〇\\〹〵(♫）〡、~｟』/Ⓨ〷%〫Ⓧ！〸’（[〺〈｛0〱」〙‥゠〣〒。〃@※;)*〨〧｝<】=♪゜〴!？_〼ヽ］「﹆×〿＝〥〝|…〢〳《￥〯〖〠〗》 〜.〽〄〔•〛-〬〦&〶]^〚`〟〭〾>＊〻〓ヾ　◦\"Ⓛ$〉｠仝ゞ?〲〕",
   "ordering": "Due",
+  "custom_sort_field": "SentAudio",
   "merge_notes_shortcut": "Ctrl+Alt+M",
   "duplicate_notes_shortcut": "Ctrl+Alt+D",
   "ignore_html_tags": true,

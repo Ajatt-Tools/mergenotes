@@ -19,22 +19,34 @@ def sort_field_key(card: Card) -> str:
     return (note := card.note()).values()[note.model()['sortf']]
 
 
-def sort_field_numeric_key(card: Card) -> tuple[int, str]:
-    # Try to imitate sorting Anki does.
-    sort_field = sort_field_key(card)
-    try:
-        return int(sort_field), sort_field
-    except ValueError:
-        return sys.maxsize, sort_field
+def custom_field_key(card: Card) -> str:
+    if (field := config['custom_sort_field']) in (note := card.note()):
+        return note[field]
+    else:
+        return sort_field_key(card)  # Last resort
+
+
+def generic_numeric_key(cmp_str_fn: Callable[[Card], str]) -> Callable[[Card], tuple[int, str]]:
+    def key(card: Card):
+        # Try to imitate sorting Anki does.
+        cmp_str = cmp_str_fn(card)
+        try:
+            return int(cmp_str), cmp_str
+        except ValueError:
+            return sys.maxsize, cmp_str
+
+    return key
 
 
 class OrderingChoices:
     _choices = {
         "Due": due_key,
-        "Sort Field": sort_field_key,
-        "Sort Field (numeric)": sort_field_numeric_key,
         "Interval length": lambda card: card.ivl,
         "Card ID": lambda card: card.id,
+        "Sort Field": sort_field_key,
+        "Sort Field (numeric)": generic_numeric_key(sort_field_key),
+        "Custom field": custom_field_key,
+        "Custom field (numeric)": generic_numeric_key(custom_field_key),
     }
 
     def __getitem__(self, key) -> Callable[[Card], Any]:
