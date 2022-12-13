@@ -35,6 +35,21 @@ class MonoSpaceLineEdit(QLineEdit):
         self.setFont(font)
 
 
+class AnkiFieldSelector(QComboBox):
+    """An editable combobox prepopulated with all field names present in Note Types in the Anki collection."""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.setEditable(True)
+        self.addItems(dict.fromkeys(self._all_field_names()))
+
+    @staticmethod
+    def _all_field_names() -> Iterable[str]:
+        for model in mw.col.models.all_names_and_ids():
+            for field in mw.col.models.get(model.id)['flds']:
+                yield field['name']
+
+
 def widgets_to_grid(widgets: Iterable[QWidget], columns: int = 2) -> Iterable[tuple[QWidget, int, int]]:
     row = col = 1
     for widget in widgets:
@@ -75,7 +90,7 @@ class DialogUI(QDialog):
         self._field_separator_edit = MonoSpaceLineEdit()
         self._punctuation_edit = MonoSpaceLineEdit()
         self._ordering_combo_box = QComboBox()
-        self._custom_sort_field_edit = MonoSpaceLineEdit()
+        self._custom_sort_field_edit = AnkiFieldSelector()
         self._shortcut_edits = {key: ShortCutGrabButton() for key in self._shortcut_keys}
         self._checkboxes = dict(create_checkboxes())
         self._bottom_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
@@ -213,7 +228,7 @@ class MergeFieldsSettingsWindow(DialogUI):
         self._field_separator_edit.setText(cfg['field_separator'])
         self._punctuation_edit.setText(uniq_char_str(cfg['punctuation_characters']))
         self._ordering_combo_box.setCurrentText(cfg['ordering'])
-        self._custom_sort_field_edit.setText(cfg['custom_sort_field'])
+        self._custom_sort_field_edit.setCurrentText(cfg['custom_sort_field'])
         for key, widget in self._shortcut_edits.items():
             widget.setValue(cfg[key])
         for key, widget in self._checkboxes.items():
@@ -228,7 +243,7 @@ class MergeFieldsSettingsWindow(DialogUI):
         config['field_separator'] = self._field_separator_edit.text()
         config['punctuation_characters'] = uniq_char_str(self._punctuation_edit.text())
         config['ordering'] = self._ordering_combo_box.currentText()
-        config['custom_sort_field'] = self._custom_sort_field_edit.text()
+        config['custom_sort_field'] = self._custom_sort_field_edit.currentText()
         for key, widget in self._shortcut_edits.items():
             config[key] = widget.value()
         for key, widget in self._checkboxes.items():
