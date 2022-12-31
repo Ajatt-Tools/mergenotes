@@ -235,7 +235,7 @@ class MergeFieldsSettingsWindow(DialogUI):
             self._config[key] = widget.value()
         for key, widget in self._checkboxes.items():
             self._config[key] = widget.isChecked()
-        self._config.write()
+        self._config.write_config()
         return super().accept()
 
     def done(self, *args, **kwargs) -> None:

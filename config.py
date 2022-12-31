@@ -2,10 +2,11 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sys
-from typing import Iterable, Callable, Any
+from typing import Callable, Any
 
 from anki.cards import Card
-from aqt import mw
+
+from .ajt_common.addon_config import AddonConfigManager
 
 
 def due_key(card: Card) -> tuple:
@@ -57,66 +58,22 @@ class OrderingChoices:
         return cls._choices.keys()
 
 
-def get_config() -> dict:
-    cfg: dict = mw.addonManager.getConfig(__name__)
-
-    if not cfg['ordering'] in OrderingChoices.names():
-        print(f"Wrong ordering: {cfg['ordering']}")
-        cfg['ordering'] = next(iter(OrderingChoices.names()))
-
-    return cfg
-
-
-def get_default_config():
-    manager = mw.addonManager
-    addon = manager.addonFromModule(__name__)
-    return manager.addonConfigDefaults(addon)
-
-
-class Config:
-    _config = get_config()
-    _default_config = get_default_config()
+class Config(AddonConfigManager):
     _ordering_choices = OrderingChoices()
 
     def __init__(self, default: bool = False):
-        if default:
-            self._config = self._default_config
-
-    def __getitem__(self, item):
-        if item in self._default_config.keys():
-            return self._config[item]
-        else:
-            raise RuntimeError("Invalid config key.")
-
-    def __setitem__(self, key, value):
-        if key in self._default_config.keys():
-            self._config[key] = value
-        else:
-            raise RuntimeError("Invalid config key.")
+        super().__init__(default)
+        if self['ordering'] not in self._ordering_choices.names():
+            print(f"Wrong ordering: {self['ordering']}")
+            self['ordering'] = next(name for name in OrderingChoices.names())
 
     @property
     def ord_key(self):
         return self._ordering_choices[self['ordering']]
 
     @classmethod
-    def bool_keys(cls) -> Iterable[str]:
-        for key, value in cls._default_config.items():
-            if type(value) == bool:
-                yield key
-
-    @property
-    def is_default(self) -> bool:
-        return self._config is self._default_config
-
-    @classmethod
     def default(cls):
         return cls(default=True)
-
-    def write(self):
-        if not self.is_default:
-            return mw.addonManager.writeConfig(__name__, self._config)
-        else:
-            raise RuntimeError("Cannot write default config.")
 
 
 config = Config()
