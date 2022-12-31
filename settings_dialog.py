@@ -9,9 +9,10 @@ from aqt.browser import Browser
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 
+from .ajt_common.anki_field_selector import AnkiFieldSelector
 from .ajt_common.about_menu import menu_root_entry, tweak_window
 from .ajt_common.grab_key import ShortCutGrabButton
-from .config import OrderingChoices, Config, config
+from .config import OrderingChoices, Config
 
 
 ######################################################################
@@ -35,21 +36,6 @@ class MonoSpaceLineEdit(QLineEdit):
         self.setFont(font)
 
 
-class AnkiFieldSelector(QComboBox):
-    """An editable combobox prepopulated with all field names present in Note Types in the Anki collection."""
-
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.setEditable(True)
-        self.addItems(dict.fromkeys(self._all_field_names()))
-
-    @staticmethod
-    def _all_field_names() -> Iterable[str]:
-        for model in mw.col.models.all_names_and_ids():
-            for field in mw.col.models.get(model.id)['flds']:
-                yield field['name']
-
-
 def widgets_to_grid(widgets: Iterable[QWidget], columns: int = 2) -> Iterable[tuple[QWidget, int, int]]:
     row = col = 1
     for widget in widgets:
@@ -66,7 +52,7 @@ def as_label(config_key: str) -> str:
 
 
 def create_checkboxes() -> Iterable[tuple[str, QCheckBox]]:
-    for key in config.bool_keys():
+    for key in Config.bool_keys():
         yield key, QCheckBox(as_label(key))
 
 
@@ -90,7 +76,7 @@ class DialogUI(QDialog):
         self._field_separator_edit = MonoSpaceLineEdit()
         self._punctuation_edit = MonoSpaceLineEdit()
         self._ordering_combo_box = QComboBox()
-        self._custom_sort_field_edit = AnkiFieldSelector()
+        self._custom_sort_field_edit = AnkiFieldSelector(self)
         self._shortcut_edits = {key: ShortCutGrabButton() for key in self._shortcut_keys}
         self._checkboxes = dict(create_checkboxes())
         self._bottom_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
@@ -215,8 +201,9 @@ def uniq_char_str(text: str) -> str:
 class MergeFieldsSettingsWindow(DialogUI):
     def __init__(self):
         super().__init__()
+        self._config = Config()
         self.populate_ordering_combobox()
-        self.load_config_values(config)
+        self.load_config_values(self._config)
         self.connect_ui_elements()
         tweak_window(self)
         restoreGeom(self, self.name)
@@ -237,18 +224,18 @@ class MergeFieldsSettingsWindow(DialogUI):
     def connect_ui_elements(self):
         qconnect(self._bottom_box.accepted, self.accept)
         qconnect(self._bottom_box.rejected, self.reject)
-        qconnect(self._reset_button.clicked, functools.partial(self.load_config_values, config.default()))
+        qconnect(self._reset_button.clicked, functools.partial(self.load_config_values, Config.default()))
 
     def accept(self):
-        config['field_separator'] = self._field_separator_edit.text()
-        config['punctuation_characters'] = uniq_char_str(self._punctuation_edit.text())
-        config['ordering'] = self._ordering_combo_box.currentText()
-        config['custom_sort_field'] = self._custom_sort_field_edit.currentText()
+        self._config['field_separator'] = self._field_separator_edit.text()
+        self._config['punctuation_characters'] = uniq_char_str(self._punctuation_edit.text())
+        self._config['ordering'] = self._ordering_combo_box.currentText()
+        self._config['custom_sort_field'] = self._custom_sort_field_edit.currentText()
         for key, widget in self._shortcut_edits.items():
-            config[key] = widget.value()
+            self._config[key] = widget.value()
         for key, widget in self._checkboxes.items():
-            config[key] = widget.isChecked()
-        config.write()
+            self._config[key] = widget.isChecked()
+        self._config.write()
         return super().accept()
 
     def done(self, *args, **kwargs) -> None:
