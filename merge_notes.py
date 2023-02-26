@@ -7,18 +7,18 @@ import unicodedata
 from typing import Sequence, Iterator, Any, Iterable
 
 from anki import collection
-from anki.cards import Card
+from anki.cards import Card, CardId
 from anki.collection import OpChanges
 from anki.notes import Note, NoteId
 from anki.utils import stripHTMLMedia
 from aqt import gui_hooks
 from aqt import mw
-from aqt.browser import Browser
+from aqt.browser import Browser, Table
 from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import tooltip
 
-from .config import config, OrderingChoices
+from .config import config
 
 
 ######################################################################
@@ -141,6 +141,38 @@ def notes_by_cards(cards: Sequence[Card]) -> list[Note]:
     return list({(note := card.note()).id: note for card in cards}.values())
 
 
+def is_existing_card(card_id: CardId) -> bool:
+    import anki
+    try:
+        mw.col.get_card(card_id)
+    except anki.errors.NotFoundError:
+        return False
+    else:
+        return True
+
+
+def select_card(self: Table, card_id: CardId):
+    self._reset_selection()
+    if (row := self._model.get_card_row(card_id)) is not None:
+        self._view.selectRow(row)
+        self._scroll_to_row(row, scroll_even_if_visible=False)
+    else:
+        self.browser.on_all_or_selected_rows_changed()
+        self.browser.on_current_row_changed()
+
+
+def adjust_selection(browser: Browser, selected_cids: Sequence[int]):
+    """
+    If other notes were deleted, select the remaining card after merging.
+    Prevent selection from jumping all the way to the top when the user presses arrow keys.
+    """
+    if config['delete_original_notes'] is True:
+        select_card(
+            browser.table,
+            card_id=next(cid for cid in selected_cids if is_existing_card(cid))
+        )
+
+
 def on_merge_selected(browser: Browser) -> None:
     cids = browser.selectedCards()
 
@@ -158,7 +190,10 @@ def on_merge_selected(browser: Browser) -> None:
         CollectionOp(
             browser, lambda col: MergeNotes(col).op(notes)
         ).success(
-            lambda out: tooltip(f"{len(notes)} notes merged.", parent=browser)
+            lambda out: (
+                adjust_selection(browser, cids),
+                tooltip(f"{len(notes)} notes merged.", parent=browser)
+            )
         ).run_in_background()
     else:
         tooltip("At least two distinct notes must be selected.")
