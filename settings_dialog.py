@@ -12,7 +12,7 @@ from aqt.utils import restoreGeom, saveGeom
 from .ajt_common.anki_field_selector import AnkiFieldSelector
 from .ajt_common.about_menu import menu_root_entry, tweak_window
 from .ajt_common.grab_key import ShortCutGrabButton
-from .config import OrderingChoices, Config
+from .config import OrderingChoices, Config, config
 
 
 ######################################################################
@@ -52,7 +52,7 @@ def as_label(config_key: str) -> str:
 
 
 def create_checkboxes() -> Iterable[tuple[str, QCheckBox]]:
-    for key in Config.bool_keys():
+    for key in config.bool_keys():
         yield key, QCheckBox(as_label(key))
 
 
@@ -201,9 +201,8 @@ def uniq_char_str(text: str) -> str:
 class MergeFieldsSettingsWindow(DialogUI):
     def __init__(self):
         super().__init__()
-        self._config = Config()
         self.populate_ordering_combobox()
-        self.load_config_values(self._config)
+        self.load_config_values(config)
         self.connect_ui_elements()
         tweak_window(self)
         restoreGeom(self, self.name)
@@ -227,15 +226,15 @@ class MergeFieldsSettingsWindow(DialogUI):
         qconnect(self._reset_button.clicked, functools.partial(self.load_config_values, Config.default()))
 
     def accept(self):
-        self._config['field_separator'] = self._field_separator_edit.text()
-        self._config['punctuation_characters'] = uniq_char_str(self._punctuation_edit.text())
-        self._config['ordering'] = self._ordering_combo_box.currentText()
-        self._config['custom_sort_field'] = self._custom_sort_field_edit.currentText()
+        config['field_separator'] = self._field_separator_edit.text()
+        config['punctuation_characters'] = uniq_char_str(self._punctuation_edit.text())
+        config['ordering'] = self._ordering_combo_box.currentText()
+        config['custom_sort_field'] = self._custom_sort_field_edit.currentText()
         for key, widget in self._shortcut_edits.items():
-            self._config[key] = widget.value()
+            config[key] = widget.value()
         for key, widget in self._checkboxes.items():
-            self._config[key] = widget.isChecked()
-        self._config.write_config()
+            config[key] = widget.isChecked()
+        config.write_config()
         return super().accept()
 
     def done(self, *args, **kwargs) -> None:
