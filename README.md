@@ -18,7 +18,7 @@ The add-on will ignore the fields that are present in one note but are not prese
 
 1) **Merge** or **duplicate** selected notes.
 2) Change settings before merging.
-   To open quick settings, click "Edit" > "Merge Fields Settings" in the Anki Browser.
+   To open quick settings, click "Edit" > "Merge Notes Settings" in the Anki Browser.
 3) Ability to specify a field separator.
    You can decide what string is inserted as a separator between the merged fields.
 4) Merge tags of selected cards.
@@ -45,7 +45,7 @@ via "Tools" > "Add-ons" and select "mergenotes".
 Then click the "Config" button on the right-side of the screen.
 
 Most of the settings can be accessed by opening the Anki Browser
-and selecting "Edit" > "Merge Fields Options...".
+and selecting "Edit" > "Merge Notes Options...".
 Before merging duplicates, I recommend enabling the "Delete original notes" option.
 
 Field separator is the string inserted between the merged fields.

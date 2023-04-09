@@ -12,8 +12,8 @@ from aqt.utils import restoreGeom, saveGeom
 from .ajt_common.anki_field_selector import AnkiFieldSelector
 from .ajt_common.about_menu import menu_root_entry, tweak_window
 from .ajt_common.grab_key import ShortCutGrabButton
-from .config import OrderingChoices, Config, config
 from .ajt_common.monospace_line_edit import MonoSpaceLineEdit
+from .config import OrderingChoices, Config, config, ACTION_NAME
 
 
 ######################################################################
@@ -42,7 +42,7 @@ def create_checkboxes() -> Iterable[tuple[str, QCheckBox]]:
 
 
 class DialogUI(QDialog):
-    name = "Merge Fields Options"
+    name = f"{ACTION_NAME} Options"
     _shortcut_keys = (
         "merge_notes_shortcut",
         "duplicate_notes_shortcut",

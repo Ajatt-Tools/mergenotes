@@ -18,7 +18,7 @@ from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import tooltip
 
-from .config import config
+from .config import config, ACTION_NAME
 
 
 ######################################################################
@@ -104,7 +104,7 @@ def reorder_by_common_fields(notes: Sequence[Note]) -> list[Note]:
 
 
 class MergeNotes:
-    action_name = "Merge fields of selected cards"
+    action_name = f"{ACTION_NAME} of selected cards".capitalize()
 
     def __init__(self, col: collection.Collection):
         self.col = col
@@ -208,7 +208,7 @@ def on_merge_selected(browser: Browser) -> None:
 
 def setup_context_menu(browser: Browser) -> None:
     menu = browser.form.menu_Cards
-    merge_fields_action = menu.addAction("Merge fields")
+    merge_fields_action = menu.addAction(ACTION_NAME)
     if shortcut := config['merge_notes_shortcut']:
         merge_fields_action.setShortcut(QKeySequence(shortcut))
     qconnect(merge_fields_action.triggered, lambda: on_merge_selected(browser))

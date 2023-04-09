@@ -8,6 +8,8 @@ from anki.cards import Card
 
 from .ajt_common.addon_config import AddonConfigManager
 
+ACTION_NAME = "Merge Notes"
+
 
 def due_key(card: Card) -> tuple:
     # sort cards by their type, then by due number,

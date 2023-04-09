@@ -12,7 +12,7 @@ from aqt.browser import Browser
 from aqt.browser.find_duplicates import FindDuplicatesDialog
 from aqt.qt import *
 
-from .config import config
+from .config import config, ACTION_NAME
 from .merge_duplicates import carefully_get_notes
 from .merge_notes import cfg_strip
 
@@ -40,7 +40,7 @@ def find_duplicates(self: Collection, field_name: str, search: str, _old: Callab
 
 def append_apply_checkbox(self: FindDuplicatesDialog, _browser: Browser, _mw: aqt.AnkiQt):
     # row, column, rowSpan, columnSpan
-    self.form.verticalLayout.addWidget(c := QCheckBox("Search with Merge Notes"))
+    self.form.verticalLayout.addWidget(c := QCheckBox(f"Search with {ACTION_NAME}"))
     c.setChecked(config['apply_when_searching_duplicates'])
 
     def on_state_changed(checked: int):
