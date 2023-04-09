@@ -13,27 +13,12 @@ from .ajt_common.anki_field_selector import AnkiFieldSelector
 from .ajt_common.about_menu import menu_root_entry, tweak_window
 from .ajt_common.grab_key import ShortCutGrabButton
 from .config import OrderingChoices, Config, config
+from .ajt_common.monospace_line_edit import MonoSpaceLineEdit
 
 
 ######################################################################
 # UI Layout
 ######################################################################
-
-
-class MonoSpaceLineEdit(QLineEdit):
-    font_size = 14
-    min_height = 32
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        font = self.font()
-        font.setFamilies((
-            "Noto Mono", "Noto Sans Mono", "DejaVu Sans Mono", "Droid Sans Mono",
-            "Liberation Mono", "Courier New", "Courier", "Lucida", "Monaco", "Monospace",
-        ))
-        font.setPixelSize(self.font_size)
-        self.setMinimumHeight(self.min_height)
-        self.setFont(font)
 
 
 def widgets_to_grid(widgets: Iterable[QWidget], columns: int = 2) -> Iterable[tuple[QWidget, int, int]]:
