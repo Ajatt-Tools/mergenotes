@@ -9,10 +9,11 @@ from aqt.browser import Browser
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 
-from .ajt_common.anki_field_selector import AnkiFieldSelector
 from .ajt_common.about_menu import menu_root_entry, tweak_window
+from .ajt_common.anki_field_selector import AnkiFieldSelector, gather_all_field_names
 from .ajt_common.grab_key import ShortCutGrabButton
 from .ajt_common.monospace_line_edit import MonoSpaceLineEdit
+from .ajt_common.multiple_choice_selector import MultipleChoiceSelector
 from .config import OrderingChoices, Config, config, ACTION_NAME
 
 
@@ -64,6 +65,7 @@ class DialogUI(QDialog):
         self._custom_sort_field_edit = AnkiFieldSelector(self)
         self._shortcut_edits = {key: ShortCutGrabButton() for key in self._shortcut_keys}
         self._checkboxes = dict(create_checkboxes())
+        self._limit_to_fields = MultipleChoiceSelector()
         self._bottom_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         self._reset_button = self._bottom_box.addButton("Restore defaults", QDialogButtonBox.ButtonRole.ResetRole)
         self._setup_ui()
@@ -77,6 +79,7 @@ class DialogUI(QDialog):
         vbox = QVBoxLayout()
         vbox.setSpacing(10)
         vbox.addLayout(self.create_top_group())
+        vbox.addWidget(self._limit_to_fields)
         vbox.addWidget(self.create_comparison_group())
         vbox.addWidget(self.create_behavior_group())
         vbox.addStretch(1)
@@ -186,20 +189,22 @@ def uniq_char_str(text: str) -> str:
 class MergeFieldsSettingsWindow(DialogUI):
     def __init__(self):
         super().__init__()
-        self.populate_ordering_combobox()
+        self.populate_widgets()
         self.load_config_values(config)
         self.connect_ui_elements()
         tweak_window(self)
         restoreGeom(self, self.name)
 
-    def populate_ordering_combobox(self):
+    def populate_widgets(self):
         self._ordering_combo_box.addItems(OrderingChoices.names())
+        self._limit_to_fields.set_texts(dict.fromkeys(gather_all_field_names()))
 
     def load_config_values(self, cfg: Config):
         self._field_separator_edit.setText(cfg['field_separator'])
         self._punctuation_edit.setText(uniq_char_str(cfg['punctuation_characters']))
         self._ordering_combo_box.setCurrentText(cfg['ordering'])
         self._custom_sort_field_edit.setCurrentText(cfg['custom_sort_field'])
+        self._limit_to_fields.set_checked_texts(cfg['limit_to_fields'])
         for key, widget in self._shortcut_edits.items():
             widget.setValue(cfg[key])
         for key, widget in self._checkboxes.items():
@@ -215,6 +220,7 @@ class MergeFieldsSettingsWindow(DialogUI):
         config['punctuation_characters'] = uniq_char_str(self._punctuation_edit.text())
         config['ordering'] = self._ordering_combo_box.currentText()
         config['custom_sort_field'] = self._custom_sort_field_edit.currentText()
+        config['limit_to_fields'] = self._limit_to_fields.checked_texts()
         for key, widget in self._shortcut_edits.items():
             config[key] = widget.value()
         for key, widget in self._checkboxes.items():

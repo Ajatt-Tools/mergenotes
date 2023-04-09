@@ -78,10 +78,20 @@ def merge_tags(recipient: Note, from_notes: Sequence[Note]) -> None:
             recipient.add_tag(tag)
 
 
+def concerned_field_names(recipient_fields: list[str]):
+    """
+    If the user has limited fields to a certain set, apply the setting.
+    """
+    if config['limit_to_fields']:
+        return set(recipient_fields).intersection(config['limit_to_fields'])
+    else:
+        return recipient_fields
+
+
 def merge_notes(recipient: Note, from_notes: Sequence[Note], separator: str):
     if config['merge_tags'] is True:
         merge_tags(recipient, from_notes)
-    for field_name in recipient.keys():
+    for field_name in concerned_field_names(recipient.keys()):
         if recipient[field_name].strip() and config['skip_if_not_empty'] is True:
             continue
         recipient[field_name] = separator.join(

@@ -5,6 +5,7 @@
   "custom_sort_field": "SentAudio",
   "merge_notes_shortcut": "Ctrl+Alt+M",
   "duplicate_notes_shortcut": "Ctrl+Alt+D",
+  "limit_to_fields": [],
   "ignore_html_tags": true,
   "ignore_punctuation": true,
   "full-width_as_half-width": true,
