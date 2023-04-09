@@ -10,7 +10,7 @@ from anki import collection
 from anki.cards import Card, CardId
 from anki.collection import OpChanges
 from anki.notes import Note, NoteId
-from anki.utils import stripHTMLMedia
+from anki.utils import strip_html_media
 from aqt import gui_hooks
 from aqt import mw
 from aqt.browser import Browser, Table
@@ -27,7 +27,7 @@ from .config import config
 
 
 def strip_html(s: str) -> str:
-    return stripHTMLMedia(s).strip()
+    return strip_html_media(s).strip()
 
 
 def strip_punctuation(s: str) -> str:
