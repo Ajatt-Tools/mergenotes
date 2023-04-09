@@ -45,7 +45,7 @@ via "Tools" > "Add-ons" and select "mergenotes".
 Then click the "Config" button on the right-side of the screen.
 
 Most of the settings can be accessed by opening the Anki Browser
-and selecting "Edit" > "Merge Fields Settings...".
+and selecting "Edit" > "Merge Fields Options...".
 Before merging duplicates, I recommend enabling the "Delete original notes" option.
 
 Field separator is the string inserted between the merged fields.
