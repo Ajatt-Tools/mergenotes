@@ -173,6 +173,11 @@ def adjust_selection(browser: Browser, selected_cids: Sequence[int]):
         )
 
 
+def after_merge(browser: Browser, notes: Sequence[Note], cids: Sequence[int]):
+    adjust_selection(browser, cids)
+    tooltip(f"{len(notes)} notes merged.", parent=browser)
+
+
 def on_merge_selected(browser: Browser) -> None:
     cids = browser.selectedCards()
 
@@ -190,10 +195,7 @@ def on_merge_selected(browser: Browser) -> None:
         CollectionOp(
             browser, lambda col: MergeNotes(col).op(notes)
         ).success(
-            lambda out: (
-                adjust_selection(browser, cids),
-                tooltip(f"{len(notes)} notes merged.", parent=browser)
-            )
+            lambda out: after_merge(browser, notes, cids)
         ).run_in_background()
     else:
         tooltip("At least two distinct notes must be selected.")
