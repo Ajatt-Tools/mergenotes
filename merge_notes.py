@@ -114,12 +114,12 @@ class MergeNotes:
 
     def op(self, notes: Sequence[Note]) -> OpChanges:
         pos = self.col.add_custom_undo_entry(self.action_name)
-        self._merge_chunk(notes)
+        self._merge_notes(notes)
         self.col.update_notes(self.notes_to_update)
         self.col.remove_notes(self.nids_to_remove)
         return self.col.merge_undo_entries(pos)
 
-    def _merge_chunk(self, notes: Sequence[Note]):
+    def _merge_notes(self, notes: Sequence[Note]):
         if config['avoid_content_loss']:
             # notes are already sorted,
             # but additional sorting is required to avoid content loss if possible.

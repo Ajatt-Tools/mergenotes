@@ -46,7 +46,7 @@ class MergeDupes(MergeNotes):
         for _, dupe_nids in dupes:
             if len(chunk := carefully_get_notes(dupe_nids)) > 1:
                 chunk.sort(key=sort_by_note_cards, reverse=config['reverse_order'])
-                self._merge_chunk(chunk)
+                self._merge_notes(chunk)
 
         mw.col.update_notes(self.notes_to_update)
         mw.col.remove_notes(self.nids_to_remove)
