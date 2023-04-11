@@ -9,6 +9,7 @@ from aqt.browser import Browser
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 
+from .ajt_common.widget_placement import place_widgets_in_grid
 from .ajt_common.about_menu import menu_root_entry, tweak_window
 from .ajt_common.anki_field_selector import AnkiFieldSelector, gather_all_field_names
 from .ajt_common.grab_key import ShortCutGrabButton
@@ -20,17 +21,6 @@ from .config import OrderingChoices, Config, config, ACTION_NAME
 ######################################################################
 # UI Layout
 ######################################################################
-
-
-def widgets_to_grid(widgets: Iterable[QWidget], columns: int = 2) -> Iterable[tuple[QWidget, int, int]]:
-    row = col = 1
-    for widget in widgets:
-        yield widget, row, col
-        if col < columns:
-            col += 1
-        else:
-            row += 1
-            col = 1
 
 
 def as_label(config_key: str) -> str:
@@ -99,23 +89,19 @@ class DialogUI(QDialog):
     def create_comparison_group(self) -> QGroupBox:
         group = QGroupBox("Field comparison")
         group.setCheckable(False)
-        group.setLayout(grid := QGridLayout())
-        for widget, row, col, in widgets_to_grid(
-                self._checkboxes[k]
-                for k in (self._checkboxes.keys() & self._comparison_keys)
-        ):
-            grid.addWidget(widget, row, col)
+        group.setLayout(place_widgets_in_grid(
+            self._checkboxes[key]
+            for key in (self._checkboxes.keys() & self._comparison_keys)
+        ))
         return group
 
     def create_behavior_group(self) -> QGroupBox:
         group = QGroupBox("Behavior")
         group.setCheckable(False)
-        group.setLayout(grid := QGridLayout())
-        for widget, row, col, in widgets_to_grid(
-                self._checkboxes[k]
-                for k in (self._checkboxes.keys() - self._comparison_keys)
-        ):
-            grid.addWidget(widget, row, col)
+        group.setLayout(place_widgets_in_grid(
+            self._checkboxes[key]
+            for key in (self._checkboxes.keys() - self._comparison_keys)
+        ))
         return group
 
     def add_tooltips(self):
