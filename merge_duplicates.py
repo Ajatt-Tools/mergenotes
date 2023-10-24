@@ -68,7 +68,7 @@ def append_merge_duplicates_button(self: FindDuplicatesDialog, dupes: list[tuple
     self._dupes = dupes
     if not getattr(self, '_merge_dupes_button', None):
         self._merge_dupes_button = b = self.form.buttonBox.addButton(
-            MergeDupes.action_name, QDialogButtonBox.ActionRole
+            MergeDupes.action_name, QDialogButtonBox.ButtonRole.ActionRole
         )
         qconnect(b.clicked, lambda: merge_dupes(parent=self, dupes=self._dupes))
 
