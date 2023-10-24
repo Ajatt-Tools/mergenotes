@@ -7,7 +7,7 @@ readonly ZIP_NAME=${ADDON_NAME}_${BRANCH}.ankiaddon
 
 cd -- "$ROOT_DIR" || exit 1
 export ROOT_DIR
-
+rm -- "$ZIP_NAME" 2>/dev/null || true
 git archive "$BRANCH" --format=zip --output "$ZIP_NAME"
 
 # shellcheck disable=SC2016
