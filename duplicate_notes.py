@@ -11,6 +11,7 @@ from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import tooltip
 
+from .merge_notes import notes_by_cards
 from .config import config
 
 
@@ -32,8 +33,18 @@ def duplicate_notes_op(col: Collection, notes: Sequence[Note]) -> OpChanges:
     return col.merge_undo_entries(pos)
 
 
+def get_notes_keeping_order(browser: Browser) -> list[Note]:
+    """
+    Retrieve notes in the order they're shown in Browser.
+    """
+    if browser.table.is_notes_mode():
+        return [browser.col.get_note(note_id) for note_id in browser.selected_notes()]
+    else:
+        return notes_by_cards(browser.col.get_card(card_id) for card_id in browser.selected_cards())
+
+
 def duplicate_notes(browser: Browser) -> None:
-    notes = [browser.col.get_note(note_id) for note_id in browser.selected_notes()]
+    notes: list[Note] = get_notes_keeping_order(browser)
 
     if len(notes) > 0:
         (

@@ -151,7 +151,7 @@ class MergeNotes:
             self.notes_to_update.extend(notes)
 
 
-def notes_by_cards(cards: Sequence[Card]) -> list[Note]:
+def notes_by_cards(cards: Iterable[Card]) -> list[Note]:
     return list({(note := card.note()).id: note for card in cards}.values())
 
 
