@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from gettext import ngettext
-from typing import Sequence
+from collections.abc import Sequence
 
 from anki.collection import Collection, OpChanges
 from anki.notes import Note
@@ -25,7 +25,7 @@ def duplicate_notes_op(col: Collection, notes: Sequence[Note]) -> OpChanges:
         first_card = ref_note.cards()[0]
         for key in ref_note.keys():
             new_note[key] = ref_note[key]
-        new_note.tags = [tag for tag in ref_note.tags if tag != 'leech' and tag != 'marked']
+        new_note.tags = [tag for tag in ref_note.tags if tag != "leech" and tag != "marked"]
         col.add_note(new_note, deck_id=(first_card.odid or first_card.did))
 
     return col.merge_undo_entries(pos)
@@ -35,12 +35,9 @@ def duplicate_notes(browser: Browser) -> None:
     notes = [browser.col.get_note(note_id) for note_id in browser.selected_notes()]
 
     if 1 <= len(notes) <= LIMIT:
-        CollectionOp(
-            browser, lambda col: duplicate_notes_op(col, notes)
-        ).success(
+        CollectionOp(browser, lambda col: duplicate_notes_op(col, notes)).success(
             lambda out: tooltip(
-                ngettext("%d note duplicated.", "%d notes duplicated.", len(notes)) % len(notes),
-                parent=browser
+                ngettext("%d note duplicated.", "%d notes duplicated.", len(notes)) % len(notes), parent=browser
             )
         ).run_in_background()
     else:
@@ -48,10 +45,10 @@ def duplicate_notes(browser: Browser) -> None:
 
 
 def setup_context_menu(browser: Browser) -> None:
-    if config['show_duplicate_notes_button']:
+    if config["show_duplicate_notes_button"]:
         menu = browser.form.menu_Cards
         action = menu.addAction("Duplicate notes")
-        if shortcut := config['duplicate_notes_shortcut']:
+        if shortcut := config["duplicate_notes_shortcut"]:
             action.setShortcut(QKeySequence(shortcut))
         qconnect(action.triggered, lambda: duplicate_notes(browser))
 

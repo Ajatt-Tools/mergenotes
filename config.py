@@ -19,11 +19,11 @@ def due_key(card: Card) -> tuple:
 
 
 def sort_field_key(card: Card) -> str:
-    return (note := card.note()).values()[note.model()['sortf']]
+    return (note := card.note()).values()[note.model()["sortf"]]
 
 
 def custom_field_key(card: Card) -> str:
-    if (field := config['custom_sort_field']) in (note := card.note()):
+    if (field := config["custom_sort_field"]) in (note := card.note()):
         return note[field]
     else:
         return sort_field_key(card)  # Last resort
@@ -65,13 +65,13 @@ class Config(AddonConfigManager):
 
     def __init__(self, default: bool = False):
         super().__init__(default)
-        if self['ordering'] not in self._ordering_choices.names():
+        if self["ordering"] not in self._ordering_choices.names():
             print(f"Wrong ordering: {self['ordering']}")
-            self['ordering'] = next(name for name in OrderingChoices.names())
+            self["ordering"] = next(name for name in OrderingChoices.names())
 
     @property
     def ord_key(self):
-        return self._ordering_choices[self['ordering']]
+        return self._ordering_choices[self["ordering"]]
 
     @classmethod
     def default(cls):

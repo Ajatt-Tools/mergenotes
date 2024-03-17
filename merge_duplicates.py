@@ -1,7 +1,8 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Sequence, Optional
+from typing import Optional
+from collections.abc import Sequence
 
 import anki.errors
 from anki.collection import OpChanges
@@ -45,7 +46,7 @@ class MergeDupes(MergeNotes):
 
         for _, dupe_nids in dupes:
             if len(chunk := carefully_get_notes(dupe_nids)) > 1:
-                chunk.sort(key=sort_by_note_cards, reverse=config['reverse_order'])
+                chunk.sort(key=sort_by_note_cards, reverse=config["reverse_order"])
                 self._merge_notes(chunk)
 
         mw.col.update_notes(self.notes_to_update)
@@ -55,9 +56,7 @@ class MergeDupes(MergeNotes):
 
 def merge_dupes(parent: QWidget, dupes: list[tuple[str, list[NoteId]]]) -> None:
     if len(dupes) > 0:
-        CollectionOp(
-            parent, lambda col: MergeDupes(col).op(dupes)
-        ).success(
+        CollectionOp(parent, lambda col: MergeDupes(col).op(dupes)).success(
             lambda out: tooltip(f"Merged {len(dupes)} groups of notes.")
         ).run_in_background()
     else:
@@ -66,7 +65,7 @@ def merge_dupes(parent: QWidget, dupes: list[tuple[str, list[NoteId]]]) -> None:
 
 def append_merge_duplicates_button(self: FindDuplicatesDialog, dupes: list[tuple[str, list[NoteId]]]):
     self._dupes = dupes
-    if not getattr(self, '_merge_dupes_button', None):
+    if not getattr(self, "_merge_dupes_button", None):
         self._merge_dupes_button = b = self.form.buttonBox.addButton(
             MergeDupes.action_name, QDialogButtonBox.ButtonRole.ActionRole
         )

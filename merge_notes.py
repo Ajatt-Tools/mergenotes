@@ -4,7 +4,8 @@
 import itertools
 import re
 import unicodedata
-from typing import Sequence, Iterator, Any, Iterable
+from typing import Any
+from collections.abc import Sequence, Iterator, Iterable
 
 from anki import collection
 from anki.cards import Card, CardId
@@ -30,9 +31,9 @@ def strip_html(s: str) -> str:
 
 
 def strip_punctuation(s: str) -> str:
-    for char in set(config['punctuation_characters']):
+    for char in set(config["punctuation_characters"]):
         if char in s:
-            s = s.replace(char, '')
+            s = s.replace(char, "")
     return s
 
 
@@ -41,24 +42,24 @@ def full_width_to_half_width(s: str) -> str:
 
 
 def remove_furigana(s: str):
-    return re.sub(r'\s*(\S+)\[[^\[\]]+]', r'\g<1>', s)
+    return re.sub(r"\s*(\S+)\[[^\[\]]+]", r"\g<1>", s)
 
 
 def cfg_strip(s: str) -> str:
     """Removes/replaces various characters defined by the user. Called before string comparison."""
-    if config['ignore_html_tags']:
+    if config["ignore_html_tags"]:
         s = strip_html(s)
-    if config['ignore_furigana']:
+    if config["ignore_furigana"]:
         s = remove_furigana(s)
-    if config['ignore_punctuation']:
+    if config["ignore_punctuation"]:
         s = strip_punctuation(s)
-    if config['full-width_as_half-width']:
+    if config["full-width_as_half-width"]:
         s = full_width_to_half_width(s)
     return s.strip()
 
 
 def interpret_special_chars(s: str) -> str:
-    return s.replace(r'\n', '\n').replace(r'\t', '\t').replace(r'\r', '\r')
+    return s.replace(r"\n", "\n").replace(r"\t", "\t").replace(r"\r", "\r")
 
 
 def tags_in_notes(notes: Sequence[Note]) -> Iterable[str]:
@@ -73,7 +74,7 @@ def fields_in_notes(notes: Sequence[Note]) -> Iterable[str]:
 
 def merge_tags(recipient: Note, from_notes: Sequence[Note]) -> None:
     for tag in tags_in_notes(from_notes):
-        if not (recipient.has_tag(tag) or tag == 'leech'):
+        if not (recipient.has_tag(tag) or tag == "leech"):
             recipient.add_tag(tag)
 
 
@@ -81,17 +82,17 @@ def concerned_field_names(recipient_fields: list[str]):
     """
     If the user has limited fields to a certain set, apply the setting.
     """
-    if config['limit_to_fields']:
-        return set(recipient_fields).intersection(config['limit_to_fields'])
+    if config["limit_to_fields"]:
+        return set(recipient_fields).intersection(config["limit_to_fields"])
     else:
         return recipient_fields
 
 
 def merge_notes(recipient: Note, from_notes: Sequence[Note], separator: str):
-    if config['merge_tags'] is True:
+    if config["merge_tags"] is True:
         merge_tags(recipient, from_notes)
     for field_name in concerned_field_names(recipient.keys()):
-        if recipient[field_name].strip() and config['skip_if_not_empty'] is True:
+        if recipient[field_name].strip() and config["skip_if_not_empty"] is True:
             continue
         recipient[field_name] = separator.join(
             {
@@ -119,7 +120,7 @@ class MergeNotes:
         self.col = col
         self.notes_to_update: list[Note] = []
         self.nids_to_remove: list[NoteId] = []
-        self.separator = interpret_special_chars(config['field_separator'])
+        self.separator = interpret_special_chars(config["field_separator"])
 
     def op(self, notes: Sequence[Note]) -> OpChanges:
         pos = self.col.add_custom_undo_entry(self.action_name)
@@ -129,12 +130,12 @@ class MergeNotes:
         return self.col.merge_undo_entries(pos)
 
     def _merge_notes(self, notes: Sequence[Note]):
-        if config['avoid_content_loss']:
+        if config["avoid_content_loss"]:
             # notes are already sorted,
             # but additional sorting is required to avoid content loss if possible.
             notes = reorder_by_common_fields(notes)
 
-        if config['delete_original_notes'] is True:
+        if config["delete_original_notes"] is True:
             # If the user wants to delete original notes, simply dump all content into the last note.
             merge_notes(notes[-1], notes, self.separator)
             self.nids_to_remove.extend([note.id for note in notes][0:-1])
@@ -142,7 +143,11 @@ class MergeNotes:
         else:
             # If not, merge in pairs so that each note receives content of previous notes.
             for add_from, add_to in pairs(notes):
-                merge_notes(add_to, (add_from, add_to,), self.separator)
+                merge_notes(
+                    recipient=add_to,
+                    from_notes=(add_from, add_to),
+                    separator=self.separator,
+                )
             self.notes_to_update.extend(notes)
 
 
@@ -152,6 +157,7 @@ def notes_by_cards(cards: Sequence[Card]) -> list[Note]:
 
 def is_existing_card(card_id: CardId, browser: Browser) -> bool:
     import anki
+
     try:
         browser.col.get_card(card_id)
     except anki.errors.NotFoundError:
@@ -175,11 +181,8 @@ def adjust_selection(browser: Browser, selected_cids: Sequence[int]):
     If other notes were deleted, select the remaining card after merging.
     Prevent selection from jumping all the way to the top when the user presses arrow keys.
     """
-    if config['delete_original_notes'] is True:
-        select_card(
-            browser.table,
-            card_id=next(cid for cid in selected_cids if is_existing_card(cid, browser))
-        )
+    if config["delete_original_notes"] is True:
+        select_card(browser.table, card_id=next(cid for cid in selected_cids if is_existing_card(cid, browser)))
 
 
 def after_merge(browser: Browser, notes: Sequence[Note], cids: Sequence[int]):
@@ -195,15 +198,11 @@ def on_merge_selected(browser: Browser) -> None:
         return
 
     sorted_cards = sorted(
-        (browser.col.get_card(cid) for cid in cids),
-        key=config.ord_key,
-        reverse=config['reverse_order']
+        (browser.col.get_card(cid) for cid in cids), key=config.ord_key, reverse=config["reverse_order"]
     )
 
     if len(notes := notes_by_cards(sorted_cards)) > 1:
-        CollectionOp(
-            browser, lambda col: MergeNotes(col).op(notes)
-        ).success(
+        CollectionOp(browser, lambda col: MergeNotes(col).op(notes)).success(
             lambda out: after_merge(browser, notes, cids)
         ).run_in_background()
     else:
@@ -218,7 +217,7 @@ def on_merge_selected(browser: Browser) -> None:
 def setup_context_menu(browser: Browser) -> None:
     menu = browser.form.menu_Cards
     merge_fields_action = menu.addAction(ACTION_NAME)
-    if shortcut := config['merge_notes_shortcut']:
+    if shortcut := config["merge_notes_shortcut"]:
         merge_fields_action.setShortcut(QKeySequence(shortcut))
     qconnect(merge_fields_action.triggered, lambda: on_merge_selected(browser))
 

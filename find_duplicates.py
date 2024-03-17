@@ -1,7 +1,7 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Iterable
+from collections.abc import Iterable
 
 import aqt
 from anki.collection import Collection
@@ -18,9 +18,9 @@ from .merge_notes import cfg_strip
 
 
 def notes_from_search(self: Collection, field_name: str, search: str) -> Iterable[Note]:
-    return carefully_get_notes(self.find_notes(
-        self.build_search_string(search, SearchNode(field_name=field_name))
-    ), has_field=field_name)
+    return carefully_get_notes(
+        self.find_notes(self.build_search_string(search, SearchNode(field_name=field_name))), has_field=field_name
+    )
 
 
 def deep_search_duplicates(self: Collection, field_name: str, search: str) -> list[tuple[str, list]]:
@@ -32,7 +32,7 @@ def deep_search_duplicates(self: Collection, field_name: str, search: str) -> li
 
 
 def find_duplicates(self: Collection, field_name: str, search: str, _old: Callable) -> list[tuple[str, list]]:
-    if config['apply_when_searching_duplicates']:
+    if config["apply_when_searching_duplicates"]:
         return deep_search_duplicates(self, field_name, search)
     else:
         return _old(self, field_name, search)
@@ -41,11 +41,11 @@ def find_duplicates(self: Collection, field_name: str, search: str, _old: Callab
 def append_apply_checkbox(self: FindDuplicatesDialog, _browser: Browser, _mw: aqt.AnkiQt):
     # row, column, rowSpan, columnSpan
     self.form.verticalLayout.addWidget(c := QCheckBox(f"Search with {ACTION_NAME}"))
-    c.setChecked(config['apply_when_searching_duplicates'])
+    c.setChecked(config["apply_when_searching_duplicates"])
 
     def on_state_changed(checked: int):
         # Ref: https://doc.qt.io/qt-6/qt.html#CheckState-enum
-        config['apply_when_searching_duplicates'] = bool(checked)
+        config["apply_when_searching_duplicates"] = bool(checked)
 
     qconnect(c.stateChanged, on_state_changed)
 
