@@ -12,7 +12,6 @@ from anki.collection import OpChanges
 from anki.notes import Note, NoteId
 from anki.utils import strip_html_media
 from aqt import gui_hooks
-from aqt import mw
 from aqt.browser import Browser, Table
 from aqt.operations import CollectionOp
 from aqt.qt import *
@@ -151,10 +150,10 @@ def notes_by_cards(cards: Sequence[Card]) -> list[Note]:
     return list({(note := card.note()).id: note for card in cards}.values())
 
 
-def is_existing_card(card_id: CardId) -> bool:
+def is_existing_card(card_id: CardId, browser: Browser) -> bool:
     import anki
     try:
-        mw.col.get_card(card_id)
+        browser.col.get_card(card_id)
     except anki.errors.NotFoundError:
         return False
     else:
@@ -179,7 +178,7 @@ def adjust_selection(browser: Browser, selected_cids: Sequence[int]):
     if config['delete_original_notes'] is True:
         select_card(
             browser.table,
-            card_id=next(cid for cid in selected_cids if is_existing_card(cid))
+            card_id=next(cid for cid in selected_cids if is_existing_card(cid, browser))
         )
 
 
@@ -196,7 +195,7 @@ def on_merge_selected(browser: Browser) -> None:
         return
 
     sorted_cards = sorted(
-        (mw.col.get_card(cid) for cid in cids),
+        (browser.col.get_card(cid) for cid in cids),
         key=config.ord_key,
         reverse=config['reverse_order']
     )

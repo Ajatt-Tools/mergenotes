@@ -7,7 +7,6 @@ from typing import Sequence
 from anki.collection import Collection, OpChanges
 from anki.notes import Note
 from aqt import gui_hooks
-from aqt import mw
 from aqt.browser import Browser
 from aqt.operations import CollectionOp
 from aqt.qt import *
@@ -33,7 +32,7 @@ def duplicate_notes_op(col: Collection, notes: Sequence[Note]) -> OpChanges:
 
 
 def duplicate_notes(browser: Browser) -> None:
-    notes = [mw.col.get_note(note_id) for note_id in browser.selected_notes()]
+    notes = [browser.col.get_note(note_id) for note_id in browser.selected_notes()]
 
     if 1 <= len(notes) <= LIMIT:
         CollectionOp(
