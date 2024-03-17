@@ -194,19 +194,28 @@ def on_merge_selected(browser: Browser) -> None:
     cids = browser.selectedCards()
 
     if len(cids) < 2:
-        tooltip("At least two cards must be selected.")
+        tooltip("At least two cards must be selected.", parent=browser)
         return
 
     sorted_cards = sorted(
-        (browser.col.get_card(cid) for cid in cids), key=config.ord_key, reverse=config["reverse_order"]
+        (browser.col.get_card(cid) for cid in cids),
+        key=config.ord_key,
+        reverse=config["reverse_order"],
     )
 
     if len(notes := notes_by_cards(sorted_cards)) > 1:
-        CollectionOp(browser, lambda col: MergeNotes(col).op(notes)).success(
-            lambda out: after_merge(browser, notes, cids)
-        ).run_in_background()
+        (
+            CollectionOp(
+                parent=browser,
+                op=lambda col: MergeNotes(col).op(notes),
+            )
+            .success(
+                lambda out: after_merge(browser, notes, cids),
+            )
+            .run_in_background()
+        )
     else:
-        tooltip("At least two distinct notes must be selected.")
+        tooltip("At least two distinct notes must be selected.", parent=browser)
 
 
 ######################################################################

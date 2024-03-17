@@ -7,7 +7,7 @@ import aqt
 from anki.collection import Collection
 from anki.collection import SearchNode
 from anki.hooks import wrap
-from anki.notes import Note
+from anki.notes import Note, NoteId
 from aqt.browser import Browser
 from aqt.browser.find_duplicates import FindDuplicatesDialog
 from aqt.qt import *
@@ -17,14 +17,16 @@ from .merge_duplicates import carefully_get_notes
 from .merge_notes import cfg_strip
 
 
-def notes_from_search(self: Collection, field_name: str, search: str) -> Iterable[Note]:
+def notes_from_search(col: Collection, field_name: str, search: str) -> Iterable[Note]:
     return carefully_get_notes(
-        self.find_notes(self.build_search_string(search, SearchNode(field_name=field_name))), has_field=field_name
+        col,
+        col.find_notes(query=col.build_search_string(search, SearchNode(field_name=field_name))),
+        has_field=field_name,
     )
 
 
 def deep_search_duplicates(self: Collection, field_name: str, search: str) -> list[tuple[str, list]]:
-    vals = {}
+    vals: dict[str, list[NoteId]] = {}
     for note in notes_from_search(self, field_name, search):
         if val := cfg_strip(note[field_name]):
             vals.setdefault(val, []).append(note.id)
