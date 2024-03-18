@@ -4,6 +4,7 @@
 from collections.abc import Sequence
 
 from anki.collection import Collection, OpChanges, AddNoteRequest
+from anki.decks import DeckId
 from anki.notes import Note
 from aqt import gui_hooks
 from aqt.browser import Browser
@@ -11,12 +12,17 @@ from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import tooltip
 
-from .merge_notes import notes_by_cards
 from .config import config
+from .merge_notes import notes_by_cards
 
 
 def n_gettext_duplicate(n_notes: int, is_done: bool) -> str:
     return f"Duplicate{'d' if is_done else ''} {n_notes} note{'s' if n_notes > 1 else ''}"
+
+
+def find_deck_id(note: Note) -> DeckId:
+    first_card = note.cards()[0]
+    return first_card.odid or first_card.did
 
 
 def duplicate_notes_op(col: Collection, notes: Sequence[Note]) -> OpChanges:
@@ -24,11 +30,10 @@ def duplicate_notes_op(col: Collection, notes: Sequence[Note]) -> OpChanges:
     requests: list[AddNoteRequest] = []
     for ref_note in notes:
         new_note = Note(col, ref_note.note_type())
-        first_card = ref_note.cards()[0]
         for key in ref_note.keys():
             new_note[key] = ref_note[key]
         new_note.tags = [tag for tag in ref_note.tags if tag != "leech" and tag != "marked"]
-        requests.append(AddNoteRequest(note=new_note, deck_id=(first_card.odid or first_card.did)))
+        requests.append(AddNoteRequest(note=new_note, deck_id=find_deck_id(ref_note)))
     col.add_notes(requests)
     return col.merge_undo_entries(pos)
 
