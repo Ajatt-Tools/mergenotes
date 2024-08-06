@@ -4,19 +4,18 @@
 import functools
 from collections.abc import Iterable
 
-from aqt import mw, gui_hooks
+from aqt import gui_hooks, mw
 from aqt.browser import Browser
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 
-from .ajt_common.widget_placement import place_widgets_in_grid
 from .ajt_common.about_menu import menu_root_entry, tweak_window
 from .ajt_common.anki_field_selector import AnkiFieldSelector, gather_all_field_names
 from .ajt_common.grab_key import ShortCutGrabButton
 from .ajt_common.monospace_line_edit import MonoSpaceLineEdit
 from .ajt_common.multiple_choice_selector import MultipleChoiceSelector
-from .config import OrderingChoices, Config, config, ACTION_NAME
-
+from .ajt_common.widget_placement import place_widgets_in_grid
+from .config import ACTION_NAME, Config, OrderingChoices, config
 
 ######################################################################
 # UI Layout

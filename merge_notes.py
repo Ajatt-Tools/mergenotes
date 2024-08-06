@@ -4,7 +4,7 @@
 import itertools
 import re
 import unicodedata
-from collections.abc import Sequence, Iterator, Iterable
+from collections.abc import Iterable, Iterator, Sequence
 from typing import Any
 
 from anki import collection
@@ -18,8 +18,7 @@ from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import tooltip
 
-from .config import config, ACTION_NAME
-
+from .config import ACTION_NAME, config
 
 ######################################################################
 # Utils

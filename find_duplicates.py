@@ -4,15 +4,14 @@
 from collections.abc import Iterable
 
 import aqt
-from anki.collection import Collection
-from anki.collection import SearchNode
+from anki.collection import Collection, SearchNode
 from anki.hooks import wrap
 from anki.notes import Note, NoteId
 from aqt.browser import Browser
 from aqt.browser.find_duplicates import FindDuplicatesDialog
 from aqt.qt import *
 
-from .config import config, ACTION_NAME
+from .config import ACTION_NAME, config
 from .merge_duplicates import carefully_get_notes
 from .merge_notes import cfg_strip
 

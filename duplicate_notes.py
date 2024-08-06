@@ -3,7 +3,7 @@
 
 from collections.abc import Sequence
 
-from anki.collection import Collection, OpChanges, AddNoteRequest
+from anki.collection import AddNoteRequest, Collection, OpChanges
 from anki.decks import DeckId
 from anki.notes import Note
 from aqt import gui_hooks

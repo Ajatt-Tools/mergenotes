@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sys
-from typing import Callable, Any
+from typing import Any, Callable
 
 from anki.cards import Card
 
@@ -63,7 +63,7 @@ class OrderingChoices:
 class Config(AddonConfigManager):
     _ordering_choices = OrderingChoices()
 
-    def __init__(self, default: bool = False):
+    def __init__(self, default: bool = False) -> None:
         super().__init__(default)
         if self["ordering"] not in self._ordering_choices.names():
             print(f"Wrong ordering: {self['ordering']}")
