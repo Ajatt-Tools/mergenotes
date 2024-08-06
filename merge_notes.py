@@ -4,8 +4,8 @@
 import itertools
 import re
 import unicodedata
-from typing import Any
 from collections.abc import Sequence, Iterator, Iterable
+from typing import Any
 
 from anki import collection
 from anki.cards import Card, CardId
@@ -25,6 +25,8 @@ from .config import config, ACTION_NAME
 # Utils
 ######################################################################
 
+NUMBERS = str.maketrans("０１２３４５６７８９", "0123456789")
+
 
 def strip_html(s: str) -> str:
     return strip_html_media(s).strip()
@@ -38,7 +40,7 @@ def strip_punctuation(s: str) -> str:
 
 
 def full_width_to_half_width(s: str) -> str:
-    return unicodedata.normalize("NFKC", s)
+    return unicodedata.normalize("NFKC", s).translate(NUMBERS)
 
 
 def remove_furigana(s: str):
