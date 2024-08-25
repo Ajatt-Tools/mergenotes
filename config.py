@@ -46,6 +46,7 @@ class OrderingChoices:
         "Due": due_key,
         "Interval length": lambda card: card.ivl,
         "Card ID": lambda card: card.id,
+        "Deck ID": lambda card: card.did,
         "Sort Field": sort_field_key,
         "Sort Field (numeric)": generic_numeric_key(sort_field_key),
         "Custom field": custom_field_key,
