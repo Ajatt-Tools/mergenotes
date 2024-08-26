@@ -1,8 +1,8 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
+import enum
 import sys
-from typing import Any, Callable
+from typing import Any, Callable, Final
 
 from anki.cards import Card
 
@@ -41,38 +41,28 @@ def generic_numeric_key(cmp_str_fn: Callable[[Card], str]) -> Callable[[Card], t
     return key
 
 
-class OrderingChoices:
-    _choices = {
-        "Due": due_key,
-        "Interval length": lambda card: card.ivl,
-        "Card ID": lambda card: card.id,
-        "Deck ID": lambda card: card.did,
-        "Sort Field": sort_field_key,
-        "Sort Field (numeric)": generic_numeric_key(sort_field_key),
-        "Custom field": custom_field_key,
-        "Custom field (numeric)": generic_numeric_key(custom_field_key),
-    }
-
-    def __getitem__(self, key) -> Callable[[Card], Any]:
-        return self._choices[key]
-
-    @classmethod
-    def names(cls):
-        return cls._choices.keys()
+ORDERING_CHOICES: Final[dict[str, Callable[[Card], Any]]] = {
+    "Due": due_key,
+    "Interval length": lambda card: card.ivl,
+    "Card ID": lambda card: card.id,
+    "Deck ID": lambda card: card.did,
+    "Sort Field": sort_field_key,
+    "Sort Field (numeric)": generic_numeric_key(sort_field_key),
+    "Custom field": custom_field_key,
+    "Custom field (numeric)": generic_numeric_key(custom_field_key),
+}
 
 
 class Config(AddonConfigManager):
-    _ordering_choices = OrderingChoices()
-
     def __init__(self, default: bool = False) -> None:
         super().__init__(default)
-        if self["ordering"] not in self._ordering_choices.names():
+        if self["ordering"] not in ORDERING_CHOICES:
             print(f"Wrong ordering: {self['ordering']}")
-            self["ordering"] = next(name for name in OrderingChoices.names())
+            self["ordering"] = next(name for name in ORDERING_CHOICES)
 
     @property
-    def ord_key(self):
-        return self._ordering_choices[self["ordering"]]
+    def ord_key(self) -> Callable[[Card], Any]:
+        return ORDERING_CHOICES[self["ordering"]]
 
     @classmethod
     def default(cls):

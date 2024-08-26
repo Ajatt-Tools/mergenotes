@@ -15,7 +15,7 @@ from .ajt_common.grab_key import ShortCutGrabButton
 from .ajt_common.monospace_line_edit import MonoSpaceLineEdit
 from .ajt_common.multiple_choice_selector import MultipleChoiceSelector
 from .ajt_common.widget_placement import place_widgets_in_grid
-from .config import ACTION_NAME, Config, OrderingChoices, config
+from .config import ACTION_NAME, ORDERING_CHOICES, Config, config
 
 ######################################################################
 # UI Layout
@@ -178,7 +178,7 @@ class MergeFieldsSettingsWindow(DialogUI):
         restoreGeom(self, self.name)
 
     def populate_widgets(self):
-        self._ordering_combo_box.addItems(OrderingChoices.names())
+        self._ordering_combo_box.addItems(ORDERING_CHOICES.keys())
         self._limit_to_fields.set_texts(dict.fromkeys(gather_all_field_names()))
 
     def load_config_values(self, cfg: Config):
@@ -196,6 +196,11 @@ class MergeFieldsSettingsWindow(DialogUI):
         qconnect(self._bottom_box.accepted, self.accept)
         qconnect(self._bottom_box.rejected, self.reject)
         qconnect(self._reset_button.clicked, functools.partial(self.load_config_values, Config.default()))
+        qconnect(self._ordering_combo_box.currentIndexChanged, self._set_custom_field_active_status)
+
+    def _set_custom_field_active_status(self):
+        current_ordering = self._ordering_combo_box.currentText()
+        self._custom_sort_field_edit.setEnabled(current_ordering.lower().startswith("custom field"))
 
     def accept(self):
         config["field_separator"] = self._field_separator_edit.text()
