@@ -9,6 +9,7 @@ from aqt.browser import Browser
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 
+from .ajt_common.consts import ADDON_SERIES
 from .ajt_common.about_menu import menu_root_entry, tweak_window
 from .ajt_common.anki_field_selector import AnkiFieldSelector, gather_all_field_names
 from .ajt_common.grab_key import ShortCutGrabButton
@@ -239,7 +240,7 @@ def setup_mainwindow_menu():
 
 def setup_edit_menu(browser: Browser) -> None:
     edit_menu = browser.form.menuEdit
-    merge_fields_settings_action = edit_menu.addAction(f"{MergeFieldsSettingsWindow.name}...")
+    merge_fields_settings_action = edit_menu.addAction(f"{ADDON_SERIES} {MergeFieldsSettingsWindow.name}...")
     qconnect(merge_fields_settings_action.triggered, on_open_settings)
 
 
