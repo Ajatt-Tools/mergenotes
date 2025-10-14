@@ -52,7 +52,7 @@ class DialogUI(QDialog):
         self._field_separator_edit = MonoSpaceLineEdit()
         self._punctuation_edit = MonoSpaceLineEdit()
         self._ordering_combo_box = QComboBox()
-        self._custom_sort_field_edit = AnkiFieldSelector(self)
+        self._custom_sort_field_edit = AnkiFieldSelector()
         self._shortcut_edits = {key: ShortCutGrabButton() for key in self._shortcut_keys}
         self._checkboxes = dict(create_checkboxes())
         self._limit_to_fields = MultipleChoiceSelector()
