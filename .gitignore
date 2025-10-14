@@ -1,4 +1,6 @@
 meta.json
+.mypy_cache
 __pycache__
 .idea
-/*.ankiaddon
+*.ankiaddon
+*TODO*
