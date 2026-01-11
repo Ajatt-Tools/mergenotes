@@ -33,9 +33,15 @@ The add-on will ignore the fields that are present in one note but are not prese
 
 ## Installation
 
-The addon can be installed from [Ankiweb](https://ankiweb.net/shared/info/1425504015), or manually:
-```
-git clone 'https://github.com/Ajatt-Tools/mergenotes.git' ~/.local/share/Anki2/addons21/mergenotes
+The addon can be installed from [Ankiweb](https://ankiweb.net/shared/info/1425504015).
+
+## Contributing
+
+Install manually with `git`:
+
+```bash
+git clone 'https://github.com/Ajatt-Tools/mergenotes.git'
+ln -sr mergenotes/merge_notes ~/.local/share/Anki2/addons21/mergenotes
 ```
 
 ## Configuration
