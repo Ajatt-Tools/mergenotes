@@ -9,14 +9,16 @@ from aqt.browser import Browser
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 
-from .ajt_common.consts import ADDON_SERIES
 from .ajt_common.about_menu import menu_root_entry, tweak_window
 from .ajt_common.anki_field_selector import AnkiFieldSelector, gather_all_field_names
+from .ajt_common.consts import ADDON_SERIES
+from .ajt_common.enum_select_combo import EnumSelectCombo
 from .ajt_common.grab_key import ShortCutGrabButton
 from .ajt_common.monospace_line_edit import MonoSpaceLineEdit
 from .ajt_common.multiple_choice_selector import MultipleChoiceSelector
 from .ajt_common.widget_placement import place_widgets_in_grid
 from .config import ACTION_NAME, ORDERING_CHOICES, Config, config
+from .config_types import OriginalNotesAction
 
 ######################################################################
 # UI Layout
@@ -55,6 +57,7 @@ class DialogUI(QDialog):
         self._custom_sort_field_edit = AnkiFieldSelector()
         self._shortcut_edits = {key: ShortCutGrabButton() for key in self._shortcut_keys}
         self._checkboxes = dict(create_checkboxes())
+        self._original_notes_action_combo = EnumSelectCombo(enum_type=OriginalNotesAction)
         self._limit_to_fields = MultipleChoiceSelector()
         self._bottom_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         self._reset_button = self._bottom_box.addButton("Restore defaults", QDialogButtonBox.ButtonRole.ResetRole)
@@ -80,6 +83,7 @@ class DialogUI(QDialog):
         layout = QFormLayout()
         layout.addRow("Field Separator:", self._field_separator_edit)
         layout.addRow("Punctuation characters:", self._punctuation_edit)
+        layout.addRow("Original notes action:", self._original_notes_action_combo)
         layout.addRow("Ordering:", self._ordering_combo_box)
         layout.addRow("Custom sort field:", self._custom_sort_field_edit)
         layout.addRow("Merge shortcut:", self._shortcut_edits["merge_notes_shortcut"])
@@ -113,7 +117,12 @@ class DialogUI(QDialog):
             "When comparing two fields, disregard the characters specified here.\n"
             "This makes it possible for two nearly equal fields to be successfully de-duplicated."
         )
-        self._checkboxes["delete_original_notes"].setToolTip("Delete redundant notes after merging.")
+        self._original_notes_action_combo.setToolTip(
+            "What to do with other selected notes after merging.\n"
+            "Do nothing — merge in pairs, keep all notes.\n"
+            "Suspend — dump all content into the last note, suspend the rest.\n"
+            "Delete — dump all content into the last note, delete the rest."
+        )
         self._checkboxes["merge_tags"].setToolTip("Merge tags of selected notes in addition to contents of fields.")
         self._checkboxes["reverse_order"].setToolTip(
             "Sort cards in reverse.\n"
@@ -185,6 +194,7 @@ class MergeFieldsSettingsWindow(DialogUI):
     def load_config_values(self, cfg: Config):
         self._field_separator_edit.setText(cfg["field_separator"])
         self._punctuation_edit.setText(uniq_char_str(cfg["punctuation_characters"]))
+        self._original_notes_action_combo.setCurrentName(cfg.original_notes_action)
         self._ordering_combo_box.setCurrentText(cfg["ordering"])
         self._custom_sort_field_edit.setCurrentText(cfg["custom_sort_field"])
         self._limit_to_fields.set_checked_texts(cfg["limit_to_fields"])
@@ -206,6 +216,7 @@ class MergeFieldsSettingsWindow(DialogUI):
     def accept(self):
         config["field_separator"] = self._field_separator_edit.text()
         config["punctuation_characters"] = uniq_char_str(self._punctuation_edit.text())
+        config["original_notes_action"] = self._original_notes_action_combo.currentName()
         config["ordering"] = self._ordering_combo_box.currentText()
         config["custom_sort_field"] = self._custom_sort_field_edit.currentText()
         config["limit_to_fields"] = self._limit_to_fields.checked_texts()
