@@ -39,19 +39,19 @@ def find_duplicates(self: Collection, field_name: str, search: str, _old: Callab
         return _old(self, field_name, search)
 
 
-def append_apply_checkbox(self: FindDuplicatesDialog, _browser: Browser, _mw: aqt.AnkiQt):
+def append_apply_checkbox(self: FindDuplicatesDialog, _browser: Browser, _mw: aqt.AnkiQt) -> None:
     # row, column, rowSpan, columnSpan
     self.form.verticalLayout.addWidget(c := QCheckBox(f"Search with {ACTION_NAME}"))
     c.setChecked(config["apply_when_searching_duplicates"])
 
-    def on_state_changed(checked: int):
+    def on_state_changed(checked: int) -> None:
         # Ref: https://doc.qt.io/qt-6/qt.html#CheckState-enum
         config["apply_when_searching_duplicates"] = bool(checked)
 
     qconnect(c.stateChanged, on_state_changed)
 
 
-def init():
+def init() -> None:
     Collection.find_dupes = wrap(
         Collection.find_dupes,
         find_duplicates,
