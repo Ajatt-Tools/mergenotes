@@ -43,7 +43,7 @@ def full_width_to_half_width(s: str) -> str:
     return unicodedata.normalize("NFKC", s).translate(NUMBERS)
 
 
-def remove_furigana(s: str):
+def remove_furigana(s: str) -> str:
     return re.sub(r"\s*(\S+)\[[^\[\]]+]", r"\g<1>", s)
 
 
@@ -80,7 +80,7 @@ def merge_tags(recipient: Note, from_notes: Sequence[Note]) -> None:
             recipient.add_tag(tag)
 
 
-def concerned_field_names(recipient_fields: list[str]):
+def concerned_field_names(recipient_fields: list[str]) -> Iterable[str]:
     """
     If the user has limited fields to a certain set, apply the setting.
     """
@@ -90,7 +90,7 @@ def concerned_field_names(recipient_fields: list[str]):
         return recipient_fields
 
 
-def merge_notes(recipient: Note, from_notes: Sequence[Note], separator: str):
+def merge_notes(recipient: Note, from_notes: Sequence[Note], separator: str) -> None:
     if config["merge_tags"] is True:
         merge_tags(recipient, from_notes)
     for field_name in concerned_field_names(recipient.keys()):
@@ -140,7 +140,7 @@ class MergeNotes:
             [card.id for nid in self.nids_to_suspend for card in self.col.get_note(nid).cards()]
         )
 
-    def _merge_notes(self, notes: Sequence[Note]):
+    def _merge_notes(self, notes: Sequence[Note]) -> None:
         """Merge notes according to the configured original_notes_action."""
         if config["avoid_content_loss"]:
             # notes are already sorted,
@@ -184,7 +184,7 @@ def is_existing_card(card_id: CardId, browser: Browser) -> bool:
         return True
 
 
-def select_card(self: Table, card_id: CardId):
+def select_card(self: Table, card_id: CardId) -> None:
     self._reset_selection()
     if (row := self._model.get_card_row(card_id)) is not None:
         self._view.selectRow(row)
@@ -194,7 +194,7 @@ def select_card(self: Table, card_id: CardId):
         self.browser.on_current_row_changed()
 
 
-def adjust_selection(browser: Browser, selected_cids: Sequence[int]):
+def adjust_selection(browser: Browser, selected_cids: Sequence[int]) -> None:
     """
     If other notes were deleted, select the remaining card after merging.
     Prevent selection from jumping all the way to the top when the user presses arrow keys.
@@ -206,7 +206,7 @@ def adjust_selection(browser: Browser, selected_cids: Sequence[int]):
         )
 
 
-def after_merge(browser: Browser, notes: Sequence[Note], cids: Sequence[int]):
+def after_merge(browser: Browser, notes: Sequence[Note], cids: Sequence[int]) -> None:
     adjust_selection(browser, cids)
     tooltip(f"{len(notes)} notes merged.", parent=browser)
 
@@ -252,5 +252,5 @@ def setup_context_menu(browser: Browser) -> None:
     qconnect(merge_fields_action.triggered, lambda: on_merge_selected(browser))
 
 
-def init():
+def init() -> None:
     gui_hooks.browser_menus_did_init.append(setup_context_menu)
