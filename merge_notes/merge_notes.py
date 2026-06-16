@@ -19,6 +19,7 @@ from aqt.qt import *
 from aqt.utils import tooltip
 
 from .config import ACTION_NAME, config
+from .config_types import OriginalNotesAction
 
 ######################################################################
 # Utils
@@ -121,28 +122,44 @@ class MergeNotes:
         self.col = col
         self.notes_to_update: list[Note] = []
         self.nids_to_remove: list[NoteId] = []
+        self.nids_to_suspend: list[NoteId] = []
         self.separator = interpret_special_chars(config["field_separator"])
 
     def op(self, notes: Sequence[Note]) -> OpChanges:
+        """Execute the merge operation: merge, update, and optionally suspend or delete original notes."""
         pos = self.col.add_custom_undo_entry(self.action_name)
         self._merge_notes(notes)
         self.col.update_notes(self.notes_to_update)
         self.col.remove_notes(self.nids_to_remove)
+        self._suspend_cards_of_notes()
         return self.col.merge_undo_entries(pos)
 
+    def _suspend_cards_of_notes(self) -> None:
+        """Suspend all cards belonging to the collected note IDs."""
+        self.col.sched.suspend_cards(
+            [card.id for nid in self.nids_to_suspend for card in self.col.get_note(nid).cards()]
+        )
+
     def _merge_notes(self, notes: Sequence[Note]):
+        """Merge notes according to the configured original_notes_action."""
         if config["avoid_content_loss"]:
             # notes are already sorted,
             # but additional sorting is required to avoid content loss if possible.
             notes = reorder_by_common_fields(notes)
 
-        if config["delete_original_notes"] is True:
-            # If the user wants to delete original notes, simply dump all content into the last note.
+        action = config.original_notes_action
+
+        if action in (OriginalNotesAction.delete, OriginalNotesAction.suspend):
+            # If the user wants to delete or suspend, dump all content into the last note.
             merge_notes(notes[-1], notes, self.separator)
-            self.nids_to_remove.extend([note.id for note in notes][0:-1])
+            other_ids = [note.id for note in notes][0:-1]
+            if action is OriginalNotesAction.delete:
+                self.nids_to_remove.extend(other_ids)
+            else:
+                self.nids_to_suspend.extend(other_ids)
             self.notes_to_update.append(notes[-1])
         else:
-            # If not, merge in pairs so that each note receives content of previous notes.
+            # Merge in pairs so that each note receives content of previous notes.
             for add_from, add_to in pairs(notes):
                 merge_notes(
                     recipient=add_to,
@@ -182,8 +199,11 @@ def adjust_selection(browser: Browser, selected_cids: Sequence[int]):
     If other notes were deleted, select the remaining card after merging.
     Prevent selection from jumping all the way to the top when the user presses arrow keys.
     """
-    if config["delete_original_notes"] is True:
-        select_card(browser.table, card_id=next(cid for cid in selected_cids if is_existing_card(cid, browser)))
+    if config.original_notes_action is OriginalNotesAction.delete:
+        select_card(
+            browser.table,
+            card_id=next(cid for cid in selected_cids if is_existing_card(cid, browser)),
+        )
 
 
 def after_merge(browser: Browser, notes: Sequence[Note], cids: Sequence[int]):
