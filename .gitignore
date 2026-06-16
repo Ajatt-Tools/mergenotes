@@ -4,3 +4,5 @@ __pycache__
 .idea
 *.ankiaddon
 *TODO*
+/*.md
+!/README.md
