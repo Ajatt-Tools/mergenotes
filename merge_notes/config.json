@@ -12,7 +12,7 @@
   "ignore_furigana": false,
   "apply_when_searching_duplicates": true,
   "show_duplicate_notes_button": true,
-  "delete_original_notes": true,
+  "original_notes_action": "do_nothing",
   "merge_tags": true,
   "avoid_content_loss": true,
   "reverse_order": false,

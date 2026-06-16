@@ -7,6 +7,7 @@ from typing import Any, Callable, Final
 from anki.cards import Card
 
 from .ajt_common.addon_config import AddonConfigManager
+from .config_types import OriginalNotesAction
 
 ACTION_NAME = "Merge Notes"
 
@@ -63,6 +64,14 @@ class Config(AddonConfigManager):
     @property
     def ord_key(self) -> Callable[[Card], Any]:
         return ORDERING_CHOICES[self["ordering"]]
+
+    @property
+    def original_notes_action(self) -> OriginalNotesAction:
+        """Return the action to take on original notes after merging."""
+        try:
+            return OriginalNotesAction[self["original_notes_action"]]
+        except KeyError:
+            return OriginalNotesAction.do_nothing
 
     @classmethod
     def default(cls):

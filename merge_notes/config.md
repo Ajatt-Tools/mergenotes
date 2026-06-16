@@ -3,7 +3,7 @@
 **Anki needs to be restarted after changing the config.**
 
 * `merge_notes_shortcut` - A key combination used to perform a merge.
-* `delete_original_notes` - Delete redundant notes after merging.
+* `original_notes_action` - What to do with other notes after merging.
 * `merge_tags` - Merge tags of selected notes in addition to contents of fields.
 * `field_separator` - This string is inserted between the merged fields.
 Empty by default. Common options would be to change it to a single space: `" "`,
