@@ -17,7 +17,7 @@ from .ajt_common.grab_key import ShortCutGrabButton
 from .ajt_common.monospace_line_edit import MonoSpaceLineEdit
 from .ajt_common.multiple_choice_selector import MultipleChoiceSelector
 from .ajt_common.widget_placement import place_widgets_in_grid
-from .config import ACTION_NAME, ORDERING_CHOICES, Config, config
+from .config import ACTION_NAME, ORDERING_CHOICES, MergeNotesConfig, config
 from .config_types import OriginalNotesAction
 
 ######################################################################
@@ -191,7 +191,7 @@ class MergeFieldsSettingsWindow(DialogUI):
         self._ordering_combo_box.addItems(ORDERING_CHOICES.keys())
         self._limit_to_fields.set_texts(dict.fromkeys(gather_all_field_names()))
 
-    def load_config_values(self, cfg: Config):
+    def load_config_values(self, cfg: MergeNotesConfig):
         self._field_separator_edit.setText(cfg["field_separator"])
         self._punctuation_edit.setText(uniq_char_str(cfg["punctuation_characters"]))
         self._original_notes_action_combo.setCurrentName(cfg.original_notes_action)
@@ -206,7 +206,7 @@ class MergeFieldsSettingsWindow(DialogUI):
     def connect_ui_elements(self):
         qconnect(self._bottom_box.accepted, self.accept)
         qconnect(self._bottom_box.rejected, self.reject)
-        qconnect(self._reset_button.clicked, functools.partial(self.load_config_values, Config.default()))
+        qconnect(self._reset_button.clicked, functools.partial(self.load_config_values, MergeNotesConfig.default()))
         qconnect(self._ordering_combo_box.currentIndexChanged, self._set_custom_field_active_status)
 
     def _set_custom_field_active_status(self):

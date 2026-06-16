@@ -54,7 +54,7 @@ ORDERING_CHOICES: Final[dict[str, Callable[[Card], Any]]] = {
 }
 
 
-class Config(AddonConfigManager):
+class MergeNotesConfig(AddonConfigManager):
     def __init__(self, default: bool = False) -> None:
         super().__init__(default)
         if self["ordering"] not in ORDERING_CHOICES:
