@@ -1,12 +1,13 @@
 # Copyright: Ren Tatsumoto <tatsu at autistici.org>
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
+import functools
 import sys
 from typing import Any, Callable, Final
 
 from anki.cards import Card
+from aqt import mw
 
-from .ajt_common.addon_config import AddonConfigManager
+from .ajt_common.addon_config import AddonConfigManager, set_config_update_action
 from .config_types import OriginalNotesAction
 
 ACTION_NAME = "Merge Notes"
@@ -73,9 +74,30 @@ class MergeNotesConfig(AddonConfigManager):
         except KeyError:
             return OriginalNotesAction.do_nothing
 
+    @property
+    def merge_notes_shortcut(self) -> str:
+        return self["merge_notes_shortcut"]
+
+    @property
+    def field_separator(self) -> str:
+        return self["field_separator"]
+
+    @property
+    def avoid_content_loss(self) -> bool:
+        return bool(self["avoid_content_loss"])
+
     @classmethod
     def default(cls):
         return cls(default=True)
 
 
-config = Config()
+@functools.cache
+def get_global_config() -> MergeNotesConfig:
+    assert mw, "anki must be running"
+    config = MergeNotesConfig()
+    set_config_update_action(config.update_from_addon_manager)
+    return config
+
+
+if mw:
+    config = get_global_config()
