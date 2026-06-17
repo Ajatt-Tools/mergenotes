@@ -12,20 +12,23 @@ from aqt.operations import CollectionOp
 from aqt.qt import *
 from aqt.utils import tooltip
 
-from .config import config
+from .config import MergeNotesConfig, get_global_config
 from .merge_notes import notes_by_cards
 
 
 def n_gettext_duplicate(n_notes: int, is_done: bool) -> str:
+    """Return the status text for duplicating notes."""
     return f"Duplicate{'d' if is_done else ''} {n_notes} note{'s' if n_notes > 1 else ''}"
 
 
 def find_deck_id(note: Note) -> DeckId:
+    """Return the deck ID that should receive a duplicate of the note."""
     first_card = note.cards()[0]
     return first_card.odid or first_card.did
 
 
 def duplicate_notes_op(col: Collection, notes: Sequence[Note]) -> OpChanges:
+    """Duplicate notes and return the resulting collection changes."""
     pos = col.add_custom_undo_entry(n_gettext_duplicate(len(notes), is_done=False))
     requests: list[AddNoteRequest] = []
     for ref_note in notes:
@@ -49,6 +52,7 @@ def get_notes_keeping_order(browser: Browser) -> list[Note]:
 
 
 def duplicate_notes(browser: Browser) -> None:
+    """Duplicate notes selected in the browser."""
     notes: list[Note] = get_notes_keeping_order(browser)
 
     if len(notes) > 0:
@@ -66,14 +70,25 @@ def duplicate_notes(browser: Browser) -> None:
         tooltip(f"Please select some notes.", parent=browser)
 
 
-def setup_context_menu(browser: Browser) -> None:
-    if config["show_duplicate_notes_button"]:
-        menu = browser.form.menu_Cards
-        action = menu.addAction("Duplicate notes")
-        if shortcut := config["duplicate_notes_shortcut"]:
-            action.setShortcut(QKeySequence(shortcut))
-        qconnect(action.triggered, lambda: duplicate_notes(browser))
+class ContextMenus:
+    """Context menu hooks for duplicating notes."""
+
+    def __init__(self, cfg: MergeNotesConfig) -> None:
+        """Store the config used by browser menu callbacks."""
+        self._cfg = cfg
+
+    def setup_context_menu(self, browser: Browser) -> None:
+        """Add the Duplicate Notes action to the browser context menu."""
+        if self._cfg.show_duplicate_notes_button:
+            menu = browser.form.menu_Cards
+            action = menu.addAction("Duplicate notes")
+            if shortcut := self._cfg.duplicate_notes_shortcut:
+                action.setShortcut(QKeySequence(shortcut))
+            qconnect(action.triggered, lambda: duplicate_notes(browser))
 
 
-def init():
-    gui_hooks.browser_menus_did_init.append(setup_context_menu)
+def init() -> None:
+    """Register browser hooks for duplicate-note actions."""
+    cfg = get_global_config()
+    menus = ContextMenus(cfg)
+    gui_hooks.browser_menus_did_init.append(menus.setup_context_menu)

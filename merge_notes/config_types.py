@@ -13,6 +13,6 @@ class OriginalNotesAction(enum.Enum):
     delete = enum.auto()
 
     @classmethod
-    def _missing_(cls, _value):
+    def _missing_(cls, _value: object) -> "OriginalNotesAction":
         """Return the default action for unrecognised config values."""
         return cls.do_nothing
