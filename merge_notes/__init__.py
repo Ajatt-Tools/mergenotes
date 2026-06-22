@@ -7,7 +7,13 @@ from aqt import mw
 
 
 def start_addon() -> None:
-    from . import duplicate_notes, find_duplicates, merge_duplicates, merge_notes, settings_dialog
+    from . import (
+        duplicate_notes,
+        find_duplicates,
+        merge_duplicates,
+        merge_notes,
+        settings_dialog,
+    )
 
     merge_notes.init()
     merge_duplicates.init()

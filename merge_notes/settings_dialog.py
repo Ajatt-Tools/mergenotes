@@ -104,7 +104,7 @@ class DialogUI(AnkiSaveAndRestoreGeomDialog):
         group = QGroupBox("Field comparison")
         group.setCheckable(False)
         group.setLayout(
-            place_widgets_in_grid(self._checkboxes[key] for key in (self._checkboxes.keys() & self._comparison_keys))
+            place_widgets_in_grid(self._checkboxes[key] for key in self._checkboxes.keys() & self._comparison_keys)
         )
         return group
 
@@ -113,7 +113,7 @@ class DialogUI(AnkiSaveAndRestoreGeomDialog):
         group = QGroupBox("Behavior")
         group.setCheckable(False)
         group.setLayout(
-            place_widgets_in_grid(self._checkboxes[key] for key in (self._checkboxes.keys() - self._comparison_keys))
+            place_widgets_in_grid(self._checkboxes[key] for key in self._checkboxes.keys() - self._comparison_keys)
         )
         return group
 
@@ -179,8 +179,7 @@ class DialogUI(AnkiSaveAndRestoreGeomDialog):
             'If Ordering is set to "Custom field", use contents of this field for sorting.'
         )
         self._ordering_combo_box.setToolTip(
-            "How to sort cards when merging.\n"
-            "If key is numeric, assume that the corresponding field contains a number."
+            "How to sort cards when merging.\nIf key is numeric, assume that the corresponding field contains a number."
         )
 
 
