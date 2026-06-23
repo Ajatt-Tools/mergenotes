@@ -1,7 +1,6 @@
 # Copyright: Ajatt-Tools and contributors; https://github.com/Ajatt-Tools
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import functools
 from collections.abc import Iterable
 from typing import Optional
 
@@ -31,7 +30,7 @@ def as_label(config_key: str) -> str:
     return config_key.replace("_", " ").capitalize()
 
 
-class DialogUI(AnkiSaveAndRestoreGeomDialog):
+class DialogUI(QDialog):
     """Base settings dialog UI for Merge Notes."""
 
     name = f"{ACTION_NAME} Options"
@@ -46,6 +45,8 @@ class DialogUI(AnkiSaveAndRestoreGeomDialog):
         "apply_when_searching_duplicates",
         "ignore_furigana",
     )
+
+    _reset_button: QPushButton
 
     def _create_checkboxes(self) -> Iterable[tuple[str, QCheckBox]]:
         """Create checkboxes for boolean config keys."""
@@ -193,7 +194,7 @@ def uniq_char_str(text: str) -> str:
     return "".join(set(text))
 
 
-class MergeFieldsSettingsWindow(DialogUI):
+class MergeFieldsSettingsWindow(DialogUI, AnkiSaveAndRestoreGeomDialog):
     """Settings dialog that loads and saves Merge Notes config."""
 
     def __init__(self, cfg: MergeNotesConfig, parent: Optional[QWidget] = None) -> None:
@@ -226,8 +227,9 @@ class MergeFieldsSettingsWindow(DialogUI):
         """Connect dialog signals to their handlers."""
         qconnect(self._bottom_box.accepted, self.accept)
         qconnect(self._bottom_box.rejected, self.reject)
-        qconnect(self._reset_button.clicked, functools.partial(self.load_config_values, MergeNotesConfig.default()))
         qconnect(self._ordering_combo_box.currentIndexChanged, self._set_custom_field_active_status)
+        # https://doc.qt.io/qt-6/qabstractbutton.html#clicked
+        qconnect(self._reset_button.clicked, lambda checked: self.load_config_values(self._cfg.default()))
 
     def _set_custom_field_active_status(self) -> None:
         """Enable custom field selection only for custom-field ordering."""
