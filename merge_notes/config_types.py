@@ -16,3 +16,35 @@ class OriginalNotesAction(enum.Enum):
     def _missing_(cls, _value: object) -> "OriginalNotesAction":
         """Return the default action for unrecognised config values."""
         return cls.do_nothing
+
+
+@enum.unique
+class SortOrder(enum.Enum):
+    """Sort direction for card ordering."""
+
+    ascending = enum.auto()
+    descending = enum.auto()
+
+    @classmethod
+    def _missing_(cls, _value: object) -> "SortOrder":
+        """Return the default sort order for unrecognised config values."""
+        return cls.ascending
+
+
+@enum.unique
+class OrderingChoice(enum.Enum):
+    """Ordering choice for card ordering."""
+
+    due = "Due"
+    interval_length = "Interval length"
+    card_id = "Card ID"
+    deck_id = "Deck ID"
+    sort_field = "Sort Field"
+    sort_field_numeric = "Sort Field (numeric)"
+    custom_field = "Custom field"
+    custom_field_numeric = "Custom field (numeric)"
+
+    @classmethod
+    def _missing_(cls, _value: object) -> "OrderingChoice":
+        """Return the default ordering choice for unrecognised config values."""
+        return cls.due
