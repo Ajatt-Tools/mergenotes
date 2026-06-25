@@ -46,7 +46,12 @@ class OrderingWidget(QWidget):
         self._ordering_combo.setToolTip(
             "How to sort cards when merging.\nIf key is numeric, assume that the corresponding field contains a number."
         )
-        self._sort_order_combo.setToolTip("Sort direction: ascending (default) or descending.")
+        self._sort_order_combo.setToolTip(
+            "Sort direction: ascending (default) or descending.\n"
+            "For example, for Due ordering, \"descending\" means\n"
+            "that a card with the smallest due number\n"
+            "will receive the content of other selected cards."
+        )
 
     def current_sort_order(self) -> str:
         return self._sort_order_combo.currentName()
