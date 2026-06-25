@@ -15,6 +15,7 @@ from aqt.qt import *
 from aqt.utils import tooltip
 
 from .config import MergeNotesConfig, get_global_config
+from .config_types import SortOrder
 from .merge_notes import MergeNotes
 
 
@@ -49,7 +50,7 @@ class MergeDupes(MergeNotes):
 
         for _, dupe_nids in dupes:
             if len(chunk := carefully_get_notes(self.col, dupe_nids)) > 1:
-                chunk.sort(key=self._sort_by_note_cards, reverse=self._cfg.reverse_order)
+                chunk.sort(key=self._sort_by_note_cards, reverse=self._cfg.sort_order is SortOrder.descending)
                 self._do_merge(chunk)
 
         self.col.update_notes(self.notes_to_update)

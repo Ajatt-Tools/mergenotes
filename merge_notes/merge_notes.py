@@ -20,7 +20,7 @@ from aqt.qt import *
 from aqt.utils import tooltip
 
 from .config import ACTION_NAME, MergeNotesConfig, get_global_config
-from .config_types import OriginalNotesAction
+from .config_types import OriginalNotesAction, SortOrder
 
 ######################################################################
 # Utils
@@ -235,7 +235,7 @@ class BrowserMenus:
         sorted_cards = sorted(
             (browser.col.get_card(cid) for cid in cids),
             key=self._cfg.ord_key,
-            reverse=self._cfg.reverse_order,
+            reverse=self._cfg.sort_order is SortOrder.descending,
         )
 
         if len(notes := notes_by_cards(sorted_cards)) > 1:

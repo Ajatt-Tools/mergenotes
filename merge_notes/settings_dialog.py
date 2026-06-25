@@ -18,7 +18,8 @@ from .ajt_common.multiple_choice_selector import MultipleChoiceSelector
 from .ajt_common.restore_geom_dialog import AnkiSaveAndRestoreGeomDialog
 from .ajt_common.widget_placement import place_widgets_in_grid
 from .config import ACTION_NAME, MergeNotesConfig, get_global_config
-from .config_types import OriginalNotesAction
+from .config_types import OriginalNotesAction, SortOrder
+from .widgets.ordering_widget import OrderingWidget
 
 ######################################################################
 # UI Layout
@@ -60,7 +61,7 @@ class DialogUI(QDialog):
         self.setMinimumWidth(400)
         self._field_separator_edit = MonoSpaceLineEdit()
         self._punctuation_edit = MonoSpaceLineEdit()
-        self._ordering_combo_box = QComboBox()
+        self._ordering_widget = OrderingWidget()
         self._custom_sort_field_edit = AnkiFieldSelector()
         self._shortcut_edits = {key: ShortCutGrabButton() for key in self._shortcut_keys}
         self._checkboxes = dict(self._create_checkboxes())
@@ -94,7 +95,7 @@ class DialogUI(QDialog):
         layout.addRow("Field Separator:", self._field_separator_edit)
         layout.addRow("Punctuation characters:", self._punctuation_edit)
         layout.addRow("Original notes action:", self._original_notes_action_combo)
-        layout.addRow("Ordering:", self._ordering_combo_box)
+        layout.addRow("Ordering:", self._ordering_widget)
         layout.addRow("Custom sort field:", self._custom_sort_field_edit)
         layout.addRow("Merge shortcut:", self._shortcut_edits["merge_notes_shortcut"])
         layout.addRow("Duplicate shortcut:", self._shortcut_edits["duplicate_notes_shortcut"])
@@ -140,12 +141,6 @@ class DialogUI(QDialog):
         self._shortcut_edits["merge_notes_shortcut"].setToolTip("Keyboard shortcut for merging selected notes.")
         self._shortcut_edits["duplicate_notes_shortcut"].setToolTip("Keyboard shortcut for duplicating selected notes.")
         self._checkboxes["merge_tags"].setToolTip("Merge tags of selected notes in addition to contents of fields.")
-        self._checkboxes["reverse_order"].setToolTip(
-            "Sort cards in reverse.\n"
-            "For Due ordering this would mean\n"
-            "that a card with the smallest due number\n"
-            "will receive the content of other selected cards."
-        )
         self._checkboxes["skip_if_not_empty"].setToolTip(
             "Copy only from non-empty fields to empty fields.\n"
             "If a field is already filled, no new text will be added to it."
@@ -179,9 +174,6 @@ class DialogUI(QDialog):
         self._custom_sort_field_edit.setToolTip(
             'If Ordering is set to "Custom field", use contents of this field for sorting.'
         )
-        self._ordering_combo_box.setToolTip(
-            "How to sort cards when merging.\nIf key is numeric, assume that the corresponding field contains a number."
-        )
 
 
 ######################################################################
@@ -207,7 +199,6 @@ class MergeFieldsSettingsWindow(DialogUI, AnkiSaveAndRestoreGeomDialog):
 
     def populate_widgets(self) -> None:
         """Populate choice widgets with available values."""
-        self._ordering_combo_box.addItems(self._cfg.ordering_choices.keys())
         self._limit_to_fields.set_texts(dict.fromkeys(gather_all_field_names()))
 
     def load_config_values(self, cfg: MergeNotesConfig) -> None:
@@ -215,7 +206,8 @@ class MergeFieldsSettingsWindow(DialogUI, AnkiSaveAndRestoreGeomDialog):
         self._field_separator_edit.setText(cfg.field_separator)
         self._punctuation_edit.setText(uniq_char_str(cfg.punctuation_characters))
         self._original_notes_action_combo.setCurrentName(cfg.original_notes_action)
-        self._ordering_combo_box.setCurrentText(cfg.ordering)
+        self._ordering_widget.set_ordering_choice(cfg.ordering)
+        self._ordering_widget.set_sort_order(cfg.sort_order)
         self._custom_sort_field_edit.setCurrentText(cfg.custom_sort_field)
         self._limit_to_fields.set_checked_texts(cfg.limit_to_fields)
         for key, widget in self._shortcut_edits.items():
@@ -227,21 +219,23 @@ class MergeFieldsSettingsWindow(DialogUI, AnkiSaveAndRestoreGeomDialog):
         """Connect dialog signals to their handlers."""
         qconnect(self._bottom_box.accepted, self.accept)
         qconnect(self._bottom_box.rejected, self.reject)
-        qconnect(self._ordering_combo_box.currentIndexChanged, self._set_custom_field_active_status)
+        qconnect(self._ordering_widget.ordering_combo.currentIndexChanged, self._set_custom_field_active_status)
         # https://doc.qt.io/qt-6/qabstractbutton.html#clicked
         qconnect(self._reset_button.clicked, lambda checked: self.load_config_values(self._cfg.default()))
 
     def _set_custom_field_active_status(self) -> None:
         """Enable custom field selection only for custom-field ordering."""
-        current_ordering = self._ordering_combo_box.currentText()
-        self._custom_sort_field_edit.setEnabled(current_ordering.lower().startswith("custom field"))
+        self._custom_sort_field_edit.setEnabled(
+            self._ordering_widget.current_ordering_choice().lower().startswith("custom_field")
+        )
 
     def accept(self) -> None:
         """Save settings to config and close the dialog."""
         self._cfg["field_separator"] = self._field_separator_edit.text()
         self._cfg["punctuation_characters"] = uniq_char_str(self._punctuation_edit.text())
         self._cfg["original_notes_action"] = self._original_notes_action_combo.currentName()
-        self._cfg["ordering"] = self._ordering_combo_box.currentText()
+        self._cfg["ordering"] = self._ordering_widget.current_ordering_choice()
+        self._cfg["sort_order"] = self._ordering_widget.current_sort_order()
         self._cfg["custom_sort_field"] = self._custom_sort_field_edit.currentText()
         self._cfg["limit_to_fields"] = self._limit_to_fields.checked_texts()
         for key, widget in self._shortcut_edits.items():

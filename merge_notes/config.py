@@ -10,7 +10,7 @@ from anki.cards import Card
 from aqt import mw
 
 from .ajt_common.addon_config import AddonConfigManager, set_config_update_action
-from .config_types import OriginalNotesAction
+from .config_types import OrderingChoice, OriginalNotesAction, SortOrder
 
 ACTION_NAME = "Merge Notes"
 
@@ -46,25 +46,21 @@ def generic_numeric_key(cmp_str_fn: Callable[[Card], str]) -> Callable[[Card], t
 class MergeNotesConfig(AddonConfigManager):
     """Configuration view for the Merge Notes add-on."""
 
-    _ordering_choices: Mapping[str, Callable[[Card], Any]]
+    _ordering_choices: Mapping[OrderingChoice, Callable[[Card], Any]]
 
     def __init__(self, default: bool = False) -> None:
         """Initialize the config and validate the selected ordering mode."""
         super().__init__(default)
         self._ordering_choices = {
-            "Due": due_key,
-            "Interval length": lambda card: card.ivl,
-            "Card ID": lambda card: card.id,
-            "Deck ID": lambda card: card.did,
-            "Sort Field": sort_field_key,
-            "Sort Field (numeric)": generic_numeric_key(sort_field_key),
-            "Custom field": self._custom_field_key,
-            "Custom field (numeric)": generic_numeric_key(self._custom_field_key),
+            OrderingChoice.due: due_key,
+            OrderingChoice.interval_length: lambda card: card.ivl,
+            OrderingChoice.card_id: lambda card: card.id,
+            OrderingChoice.deck_id: lambda card: card.did,
+            OrderingChoice.sort_field: sort_field_key,
+            OrderingChoice.sort_field_numeric: generic_numeric_key(sort_field_key),
+            OrderingChoice.custom_field: self._custom_field_key,
+            OrderingChoice.custom_field_numeric: generic_numeric_key(self._custom_field_key),
         }
-
-        if self["ordering"] not in self._ordering_choices:
-            print(f"Wrong ordering: {self['ordering']}")
-            self["ordering"] = next(name for name in self._ordering_choices)
 
     def _custom_field_key(self, card: Card) -> str:
         """Return the configured custom sort field, falling back to the sort field."""
@@ -74,14 +70,14 @@ class MergeNotesConfig(AddonConfigManager):
             return sort_field_key(card)  # Last resort
 
     @property
-    def ordering_choices(self) -> Mapping[str, Callable[[Card], Any]]:
+    def ordering_choices(self) -> Mapping[OrderingChoice, Callable[[Card], Any]]:
         """Return all available card ordering choices."""
         return self._ordering_choices
 
     @property
     def ord_key(self) -> Callable[[Card], Any]:
         """Return the configured card ordering function."""
-        return self._ordering_choices[self["ordering"]]
+        return self._ordering_choices[self.ordering]
 
     @property
     def original_notes_action(self) -> OriginalNotesAction:
@@ -107,9 +103,12 @@ class MergeNotesConfig(AddonConfigManager):
         return bool(self["avoid_content_loss"])
 
     @property
-    def reverse_order(self) -> bool:
-        """Return whether cards should be sorted in reverse order."""
-        return bool(self["reverse_order"])
+    def sort_order(self) -> SortOrder:
+        """Return the configured sort order for cards."""
+        try:
+            return SortOrder[self["sort_order"]]
+        except KeyError:
+            return SortOrder.ascending
 
     @property
     def merge_tags(self) -> bool:
@@ -152,9 +151,12 @@ class MergeNotesConfig(AddonConfigManager):
         return self["limit_to_fields"]
 
     @property
-    def ordering(self) -> str:
+    def ordering(self) -> OrderingChoice:
         """Return the selected card ordering name."""
-        return self["ordering"]
+        try:
+            return OrderingChoice[self["ordering"]]
+        except KeyError:
+            return OrderingChoice.due
 
     @property
     def custom_sort_field(self) -> str:

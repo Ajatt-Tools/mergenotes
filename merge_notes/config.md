@@ -9,7 +9,7 @@
 Empty by default. Common options would be to change it to a single space: `" "`,
 or to a linebreak: `"<br>"`.
 * `ordering` - The way cards are sorted before merging.
-* `reverse_order` - Sort cards in reverse.
+* `sort_order` - Sort direction: ascending or descending.
 For `Due` ordering this would mean that a card with the biggest due number
 will receive the content of other selected cards.
 * `show_duplicate_notes_button` - Add a duplicate button to the browser context menu.
