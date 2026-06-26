@@ -27,10 +27,14 @@ from .config_types import OriginalNotesAction, SortOrder
 ######################################################################
 
 NUMBERS = str.maketrans("０１２３４５６７８９", "0123456789")
+RE_HTML_TAG = re.compile(r"<[^<>]+>")
 
 
 def strip_html(s: str) -> str:
     """Return text with HTML media stripped."""
+    if not mw:
+        # Anki isn't running, so fall back to a simple regex.
+        return re.sub(RE_HTML_TAG, "", s).strip()
     return strip_html_media(s).strip()
 
 
