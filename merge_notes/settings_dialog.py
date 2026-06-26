@@ -183,7 +183,7 @@ class DialogUI(QDialog):
 
 def uniq_char_str(text: str) -> str:
     """Return text with duplicate characters removed."""
-    return "".join(set(text))
+    return "".join(dict.fromkeys(text))
 
 
 class MergeFieldsSettingsWindow(DialogUI, AnkiSaveAndRestoreGeomDialog):
