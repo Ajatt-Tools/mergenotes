@@ -17,14 +17,25 @@ from tests.helpers import FakeCard
         ("do_nothing", OriginalNotesAction.do_nothing),
         ("suspend", OriginalNotesAction.suspend),
         ("delete", OriginalNotesAction.delete),
-        ("", OriginalNotesAction.do_nothing),
-        ("remove", OriginalNotesAction.do_nothing),
-        (object(), OriginalNotesAction.do_nothing),
     ],
 )
 def test_original_notes_action_members(name: str, expected: OriginalNotesAction) -> None:
     """Enum names resolve to the expected members."""
     assert OriginalNotesAction[name] is expected
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "",
+        "remove",
+        object(),
+    ],
+)
+def test_original_notes_action_raises(name: str) -> None:
+    """Enum names resolve to the expected members."""
+    with pytest.raises(KeyError):
+        _ = OriginalNotesAction[name]
 
 
 @pytest.mark.parametrize(

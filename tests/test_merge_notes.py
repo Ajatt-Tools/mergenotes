@@ -42,7 +42,7 @@ def test_notes_by_cards(cards_note_ids: list[int], expected_note_ids: list[int])
     """Cards are converted to unique notes in first-seen order."""
     notes = {nid: FakeNote(nid, {"A": "x"}) for nid in set(cards_note_ids)}
     cards = [notes[nid].cards()[0] for nid in cards_note_ids]
-    result = notes_by_cards(typing.cast(cards))
+    result = notes_by_cards(cards)
     assert [note.id for note in result] == expected_note_ids
 
 
