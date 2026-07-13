@@ -23,8 +23,8 @@ class OrderingWidget(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
-        layout.addWidget(self._ordering_combo)
-        layout.addWidget(self._sort_order_combo)
+        layout.addWidget(self._ordering_combo, 1)
+        layout.addWidget(self._sort_order_combo, 0)
         self.add_tooltips()
 
     @property
