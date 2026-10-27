@@ -10,7 +10,7 @@ name = "ajt-merge-notes"
 dynamic = ["version"]
 description = "An Anki add-on that merges selected notes."
 readme = "README.md"
-requires-python = "~=3.9" # anki officially only runs on 3.9
+requires-python = "~=3.10" # Keep the minimum aligned with Anki's Python runtime.
 license = { file = "LICENSE" }
 keywords = ["ajatt"]
 authors = [
@@ -19,7 +19,7 @@ authors = [
 ]
 classifiers = [
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
 ]
 dependencies = []
 
@@ -46,7 +46,11 @@ dependencies = [
   "pyupgrade",
 ]
 system-packages = true
-python = "3.9"
+python = "3.10"
+
+# Python baseline and test matrix adapted from Ajatt-Tools/japanese.
+[[tool.hatch.envs.dev.matrix]]
+python = ["3.10"]
 
 [tool.hatch.envs.dev.scripts]
 # run as `hatch run dev:scriptname`
@@ -77,7 +81,7 @@ exclude_lines = [
 
 [tool.black]
 line-length = 120
-target-version = ['py39']
+target-version = ['py310']
 unstable = true
 
 [tool.isort]
@@ -96,6 +100,9 @@ dependencies = [
 system-packages = true
 parallel = true
 randomize = true
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.10"]
 
 [tool.hatch.envs.hatch-static-analysis]
 # https://hatch.pypa.io/latest/how-to/static-analysis/behavior/
