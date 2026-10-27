@@ -123,8 +123,7 @@ dependencies = [
 
 [tool.hatch.envs.hatch-static-analysis.scripts]
 format-check = [
-    "black --check --diff {args:.}",
-    "isort --check-only --diff {args:.}",
+    "bash \"$(git rev-parse --show-toplevel)/scripts/format.sh\" --check",
 ]
 format-fix = [
     # run as: hatch fmt -f
