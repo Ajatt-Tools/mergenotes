@@ -43,6 +43,8 @@ dependencies = [
   "mypy>=1.0.0",
   "isort",
   "pytest",
+  "beartype",
+  "aqt>=26.9",
   "pyupgrade",
 ]
 system-packages = true
@@ -91,11 +93,13 @@ profile = "black"
 # https://hatch.pypa.io/latest/config/internal/testing/
 # https://hatch.pypa.io/latest/tutorials/testing/overview/
 dependencies = [
+    "coverage[toml]",
+    "beartype",
     "mypy>=1.0.0",
     "pytest",
     "pytest-asyncio",
     "pytest-xdist",
-    "aqt",
+    "aqt>=26.9",
 ]
 system-packages = true
 parallel = true
