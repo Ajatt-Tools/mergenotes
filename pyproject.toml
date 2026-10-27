@@ -51,6 +51,7 @@ system-packages = true
 python = "3.10"
 
 # Python baseline and test matrix adapted from Ajatt-Tools/japanese.
+# https://github.com/Ajatt-Tools/japanese/blob/2d5ddaf38b6e1eb0d826dd7d896071cd733acea8/pyproject.toml#L40-L53
 [[tool.hatch.envs.dev.matrix]]
 python = ["3.10"]
 
