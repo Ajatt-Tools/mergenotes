@@ -48,9 +48,9 @@ class MergeNotesConfig(AddonConfigManager):
 
     _ordering_choices: Mapping[OrderingChoice, Callable[[Card], Any]]
 
-    def __init__(self, default: bool = False) -> None:
-        """Initialize the config and validate the selected ordering mode."""
-        super().__init__(default)
+    def __init__(self, default: bool = False, *, allow_disk_writes: bool = True) -> None:
+        """Initialize ordering choices and preserve the shared manager's optional write protection."""
+        super().__init__(default, allow_disk_writes=allow_disk_writes)
         self._ordering_choices = {
             OrderingChoice.due: due_key,
             OrderingChoice.interval_length: lambda card: card.ivl,
