@@ -1,0 +1,7 @@
+[flake8]
+max-line-length = 120
+extend-exclude = playground
+# Anki's Qt compatibility module intentionally exports the supported Qt binding with star imports.
+# Keep this exception confined to add-on modules rather than weakening checks on tests.
+per-file-ignores =
+    merge_notes/*: F403,F405
