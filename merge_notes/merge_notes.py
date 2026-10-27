@@ -239,7 +239,7 @@ class BrowserMenus:
 
     def on_merge_selected(self, browser: Browser) -> None:
         """Merge currently selected browser cards."""
-        cids = browser.selectedCards()
+        cids = browser.selected_cards()
 
         if len(cids) < 2:
             tooltip("At least two cards must be selected.", parent=browser)
