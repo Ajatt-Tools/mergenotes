@@ -7,7 +7,7 @@ try:
 
     beartype_this_package()
 except ImportError:
-    print("Note: beartype is disabled in this session.")
+    # Anki does not bundle Beartype. Normal add-on startup must remain quiet and dependency-free.
     pass
 
 import sys
