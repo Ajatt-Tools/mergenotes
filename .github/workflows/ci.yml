@@ -1,0 +1,45 @@
+# Adapted from https://github.com/Ajatt-Tools/autocopy/blob/main/.github/workflows/ci.yml
+name: CI
+
+on:
+  # Branch pushes run directly; release tags invoke these checks through workflow_call.
+  push:
+    # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpushbranchestagsbranches-ignoretags-ignore
+    branches:
+      - "**"
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install Qt dependencies
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9
+        with:
+          packages: libegl1 libopengl0 libxkbcommon0
+          version: 1.0
+
+      - name: Install Hatch
+        run: pip install hatch
+
+      - name: Check formatting
+        run: hatch run hatch-static-analysis:format-check
+
+      - name: Lint
+        run: hatch run hatch-static-analysis:lint-check
+
+      - name: Run tests
+        run: hatch test -v --cover
