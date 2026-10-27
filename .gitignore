@@ -1,5 +1,7 @@
 meta.json
 .mypy_cache
+.coverage*
+htmlcov/
 __pycache__
 .idea
 *.ankiaddon
