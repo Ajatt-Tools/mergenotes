@@ -119,6 +119,7 @@ class MergeNotes:
 
     def op(self, notes: Sequence[Note]) -> OpChanges:
         """Execute the merge operation: merge, update, and optionally suspend or delete original notes."""
+        assert len(notes) > 1, "the caller should pass a group of at least two notes."
         pos = self._col.add_custom_undo_entry(self.action_name)
         self.do_merge(notes)
         self.persist_changes()
