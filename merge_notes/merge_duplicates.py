@@ -80,10 +80,12 @@ class MergeDuplicatesMenus:
         """Add the Merge Duplicates button to Anki's duplicate report dialog."""
         dialog._dupes = dupes
         if not getattr(dialog, "_merge_dupes_button", None):
-            dialog._merge_dupes_button = b = dialog.form.buttonBox.addButton(
-                MergeDupes.action_name, QDialogButtonBox.ButtonRole.ActionRole
-            )
-            qconnect(b.clicked, lambda: self._merge_dupes(parent=dialog.browser, dupes=dialog._dupes))
+            button = dialog.form.buttonBox.addButton(MergeDupes.action_name, QDialogButtonBox.ButtonRole.ActionRole)
+            # This extension attribute is not part of Anki's declared dialog interface.
+            setattr(dialog, "_merge_dupes_button", button)
+            # Discard clicked's checked flag and use the latest duplicate groups stored on the dialog.
+            # https://doc.qt.io/qt-6/qabstractbutton.html#clicked
+            qconnect(button.clicked, lambda: self._merge_dupes(parent=dialog.browser, dupes=dialog._dupes))
 
     def _merge_dupes(self, parent: QWidget, dupes: list[tuple[str, list[NoteId]]]) -> None:
         """Run the merge operation for duplicate groups."""
@@ -107,7 +109,9 @@ def init() -> None:
     assert mw, "Anki should be open."
     cfg = get_global_config()
     menus = MergeDuplicatesMenus(cfg)
-    FindDuplicatesDialog.show_duplicates_report = wrap(
+    # Direct method assignment is Anki's documented wrapping pattern, despite Mypy's method-assign warning.
+    # https://docs.ankiweb.net/addons/monkey-patching
+    FindDuplicatesDialog.show_duplicates_report = wrap(  # type: ignore[method-assign]
         FindDuplicatesDialog.show_duplicates_report,
         menus.append_merge_duplicates_button,
         pos="after",

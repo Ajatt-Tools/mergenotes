@@ -30,8 +30,15 @@ def due_key(card: Card) -> DueSortKey:
 
 
 def sort_field_key(card: Card) -> str:
-    """Return the value of the note type's sort field for a card."""
-    return (note := card.note()).values()[note.model()["sortf"]]
+    """Return the sort-field value, raising AssertionError if the note type no longer exists."""
+    note = card.note()
+    note_type = note.note_type()
+    # This sorter receives existing collection cards, whose notes must reference an existing type.
+    # A missing type indicates stale or inconsistent collection state, not a valid sort key.
+    # https://github.com/ankitects/anki/blob/e62e773905ed4f7c1439106247f5885ac79d598c/pylib/anki/notes.py#L140-L141
+    # https://github.com/ankitects/anki/blob/e62e773905ed4f7c1439106247f5885ac79d598c/pylib/anki/models.py#L153-L170
+    assert note_type is not None, "The note type must exist to read its sort field."
+    return note.values()[note_type["sortf"]]
 
 
 def generic_numeric_key(cmp_str_fn: Callable[[Card], str]) -> Callable[[Card], NumericSortKey]:

@@ -210,7 +210,15 @@ def is_existing_card(card_id: CardId, browser: Browser) -> bool:
 
 
 def select_card(self: Table, card_id: CardId) -> None:
-    """Select and scroll to a card row in the browser table."""
+    """Select and scroll to a card row, or leave selection untouched if the view is not attached."""
+    # Anki starts with no view, then attaches it synchronously before creating browser menus.
+    # Normal merge callbacks should always have a view. If not, skip optional selection restoration.
+    # This only checks initialization. A deleted Qt widget can still have a non-None Python reference.
+    # https://github.com/ankitects/anki/blob/e62e773905ed4f7c1439106247f5885ac79d598c/qt/aqt/browser/table/table.py#L50-L61
+    # https://github.com/ankitects/anki/blob/e62e773905ed4f7c1439106247f5885ac79d598c/qt/aqt/browser/browser.py#L153-L157
+    # https://github.com/ankitects/anki/blob/e62e773905ed4f7c1439106247f5885ac79d598c/qt/aqt/browser/browser.py#L598-L600
+    if self._view is None:
+        return
     self._reset_selection()
     if (row := self._model.get_card_row(card_id)) is not None:
         self._view.selectRow(row)
@@ -253,13 +261,8 @@ class BrowserMenus:
 
         if len(notes := notes_by_cards(sorted_cards)) > 1:
             (
-                CollectionOp(
-                    parent=browser,
-                    op=lambda col: MergeNotes(col, self._cfg).op(notes),
-                )
-                .success(
-                    lambda out: self._after_merge(browser, notes, cids),
-                )
+                CollectionOp(parent=browser, op=lambda col: MergeNotes(col, self._cfg).op(notes))
+                .success(lambda out: self._after_merge(browser, notes, cids))
                 .run_in_background()
             )
         else:
