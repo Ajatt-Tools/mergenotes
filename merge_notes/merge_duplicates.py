@@ -4,6 +4,7 @@
 from collections.abc import Sequence
 
 import anki.errors
+from anki import collection
 from anki.collection import Collection, OpChanges
 from anki.hooks import wrap
 from anki.notes import Note, NoteId
@@ -34,10 +35,16 @@ def carefully_get_notes(col: Collection, nids: Sequence[NoteId], has_field: str 
     return ret
 
 
-class MergeDupes(MergeNotes):
+class MergeDupes:
     """Merge duplicate-note groups reported by Anki."""
 
     action_name = "Merge Duplicates"
+
+    def __init__(self, col: collection.Collection, cfg: MergeNotesConfig) -> None:
+        """Store collection and config state for a merge operation."""
+        self._cfg = cfg
+        self._col = col
+        self._merger = MergeNotes(self._col, self._cfg)
 
     def _sort_by_note_cards(self, note: Note) -> SortKey:
         """Return the smallest configured sort key among a note's cards."""
@@ -45,17 +52,18 @@ class MergeDupes(MergeNotes):
 
     def op(self, dupes: list[tuple[str, list[NoteId]]]) -> OpChanges:
         """Merge all duplicate groups and return collection changes."""
+        assert len(dupes) > 0, "the caller should pass a non-empty list."
         pos = self._col.add_custom_undo_entry(self.action_name)
 
         for _, dupe_nids in dupes:
             if len(chunk := carefully_get_notes(self._col, dupe_nids)) > 1:
-                chunk.sort(key=self._sort_by_note_cards, reverse=self._cfg.sort_order is SortOrder.descending)
-                self._do_merge(chunk)
+                chunk.sort(
+                    key=self._sort_by_note_cards,
+                    reverse=bool(self._cfg.sort_order is SortOrder.descending),
+                )
+                self._merger.do_merge(chunk)
 
-        self._col.update_notes(self._notes_to_update)
-        self._col.remove_notes(self._nids_to_remove)
-        # Match the normal merge flow so queued suspensions belong to the same undo entry.
-        self._suspend_cards_of_notes()
+        self._merger.persist_changes()
         return self._col.merge_undo_entries(pos)
 
 

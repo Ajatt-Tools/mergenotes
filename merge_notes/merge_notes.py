@@ -120,19 +120,20 @@ class MergeNotes:
     def op(self, notes: Sequence[Note]) -> OpChanges:
         """Execute the merge operation: merge, update, and optionally suspend or delete original notes."""
         pos = self._col.add_custom_undo_entry(self.action_name)
-        self._do_merge(notes)
-        self._col.update_notes(self._notes_to_update)
-        self._col.remove_notes(self._nids_to_remove)
-        self._suspend_cards_of_notes()
+        self.do_merge(notes)
+        self.persist_changes()
         return self._col.merge_undo_entries(pos)
 
-    def _suspend_cards_of_notes(self) -> None:
-        """Suspend all cards belonging to the collected note IDs."""
-        self._col.sched.suspend_cards(
-            [card.id for nid in self._nids_to_suspend for card in self._col.get_note(nid).cards()]
-        )
+    def _card_ids_to_suspend(self) -> Sequence[CardId]:
+        return [card.id for nid in self._nids_to_suspend for card in self._col.get_note(nid).cards()]
 
-    def _do_merge(self, notes: Sequence[Note]) -> None:
+    def persist_changes(self) -> None:
+        """Suspend all cards belonging to the collected note IDs."""
+        self._col.update_notes(self._notes_to_update)
+        self._col.remove_notes(self._nids_to_remove)
+        self._col.sched.suspend_cards(self._card_ids_to_suspend())
+
+    def do_merge(self, notes: Sequence[Note]) -> None:
         """Merge notes according to the configured original_notes_action."""
         if self._cfg.avoid_content_loss:
             # notes are already sorted,
