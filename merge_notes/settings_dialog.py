@@ -2,7 +2,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from collections.abc import Iterable
-from typing import Optional
 
 from aqt import gui_hooks, mw
 from aqt.browser import Browser
@@ -18,7 +17,7 @@ from .ajt_common.multiple_choice_selector import MultipleChoiceSelector
 from .ajt_common.restore_geom_dialog import AnkiSaveAndRestoreGeomDialog
 from .ajt_common.widget_placement import place_widgets_in_grid
 from .config import ACTION_NAME, MergeNotesConfig, get_global_config
-from .config_types import OriginalNotesAction, SortOrder
+from .config_types import OriginalNotesAction
 from .widgets.ordering_widget import OrderingWidget
 
 ######################################################################

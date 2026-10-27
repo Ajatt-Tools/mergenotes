@@ -2,7 +2,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from collections.abc import Sequence
-from typing import Optional
 
 import anki.errors
 from anki.collection import Collection, OpChanges
