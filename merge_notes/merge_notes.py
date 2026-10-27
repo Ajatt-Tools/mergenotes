@@ -265,7 +265,7 @@ class BrowserMenus:
         else:
             tooltip("At least two distinct notes must be selected.", parent=browser)
 
-    def _adjust_selection(self, browser: Browser, selected_cids: Sequence[int]) -> None:
+    def _adjust_selection(self, browser: Browser, selected_cids: Sequence[CardId]) -> None:
         """
         If other notes were deleted, select the remaining card after merging.
         Prevent selection from jumping all the way to the top when the user presses arrow keys.
@@ -276,7 +276,7 @@ class BrowserMenus:
                 card_id=next(cid for cid in selected_cids if is_existing_card(cid, browser)),
             )
 
-    def _after_merge(self, browser: Browser, notes: Sequence[Note], cids: Sequence[int]) -> None:
+    def _after_merge(self, browser: Browser, notes: Sequence[Note], cids: Sequence[CardId]) -> None:
         """Update selection and show a merge completion tooltip."""
         self._adjust_selection(browser, cids)
         tooltip(f"{len(notes)} notes merged.", parent=browser)
