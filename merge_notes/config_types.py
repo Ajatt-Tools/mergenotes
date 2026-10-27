@@ -2,6 +2,25 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import enum
+from typing import NamedTuple
+
+
+class DueSortKey(NamedTuple):
+    """Keep new cards ahead of review cards, then compare their due positions."""
+
+    card_type: int
+    due: int
+
+
+class NumericSortKey(NamedTuple):
+    """Compare integer field values first, using the original text to break ties."""
+
+    number: int
+    text: str
+
+
+# Each ordering mode produces one comparable key family. Different modes are never mixed in one sort.
+SortKey = int | str | DueSortKey | NumericSortKey
 
 
 @enum.unique

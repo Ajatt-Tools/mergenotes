@@ -14,7 +14,7 @@ from aqt.qt import *
 from aqt.utils import tooltip
 
 from .config import MergeNotesConfig, get_global_config
-from .config_types import SortOrder
+from .config_types import SortKey, SortOrder
 from .merge_notes import MergeNotes
 
 
@@ -39,7 +39,7 @@ class MergeDupes(MergeNotes):
 
     action_name = "Merge Duplicates"
 
-    def _sort_by_note_cards(self, note: Note) -> object:
+    def _sort_by_note_cards(self, note: Note) -> SortKey:
         """Return the smallest configured sort key among a note's cards."""
         return min(self._cfg.ord_key(card) for card in note.cards())
 

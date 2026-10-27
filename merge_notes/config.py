@@ -4,23 +4,29 @@
 import functools
 import sys
 from collections.abc import Callable, Mapping
-from typing import Any
 
 from anki.cards import Card
 from aqt import mw
 
 from .ajt_common.addon_config import AddonConfigManager, set_config_update_action
-from .config_types import OrderingChoice, OriginalNotesAction, SortOrder
+from .config_types import (
+    DueSortKey,
+    NumericSortKey,
+    OrderingChoice,
+    OriginalNotesAction,
+    SortKey,
+    SortOrder,
+)
 
 ACTION_NAME = "Merge Notes"
 
 
-def due_key(card: Card) -> tuple:
+def due_key(card: Card) -> DueSortKey:
     """Return Anki's due-order sorting key for a card."""
     # sort cards by their type, then by due number,
     # so that new cards are always in the beginning of the list,
     # mimicking the way cards are presented in the Anki Browser
-    return card.type, card.due
+    return DueSortKey(card_type=card.type, due=card.due)
 
 
 def sort_field_key(card: Card) -> str:
@@ -28,17 +34,17 @@ def sort_field_key(card: Card) -> str:
     return (note := card.note()).values()[note.model()["sortf"]]
 
 
-def generic_numeric_key(cmp_str_fn: Callable[[Card], str]) -> Callable[[Card], tuple[int, str]]:
+def generic_numeric_key(cmp_str_fn: Callable[[Card], str]) -> Callable[[Card], NumericSortKey]:
     """Return a key function that compares field values numerically when possible."""
 
-    def key(card: Card) -> tuple[int, str]:
+    def key(card: Card) -> NumericSortKey:
         """Return a numeric-first sort key for a card."""
         # Try to imitate sorting Anki does.
         cmp_str = cmp_str_fn(card)
         try:
-            return int(cmp_str), cmp_str
+            return NumericSortKey(number=int(cmp_str), text=cmp_str)
         except ValueError:
-            return sys.maxsize, cmp_str
+            return NumericSortKey(number=sys.maxsize, text=cmp_str)
 
     return key
 
@@ -46,7 +52,7 @@ def generic_numeric_key(cmp_str_fn: Callable[[Card], str]) -> Callable[[Card], t
 class MergeNotesConfig(AddonConfigManager):
     """Configuration view for the Merge Notes add-on."""
 
-    _ordering_choices: Mapping[OrderingChoice, Callable[[Card], Any]]
+    _ordering_choices: Mapping[OrderingChoice, Callable[[Card], SortKey]]
 
     def __init__(self, default: bool = False, *, allow_disk_writes: bool = True) -> None:
         """Initialize ordering choices and preserve the shared manager's optional write protection."""
@@ -70,12 +76,12 @@ class MergeNotesConfig(AddonConfigManager):
             return sort_field_key(card)  # Last resort
 
     @property
-    def ordering_choices(self) -> Mapping[OrderingChoice, Callable[[Card], Any]]:
+    def ordering_choices(self) -> Mapping[OrderingChoice, Callable[[Card], SortKey]]:
         """Return all available card ordering choices."""
         return self._ordering_choices
 
     @property
-    def ord_key(self) -> Callable[[Card], Any]:
+    def ord_key(self) -> Callable[[Card], SortKey]:
         """Return the configured card ordering function."""
         return self._ordering_choices[self.ordering]
 
