@@ -54,6 +54,8 @@ class MergeDupes(MergeNotes):
 
         self.col.update_notes(self.notes_to_update)
         self.col.remove_notes(self.nids_to_remove)
+        # Match the normal merge flow so queued suspensions belong to the same undo entry.
+        self._suspend_cards_of_notes()
         return self.col.merge_undo_entries(pos)
 
 
