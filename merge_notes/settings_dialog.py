@@ -54,7 +54,7 @@ class DialogUI(QDialog):
         for key in self._cfg.bool_keys():
             yield key, QCheckBox(as_label(key))
 
-    def __init__(self, cfg: MergeNotesConfig, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, cfg: MergeNotesConfig, parent: QWidget | None = None) -> None:
         """Initialize the settings dialog widgets."""
         super().__init__(parent=parent or mw)
         self._cfg = cfg
@@ -189,7 +189,7 @@ def uniq_char_str(text: str) -> str:
 class MergeFieldsSettingsWindow(DialogUI, AnkiSaveAndRestoreGeomDialog):
     """Settings dialog that loads and saves Merge Notes config."""
 
-    def __init__(self, cfg: MergeNotesConfig, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, cfg: MergeNotesConfig, parent: QWidget | None = None) -> None:
         """Initialize the settings window and load current config values."""
         super().__init__(cfg, parent)
         self.populate_widgets()

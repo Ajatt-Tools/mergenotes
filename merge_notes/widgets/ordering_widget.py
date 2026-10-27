@@ -11,7 +11,7 @@ from ..config_types import OrderingChoice, SortOrder
 class OrderingWidget(QWidget):
     """Combines the ordering combo and sort order combo into a single row."""
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         """Create the ordering and sort order combos."""
         super().__init__(parent)
         self._ordering_combo = EnumSelectCombo(enum_type=OrderingChoice, show_values=True)

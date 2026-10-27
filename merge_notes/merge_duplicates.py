@@ -19,7 +19,7 @@ from .config_types import SortOrder
 from .merge_notes import MergeNotes
 
 
-def carefully_get_notes(col: Collection, nids: Sequence[NoteId], has_field: Optional[str] = None) -> list[Note]:
+def carefully_get_notes(col: Collection, nids: Sequence[NoteId], has_field: str | None = None) -> list[Note]:
     """
     Returns notes constructed from nids. Skip nonexistent notes.
     If "has_field" is not None, return notes that contain this field.
