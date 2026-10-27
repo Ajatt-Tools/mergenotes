@@ -1,8 +1,9 @@
-# Adapted from https://github.com/Ajatt-Tools/autocopy/blob/main/.github/workflows/ci.yml
+# Adapted from the AutoCopy add-on's Python 3.10 and Qt test setup.
+# https://github.com/Ajatt-Tools/autocopy/blob/651fcef6b6fb4d7d31a9ee4e557b784e9a8f0e43/.github/workflows/ci.yml
 name: CI
 
 on:
-  # Branch pushes run directly; release tags invoke these checks through workflow_call.
+  # Branch pushes run directly. Release tags invoke these checks through workflow_call.
   push:
     # https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpushbranchestagsbranches-ignoretags-ignore
     branches:

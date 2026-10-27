@@ -1,3 +1,4 @@
+# https://github.com/Ajatt-Tools/PasteImagesAsWebP/blob/ef04c792a1227c06538ada440c16305f0303c395/.github/dependabot.yml
 version: 2
 updates:
   # GitHub Actions
@@ -36,7 +37,7 @@ updates:
           - "minor"
           - "patch"
 
-  # Git submodules (media_converter/ajt_common)
+  # Git submodules (merge_notes/ajt_common)
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
