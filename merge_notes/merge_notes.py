@@ -126,16 +126,23 @@ class MergeNotes:
         return self._col.merge_undo_entries(pos)
 
     def _card_ids_to_suspend(self) -> Sequence[CardId]:
+        """Return every card ID belonging to notes queued for suspension."""
         return [card.id for nid in self._nids_to_suspend for card in self._col.get_note(nid).cards()]
 
     def persist_changes(self) -> None:
-        """Suspend all cards belonging to the collected note IDs."""
+        """Persist queued note updates, note removals, and card suspensions.
+
+        The caller owns the undo entry that groups these operations.
+        """
         self._col.update_notes(self._notes_to_update)
         self._col.remove_notes(self._nids_to_remove)
         self._col.sched.suspend_cards(self._card_ids_to_suspend())
 
     def do_merge(self, notes: Sequence[Note]) -> None:
-        """Merge notes according to the configured original_notes_action."""
+        """Merge content in memory and queue changes for persist_changes.
+
+        This method does not write to the collection.
+        """
         if self._cfg.avoid_content_loss:
             # notes are already sorted,
             # but additional sorting is required to avoid content loss if possible.
