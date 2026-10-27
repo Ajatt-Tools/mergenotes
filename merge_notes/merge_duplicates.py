@@ -45,18 +45,18 @@ class MergeDupes(MergeNotes):
 
     def op(self, dupes: list[tuple[str, list[NoteId]]]) -> OpChanges:
         """Merge all duplicate groups and return collection changes."""
-        pos = self.col.add_custom_undo_entry(self.action_name)
+        pos = self._col.add_custom_undo_entry(self.action_name)
 
         for _, dupe_nids in dupes:
-            if len(chunk := carefully_get_notes(self.col, dupe_nids)) > 1:
+            if len(chunk := carefully_get_notes(self._col, dupe_nids)) > 1:
                 chunk.sort(key=self._sort_by_note_cards, reverse=self._cfg.sort_order is SortOrder.descending)
                 self._do_merge(chunk)
 
-        self.col.update_notes(self.notes_to_update)
-        self.col.remove_notes(self.nids_to_remove)
+        self._col.update_notes(self._notes_to_update)
+        self._col.remove_notes(self._nids_to_remove)
         # Match the normal merge flow so queued suspensions belong to the same undo entry.
         self._suspend_cards_of_notes()
-        return self.col.merge_undo_entries(pos)
+        return self._col.merge_undo_entries(pos)
 
 
 class MergeDuplicatesMenus:

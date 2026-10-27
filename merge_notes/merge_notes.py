@@ -111,25 +111,25 @@ class MergeNotes:
     def __init__(self, col: collection.Collection, cfg: MergeNotesConfig) -> None:
         """Store collection and config state for a merge operation."""
         self._cfg = cfg
-        self.col = col
-        self.notes_to_update: list[Note] = []
-        self.nids_to_remove: list[NoteId] = []
-        self.nids_to_suspend: list[NoteId] = []
-        self.separator = interpret_special_chars(self._cfg.field_separator)
+        self._col = col
+        self._notes_to_update: list[Note] = []
+        self._nids_to_remove: list[NoteId] = []
+        self._nids_to_suspend: list[NoteId] = []
+        self._separator = interpret_special_chars(self._cfg.field_separator)
 
     def op(self, notes: Sequence[Note]) -> OpChanges:
         """Execute the merge operation: merge, update, and optionally suspend or delete original notes."""
-        pos = self.col.add_custom_undo_entry(self.action_name)
+        pos = self._col.add_custom_undo_entry(self.action_name)
         self._do_merge(notes)
-        self.col.update_notes(self.notes_to_update)
-        self.col.remove_notes(self.nids_to_remove)
+        self._col.update_notes(self._notes_to_update)
+        self._col.remove_notes(self._nids_to_remove)
         self._suspend_cards_of_notes()
-        return self.col.merge_undo_entries(pos)
+        return self._col.merge_undo_entries(pos)
 
     def _suspend_cards_of_notes(self) -> None:
         """Suspend all cards belonging to the collected note IDs."""
-        self.col.sched.suspend_cards(
-            [card.id for nid in self.nids_to_suspend for card in self.col.get_note(nid).cards()]
+        self._col.sched.suspend_cards(
+            [card.id for nid in self._nids_to_suspend for card in self._col.get_note(nid).cards()]
         )
 
     def _do_merge(self, notes: Sequence[Note]) -> None:
@@ -143,22 +143,22 @@ class MergeNotes:
 
         if action in (OriginalNotesAction.delete, OriginalNotesAction.suspend):
             # If the user wants to delete or suspend, dump all content into the last note.
-            self._merge_field_content(notes[-1], notes, self.separator)
+            self._merge_field_content(notes[-1], notes, self._separator)
             other_ids = [note.id for note in notes][0:-1]
             if action is OriginalNotesAction.delete:
-                self.nids_to_remove.extend(other_ids)
+                self._nids_to_remove.extend(other_ids)
             else:
-                self.nids_to_suspend.extend(other_ids)
-            self.notes_to_update.append(notes[-1])
+                self._nids_to_suspend.extend(other_ids)
+            self._notes_to_update.append(notes[-1])
         else:
             # Merge in pairs so that each note receives content of previous notes.
             for add_from, add_to in pairs(notes):
                 self._merge_field_content(
                     recipient=add_to,
                     from_notes=(add_from, add_to),
-                    separator=self.separator,
+                    separator=self._separator,
                 )
-            self.notes_to_update.extend(notes)
+            self._notes_to_update.extend(notes)
 
     def _merge_field_content(self, recipient: Note, from_notes: Sequence[Note], separator: str) -> None:
         """Merge field content from source notes into the recipient note."""
