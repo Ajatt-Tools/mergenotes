@@ -129,5 +129,5 @@ format-fix = [
     # run as: hatch fmt -f
     "bash \"$(git rev-parse --show-toplevel)/scripts/format.sh\" ",
 ]
-lint-check = "flake8 --max-line-length 120 {args:.}"
+lint-check = "flake8 --max-line-length 120 --extend-exclude playground {args:merge_notes tests}"
 lint-fix = "lint-check"
