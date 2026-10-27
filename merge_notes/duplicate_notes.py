@@ -67,7 +67,7 @@ def duplicate_notes(browser: Browser) -> None:
             .run_in_background()
         )
     else:
-        tooltip(f"Please select some notes.", parent=browser)
+        tooltip("Please select some notes.", parent=browser)
 
 
 class ContextMenus:
