@@ -2,13 +2,14 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import sys
+from unittest.mock import create_autospec
 
 import pytest
+from anki.cards import Card
 
 from merge_notes.config import due_key, generic_numeric_key
 from merge_notes.config_types import OrderingChoice, OriginalNotesAction, SortOrder
 from playground.no_anki_config import NoAnkiConfigView
-from tests.helpers import FakeCard
 
 
 @pytest.mark.parametrize(
@@ -32,8 +33,8 @@ def test_original_notes_action_members(name: str, expected: OriginalNotesAction)
         object(),
     ],
 )
-def test_original_notes_action_raises(name: str) -> None:
-    """Enum names resolve to the expected members."""
+def test_original_notes_action_raises(name: object) -> None:
+    """Reject unknown enum names, including non-string inputs."""
     with pytest.raises(KeyError):
         _ = OriginalNotesAction[name]
 
@@ -122,7 +123,8 @@ def test_ordering_choices(no_anki_config: NoAnkiConfigView) -> None:
 )
 def test_due_key(card_type: int, due: int, expected: tuple[int, int]) -> None:
     """due_key returns a (type, due) tuple for sorting."""
-    card = FakeCard(card_id=1, note=None, card_type=card_type, due=due)
+    card = create_autospec(Card, instance=True)
+    card.type, card.due = card_type, due
     assert due_key(card) == expected
 
 
@@ -136,6 +138,6 @@ def test_due_key(card_type: int, due: int, expected: tuple[int, int]) -> None:
 def test_generic_numeric_key(cmp_str: str, expected_first: int) -> None:
     """generic_numeric_key returns numeric-first tuple, falling back to maxsize."""
     key_fn = generic_numeric_key(lambda _card: cmp_str)
-    result = key_fn(None)
+    result = key_fn(create_autospec(Card, instance=True))
     assert result[0] == expected_first
     assert result[1] == cmp_str

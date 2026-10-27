@@ -1,8 +1,10 @@
 # Copyright: Ajatt-Tools and contributors; https://github.com/Ajatt-Tools
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import typing
+
+from unittest.mock import create_autospec
 
 import pytest
+from anki.collection import Collection
 
 from merge_notes.config_types import OriginalNotesAction, SortOrder
 from merge_notes.merge_notes import (
@@ -15,6 +17,23 @@ from merge_notes.merge_notes import (
 )
 from playground.no_anki_config import NoAnkiConfigView
 from tests.helpers import FakeCollection, FakeNote
+
+
+class TestMergeNotesInput:
+    """Reject invalid merge requests before collection state or undo history can change."""
+
+    @pytest.mark.parametrize("note_count", [0, 1])
+    @pytest.mark.parametrize("action", list(OriginalNotesAction))
+    def test_op_rejects_insufficient_notes(
+        self, no_anki_config: NoAnkiConfigView, note_count: int, action: OriginalNotesAction
+    ) -> None:
+        """Require at least two notes for every original-note action before making collection calls."""
+        no_anki_config["original_notes_action"] = action.name
+        col = create_autospec(Collection, instance=True)
+        notes = [FakeNote(nid, {"A": "content"}) for nid in range(1, note_count + 1)]
+        with pytest.raises(AssertionError):
+            MergeNotes(col, no_anki_config).op(notes)
+        assert col.mock_calls == []
 
 
 @pytest.mark.parametrize(
@@ -178,11 +197,11 @@ def test_do_merge_original_notes_actions(
     ]
     merger = MergeNotes(FakeCollection(notes), no_anki_config)
 
-    merger._do_merge(notes)
+    merger.do_merge(notes)
 
-    assert merger.nids_to_remove == removed
-    assert merger.nids_to_suspend == suspended
-    assert [note.id for note in merger.notes_to_update] == updated_ids
+    assert merger._nids_to_remove == removed
+    assert merger._nids_to_suspend == suspended
+    assert [note.id for note in merger._notes_to_update] == updated_ids
 
 
 @pytest.mark.parametrize(
@@ -208,9 +227,9 @@ def test_do_merge_sort_order_reverses_target(
     # Descending: 30, 20, 10 → note 1 is last → merge target.
     merger = MergeNotes(FakeCollection(notes), no_anki_config)
     sorted_notes = sorted(notes, key=lambda n: n.cards()[0].id, reverse=sort_order is SortOrder.descending)
-    merger._do_merge(sorted_notes)
+    merger.do_merge(sorted_notes)
 
-    assert merger.notes_to_update[0].id == expect_updated_id
+    assert merger._notes_to_update[0].id == expect_updated_id
 
 
 @pytest.mark.parametrize(
@@ -249,15 +268,15 @@ def test_op_executes_full_merge_flow(
         ([], []),
     ],
 )
-def test_suspend_cards_of_notes(
+def test_persist_changes_suspends_cards(
     no_anki_config: NoAnkiConfigView, note_ids: list[int], expected_card_ids: list[int]
 ) -> None:
-    """Suspending notes suspends all cards belonging to collected note IDs."""
+    """Persisting pending changes suspends every card belonging to the queued note IDs."""
     notes = [FakeNote(nid, {"A": "x"}) for nid in note_ids]
     col = FakeCollection(notes)
     merger = MergeNotes(col, no_anki_config)
-    merger.nids_to_suspend.extend(note_ids)
+    merger._nids_to_suspend.extend(note_ids)
 
-    merger._suspend_cards_of_notes()
+    merger.persist_changes()
 
     assert col.sched.suspended_card_ids == expected_card_ids
