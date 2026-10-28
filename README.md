@@ -3,7 +3,7 @@
 # Merge Notes
 
 [![Rate on AnkiWeb](https://glutanimate.com/logos/ankiweb-rate.svg)](https://ankiweb.net/shared/info/1425504015)
-[![Patreon](https://img.shields.io/badge/patreon-support-orange)](https://www.patreon.com/bePatron?u=43555128)
+[![Patreon](https://img.shields.io/badge/donate-black?logo=monero)](https://ajatt.top/blog/donating-to-tatsumoto.html)
 [![Matrix](https://img.shields.io/badge/chat-join-green.svg)](https://tatsumoto-ren.github.io/blog/join-our-community.html)
 ![GitHub](https://img.shields.io/github/license/Ajatt-Tools/mergenotes)
 
