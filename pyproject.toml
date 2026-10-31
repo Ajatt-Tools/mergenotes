@@ -41,11 +41,9 @@ version-file = "merge_notes/__about__.py"
 [tool.hatch.envs.dev]
 dependencies = [
   "mypy>=1.0.0",
-  "isort",
   "pytest",
   "beartype",
   "aqt>=26.9",
-  "pyupgrade",
 ]
 system-packages = true
 python = "3.10"
@@ -60,7 +58,6 @@ python = ["3.10"]
 check = "mypy --install-types --non-interactive {args:merge_notes tests}"
 test = "pytest"
 testv = "pytest -vvv -s"
-format = "bash \"$(git rev-parse --show-toplevel)/scripts/format.sh\" "
 package = "bash \"$(git rev-parse --show-toplevel)/scripts/package.sh\" "
 
 [tool.coverage.run]
@@ -113,24 +110,31 @@ randomize = true
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.10"]
 
-[tool.hatch.envs.hatch-static-analysis]
+# Adapted from Card Management's separate Hatch formatter and linter environments.
+# https://github.com/Ajatt-Tools/learn-now-button/blob/bc9723e73666bbf48ecf4c4d51c624359989f8db/pyproject.toml#L116-L142
+# https://hatch.pypa.io/latest/how-to/static-analysis/behavior/
+[tool.hatch.envs.hatch-check-fmt]
 # pyupgrade>=3.22 needs Python 3.11+. Keep the tool runtime separate from Anki's compatibility target.
 python = "3.14"
-# https://hatch.pypa.io/latest/how-to/static-analysis/behavior/
 dependencies = [
-    "black",
-    "flake8",
-    "isort",
+    "black>=26.10",
+    "isort>=9.0",
     "pyupgrade>=3.22",
 ]
 
-[tool.hatch.envs.hatch-static-analysis.scripts]
+[tool.hatch.envs.hatch-check-fmt.scripts]
 format-check = [
     "bash \"$(git rev-parse --show-toplevel)/scripts/format.sh\" --check",
 ]
 format-fix = [
-    # run as: hatch fmt -f
+    # run as: hatch check fmt --fix
     "bash \"$(git rev-parse --show-toplevel)/scripts/format.sh\" ",
 ]
-lint-check = "flake8 --max-line-length 120 --extend-exclude playground {args:merge_notes tests}"
+
+[tool.hatch.envs.hatch-check-code]
+dependencies = ["flake8"]
+
+[tool.hatch.envs.hatch-check-code.scripts]
+# Keep lint scope and exceptions in .flake8 rather than duplicating them in CI.
+lint-check = "flake8 {args:merge_notes tests}"
 lint-fix = "lint-check"
