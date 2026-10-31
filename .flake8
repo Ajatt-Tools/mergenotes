@@ -1,6 +1,7 @@
 [flake8]
 max-line-length = 120
-extend-exclude = playground
+# Hatch rewrites the version file, so neither it nor standalone scripts belong in lint checks.
+extend-exclude = playground,merge_notes/__about__.py
 # Anki's Qt compatibility module intentionally exports the supported Qt binding with star imports.
 # Keep this exception confined to add-on modules rather than weakening checks on tests.
 per-file-ignores =
